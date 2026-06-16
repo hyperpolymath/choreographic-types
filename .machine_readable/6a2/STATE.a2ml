@@ -1,0 +1,149 @@
+# SPDX-License-Identifier: MPL-2.0
+# SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# STATE.a2ml — choreographic-types project state (PRE-REGISTRATION)
+#
+# Format: TOML-A2ML (estate convention). Sibling of echo-types' STATE.a2ml.
+# PURPOSE: pre-registration written BEFORE any Agda and BEFORE git init, to pin the single
+# load-bearing claim (K-CUT) and the borrowed-vs-new ledger up front so the contribution
+# claim is survivable from the first commit. Nothing here is PROVEN in this repo yet; the
+# only PROVEN entries are imported base cases verified in their home repos this session.
+# Provenance CORRECTED 2026-06-16 vs the original "cut-calculus" working-title draft.
+
+[metadata]
+project        = "choreographic-types"   # was working-title "cut-calculus"
+repository     = "https://github.com/hyperpolymath/choreographic-types"  # NOT YET CREATED
+canonical-host = "github"
+mirrors        = ["gitlab", "codeberg"]
+version-target = "0.0.0"
+license        = "OWNER-TO-SET"          # MPL-2.0 expected (owner-sole); owner establishes manually
+created-at     = "2026-06-16"
+last-updated   = "2026-06-16"
+status         = "pre-registration (repo not yet created)"
+phase          = "space-setting: keystone + corrected provenance ledger before any code"
+family         = ["echo-types", "epistemic-types", "tropical-types", "choreographic-types"]
+
+[context-notes]
+note = """
+A choreographic fusion of echo grades (structural loss, the ℕ∪{∞} tropical semiring) and
+epistemic transport (standpoint warrant) over a global type G read as a partial causal
+order. The choreography is the clock; cuts (consistent frontiers / antichains) are the
+time points; the branch tree is the modality (∇ contingent vs △ non-contingent loss);
+ordinal rank of a cut is the temporal index. The whole reason to exist is one theorem
+(see [keystone]). It DEPENDS ON, and does not re-prove, machinery in echo-types,
+epistemic-types and tropical-types. NOT invented mathematics: it stands on multiparty
+session types (Honda-Yoshida-Carbone), choreographic programming (Montesi; Hirsch-Garg),
+timed session types (Bocchi-Yoshida) and secure/IFC session types; the ASSEMBLY + K-CUT
+are the contribution. See docs / dev-notes what-choreographic-is.
+"""
+
+[keystone]
+id       = "K-CUT"
+name     = "grading-and-transport / projection cut-coherence"
+status   = "OPEN"
+informal = """
+Projecting G onto party p and reading p's local (loss, warrant) timeline up to a cut c
+agrees with the global accumulation of (loss, warrant) over G up to c, restricted to p.
+Slogan: grading and transport commute with projection across a cut.
+"""
+
+[keystone.loss-component]
+id     = "K-CUT-LOSS"
+status = "OPEN"   # target: EQUALITY (loss is type-determined)
+
+[keystone.warrant-component]
+id             = "K-CUT-WARRANT"
+status         = "OPEN"   # target: BOUND under SoundWarrant (type upper-bounds, cannot determine)
+side-condition = "SoundWarrant at the receiver (ASSUMED local soundness, not type-determined)"
+
+# ---- Provenance ledger (CORRECTED 2026-06-16) ----
+
+[[imported-proven]]
+id        = "imp-001"
+name      = "choreo-grade-commute"
+home      = "echo-types : proofs/agda/characteristic/RoleGraded.agda:193"
+status    = "PROVEN (--safe --without-K, postulate-free; verified 2026-06-16; 18 cases / 1 non-trivial)"
+role-here = "Degenerate STATIC base case of K-CUT (single edge, no time). Import; do NOT restate as open."
+
+[[imported-proven]]
+id        = "imp-002"
+name      = "echo grade dioid ℕ∪{∞} under (min,+)"
+home      = "echo-types : proofs/agda/experimental/echo-additive/Grade.agda"
+status    = "PROVEN-but-UNWIRED (compiles --safe standalone; absent from All.agda; gated R-2026-05-18)"
+role-here = "Loss algebra. A consumer MUST wire/vendor it; it does NOT travel with echo-types' green closure."
+
+[[depends-on-sibling]]
+id     = "dep-001a"
+name   = "epistemic standpoint-warrant (PROOF HOME)"
+home   = "epistemic-types : src/EpistemicTypes/{Warrant,ProofTransport}.agda"
+status = "PROOF DEPENDENCY (Agda --safe). Non-factive Warrant + SoundWarrant; transmit / proofNeedsChecker."
+note   = "K-CUT-WARRANT's determine-vs-bound gap lives HERE. CORRECTION: the original draft misattributed this to proven-epistemic."
+
+[[depends-on-sibling]]
+id     = "dep-001b"
+name   = "proven-epistemic disclosure server (RUNTIME WITNESS only)"
+home   = "proven-servers : protocols/proven-epistemic (Idris2)"
+status = "RUNTIME WITNESS, NOT a proof source. decideDisclosable is a TOTAL Dec (it determines — opposite posture). Flawed / redesign pending."
+note   = "Cite only as the enforcement-gap instance at the BEAM/JS boundary. Never load-bearing."
+
+[[depends-on-sibling]]
+id     = "dep-002"
+name   = "tropical resource-dioid"
+home   = "tropical-types (tropical-resource-typing) : Resource.* (Lean 4)"
+status = "DEPEND-ON-SIBLING via in-site PORT (no Agda<->Lean import path). Re-axiomatise ResourceAlgebra in Agda; cite the Lean proof as warrant of inhabitation."
+note   = "Dioid fork RESOLVED-BY-PARAMETRICITY upstream: MaxPlus/MinPlus/MinMax are instances of one ResourceAlgebra; parametric_resource_transport proven on no axioms."
+
+[[standing-decisions]]
+id     = "sd-001"
+title  = "Dioid fork — RESOLVED by parametricity (NOT an open ratification)"
+status = "resolved"
+note   = "Write K-CUT-LOSS against [ResourceAlgebra R]; holds at min-plus / max-plus / min-max at once. The real residual is the cross-prover bridge (in-site port), not the carrier."
+
+[[standing-decisions]]
+id     = "sd-002"
+title  = "Standalone repo, registered in nextgen-typing (an edge, NOT a subdir)"
+status = "accepted"
+
+[[standing-decisions]]
+id     = "sd-003"
+title  = "GitHub canonical, hub-and-spoke mirror; name = choreographic-types (in the -types family)"
+status = "accepted"
+
+[[claims]]
+id = "c-cut-coherence"
+status = "OPEN"
+text = "K-CUT + its loss/warrant split. The single falsifier."
+
+[[claims]]
+id = "c-soundwarrant"
+status = "ASSUMED"
+text = "Receiver-local checker soundness; K-CUT-WARRANT is conditional on it. Never to be claimed PROVEN here."
+
+[cross-prover]
+note = """
+echo + epistemic = Agda (same kernel — genuine imports). tropical = Lean 4 (NO import path).
+Host choreographic-types in Agda; import echo+epistemic; re-prove the dioid in-site with an
+explicit NAMED prover-bridge obligation citing tropical-types' Lean proof. Never call it 'import'.
+Precedent: typed-wasm/src/abi/TypedWasm/ABI/Tropical.idr ports tropical-types in Idris.
+"""
+
+[[next-actions]]
+id = "na-001"
+title = "git init + owner sets LICENSE/SPDX + gh repo create + signed (-S) push"
+status = "open"
+priority = "high"
+
+[[next-actions]]
+id = "na-002"
+title = "Register in nextgen-typing (5-surface change set, like tropical-types)"
+status = "open"
+priority = "medium"
+
+[[next-actions]]
+id = "na-003"
+title = "State K-CUT-LOSS as the first Agda signature, against [ResourceAlgebra R]"
+status = "open"
+priority = "high"
+
+[blockers]
+note = "K-CUT cannot be typed until the repo is git-init'd + licensed by the owner. Everything below na-001 waits on that."
