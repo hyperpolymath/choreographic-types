@@ -1,0 +1,57 @@
+<!--
+SPDX-License-Identifier: CC-BY-SA-4.0
+SPDX-FileCopyrightText: 2025-2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
+
+# What it is
+
+`choreographic-types` is the estate’s upstream **choreographic fusion
+calculus**: a graded multiparty-session / choreographic type theory. A
+global type `G` is read as a **partial causal order**, projected to
+local types (endpoint projection), each edge graded by an **echo**
+loss-grade and an **epistemic** standpoint-warrant. **Cuts** are
+consistent frontiers (antichains) across the order; loss is read modally
+(∇ contingent / △ non-contingent), with an ordinal-valued loss index.
+
+# The keystone (K-CUT) — OPEN
+
+The whole reason the repo exists is one falsifier:
+
+> **K-CUT:** grading and transport commute with projection across a cut.
+> Splits into **K-CUT-LOSS** (holds as *equality* — loss is
+> type-determined) and **K-CUT-WARRANT** (holds only as a *bound* under
+> a `SoundWarrant` side-condition — the type upper-bounds
+> discoverability but cannot determine it).
+
+NOTHING here is proven yet. Only degenerate single-static-edge base
+cases exist, in the sibling repos (echo-types
+`RoleGraded.choreo-grade-commute`, `ChoreoInjective`).
+
+# Borrowed vs ours (not invented by us)
+
+It IMPORTS (same Agda kernel): `echo-types` (the ℕ∪{∞} loss-dioid + the
+`choreo-grade-commute` base case) and `epistemic-types` (the non-factive
+`Warrant`/`SoundWarrant` — the proof home for the warrant gap). It
+RE-PROVES the tropical resource-dioid **in-site** (no cross-kernel
+import; the estate port-and-re-prove pattern, precedent
+`typed-wasm/…/Tropical.idr`). It stands on established
+multiparty-session / choreographic / timed / secure-session type theory
+(Honda–Yoshida–Carbone; Montesi; Hirsch–Garg; Bocchi–Yoshida). The
+**assembly + K-CUT** are ours; the mathematics is not. Full cited
+statement: `dev-notes/2026-06-16-choreographic-types-what-it-is.adoc`.
+
+# Is-not
+
+- NOT Gentzen cut-elimination — a *cut* here is a consistent frontier of
+  a causal order.
+
+- NOT a kernel/engine — `typell` would implement it.
+
+- NOT a subdir of `echo-types`/`epistemic-types` — standalone,
+  registered in `nextgen-typing`.
+
+# State
+
+See `.machine_readable/6a2/STATE.a2ml` for the pre-registration
+(keystone, corrected provenance ledger, standing decisions, next
+actions).
