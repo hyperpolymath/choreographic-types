@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Choreographic Types — Glossary
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+Cross-reference glossary for link:README.adoc[README.adoc], link:EXPLAINME.adoc[EXPLAINME.adoc], and the `choreographic-types` wiki. Terms are classified as **standard** (existing concept used without modification), **rephrased** (standard concept with project-specific vocabulary), or **project-specific** (originating in this project).
+
+== Core concepts
+
+[[global-type]]
+Global type (G)::
+  A choreographic specification of a multiparty interaction, read here as a partial causal order of communication events.
+  *Classification:* **rephrased**. Global types are standard in multiparty session types (Honda–Yoshida–Carbone). Reading them explicitly as partial causal orders with antichain cuts is the project-specific emphasis.
+  *See also:* <<cut>>, <<endpoint-projection>>
+
+[[endpoint-projection]]
+Endpoint projection::
+  The mapping from a global type `G` to the local type at each participant. Standard in choreographic programming.
+  *Classification:* **standard**.
+  *See also:* <<k-cut>>
+
+[[cut]]
+Cut (consistent frontier)::
+  An antichain across the partial causal order of a global type: a set of events such that no two are causally related. Represents a consistent snapshot of the distributed interaction.
+  *Classification:* **rephrased**. Antichains and consistent cuts are standard in event structures and distributed systems. Applying them as the cut structure for session-type grading is project-specific.
+  *See also:* <<k-cut>>
+
+== Grading
+
+[[echo-loss-grade]]
+Echo loss-grade::
+  The grade attached to a choreographic edge, measuring the structured information loss at that interaction. Drawn from the `ℕ ∪ {∞}` loss-dioid in `echo-types`.
+  *Classification:* **project-specific** (composition of echo-types vocabulary with choreographic types).
+
+[[epistemic-standpoint-warrant]]
+Epistemic standpoint-warrant::
+  The grade attached to a choreographic edge, measuring the evidence required to authorise that interaction. Drawn from `epistemic-types`.
+  *Classification:* **project-specific** (composition of epistemic-types vocabulary with choreographic types).
+
+[[loss-modality]]
+Loss modality (∇ / △)::
+  ∇ contingent: loss may occur at this cut. △ non-contingent: loss is impossible. Indexed by an ordinal loss value.
+  *Classification:* **project-specific**.
+
+== The keystone
+
+[[k-cut]]
+K-CUT::
+  The conjecture that grading and transport commute with endpoint projection across a consistent frontier (cut). Splits into <<k-cut-loss>> and <<k-cut-warrant>>.
+  *Classification:* **project-specific** (conjecture).
+  *Status:* **OPEN**.
+
+[[k-cut-loss]]
+K-CUT-LOSS::
+  The fragment of K-CUT concerning echo loss-grades. Holds as an *equality*: the grade of the global cut equals the grade computed locally at the endpoint, because loss is type-determined.
+  *Classification:* **project-specific** (conjecture).
+  *Status:* **OPEN** (base case proved in `echo-types`).
+
+[[k-cut-warrant]]
+K-CUT-WARRANT::
+  The fragment of K-CUT concerning epistemic warrants. Holds only as a *bound* under a `SoundWarrant` side-condition: the type upper-bounds discoverability but cannot determine it.
+  *Classification:* **project-specific** (conjecture).
+  *Status:* **OPEN**.
+
+== Patterns
+
+[[port-and-reprove]]
+Port-and-reprove pattern::
+  Re-proving a result in-site rather than importing across kernels or language boundaries. Ensures self-containment at the cost of manual synchronisation.
+  *Classification:* **project-specific** (estate pattern). Precedent: `typed-wasm/…/Tropical.idr`.
+
+== Pronunciation guide
+
+[cols="1,2", options="header"]
+|===
+| Written | Spoken
+
+| `K-CUT`
+| "K-cut"
+
+| `∇`
+| "nabla" or "contingent"
+
+| `△`
+| "triangle" or "non-contingent"
+|===
