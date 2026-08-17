@@ -1,0 +1,122 @@
+// SPDX-License-Identifier: MPL-2.0
+= Choreographic Types — EXPLAINME
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+This file backs every factual claim in link:README.adoc[README.adoc] with code paths and honest caveats. Read it if you are doing due diligence on whether the story matches the code.
+
+== Claim-to-implementation map
+
+=== The global type G is a partial causal order with echo and epistemic grades
+
+[quote, README.adoc]
+____
+A global choreographic type G is read as a partial causal order. It is projected to local types (endpoint projection), where each edge is graded by an echo loss-grade and an epistemic standpoint-warrant.
+____
+
+How this is implemented::
+`link:src/ChoreographicTypes/[]` defines `GlobalType`, the partial causal order structure, the grading by `EchoGrade` (imported from `echo-types`) and `EpiGrade` (imported from `epistemic-types`), and the `EndpointProjection` mapping.
+
+Caveat::
+The definitions are present. The deep integration — proving that the grading laws hold under the projection mapping in the general case — is the content of K-CUT, which is open.
+
+=== K-CUT-LOSS holds as equality
+
+[quote, README.adoc]
+____
+K-CUT-LOSS: Grading commutes with projection as an equality. Loss is type-determined.
+____
+
+How this is implemented::
+The statement of K-CUT-LOSS is formalised in this repo. The *only* existing proof is the degenerate single-static-edge base case in `echo-types` (`RoleGraded.choreo-grade-commute`). No proof for general cuts exists here.
+
+Caveat::
+**This is an open conjecture, not a theorem.** The base case suggests it is likely true, but compositionality across arbitrary antichains is unproved. This is the hardest open problem in the repo.
+
+=== K-CUT-WARRANT holds only as a bound under SoundWarrant
+
+[quote, README.adoc]
+____
+K-CUT-WARRANT: Warrant transport commutes with projection only as a bound, and only under a SoundWarrant side-condition. The type upper-bounds discoverability but cannot determine it.
+____
+
+How this is implemented::
+The statement of K-CUT-WARRANT is formalised here, importing `SoundWarrant` from `epistemic-types`. No proof exists, not even a base case.
+
+Caveat::
+**This is an open conjecture.** The directionality (bound, not equality) reflects the epistemic reality: an agent's local knowledge may exceed the type's requirements, so projection can only upper-bound the warrant, not determine it. This is the formal reflection of the `BeliefModality` / non-factive design in `epistemic-types`.
+
+=== The tropical resource-dioid is re-proved in-site
+
+[quote, README.adoc]
+____
+The tropical resource-dioid is re-proved in-site rather than imported across kernels. This follows the estate's port-and-reprove pattern.
+____
+
+How this is implemented::
+The dioid structure and laws are proved directly in `link:src/ChoreographicTypes/ResourceDioid.agda[]` (or equivalent), without importing `tropical-resource-typing` (which is Lean 4, making a direct import impossible anyway; the port-and-reprove pattern ensures logical consistency across language boundaries).
+
+Caveat::
+This is a duplication by design. It must be kept in sync manually if the Lean 4 definition changes. The precedent is `typed-wasm/…/Tropical.idr`.
+
+== Dogfooded Across The Account
+
+[cols="1,2,2", options="header"]
+|===
+| Technology / Pattern | Used here | Also used in
+
+| Echo loss-grades
+| Global type grading
+| link:https://github.com/hyperpolymath/echo-types[echo-types]
+
+| Epistemic warrants
+| Global type grading
+| link:https://github.com/hyperpolymath/epistemic-types[epistemic-types]
+
+| Port-and-reprove pattern
+| In-site tropical dioid
+| link:https://github.com/hyperpolymath/typed-wasm[typed-wasm]
+|===
+
+== Known gaps
+
+[CAUTION]
+====
+**K-CUT-LOSS is open.** No proof exists for general cuts (consistent frontiers of size > 1). Only the degenerate single-static-edge base case is proved (in `echo-types`).
+====
+
+[CAUTION]
+====
+**K-CUT-WARRANT is open.** No proof exists, not even a base case. The `SoundWarrant` side-condition has not been discharged in a choreographic context.
+====
+
+[CAUTION]
+====
+**No non-degenerate compositionality.** The repo currently defines the objects (global types, projections, grades, cuts) but does not compose them. All composition theorems are deferred pending K-CUT.
+====
+
+[CAUTION]
+====
+**Cross-kernel consistency is manual.** The in-site tropical dioid must be kept logically consistent with the Lean 4 definition in `tropical-resource-typing` by hand.
+====
+
+== Evidence Index
+
+[cols="2,3", options="header"]
+|===
+| Path | Proves
+
+| `src/ChoreographicTypes/`
+| Definitions of global types, projection, grades, cuts, K-CUT statements
+
+| `echo-types` (sibling)
+| `RoleGraded.choreo-grade-commute` (K-CUT-LOSS base case)
+
+| `ChoreoInjective` (sibling)
+| Degenerate single-static-edge base case
+
+| `.machine_readable/6a2/STATE.a2ml`
+| Pre-registration state and provenance ledger
+|===
