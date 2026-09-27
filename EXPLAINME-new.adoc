@@ -16,11 +16,16 @@ ____
 A global choreographic type G is read as a partial causal order. It is projected to local types (endpoint projection), where each edge is graded by an echo loss-grade and an epistemic standpoint-warrant.
 ____
 
-How this is implemented::
-`link:src/ChoreographicTypes/[]` defines `GlobalType`, the partial causal order structure, the grading by `EchoGrade` (imported from `echo-types`) and `EpiGrade` (imported from `epistemic-types`), and the `EndpointProjection` mapping.
+How this is intended to be implemented::
+The planned `link:src/ChoreographicTypes/[]` tree will define `GlobalType`, the
+partial causal order structure, the grading by `EchoGrade` (imported from
+`echo-types`) and `EpiGrade` (imported from `epistemic-types`), and the
+`EndpointProjection` mapping.
 
 Caveat::
-The definitions are present. The deep integration — proving that the grading laws hold under the projection mapping in the general case — is the content of K-CUT, which is open.
+The current checkout does not contain the planned `src/` tree. The deep
+integration — proving that the grading laws hold under the projection mapping
+in the general case — remains the open K-CUT problem.
 
 === K-CUT-LOSS holds as equality
 
@@ -29,8 +34,10 @@ ____
 K-CUT-LOSS: Grading commutes with projection as an equality. Loss is type-determined.
 ____
 
-How this is implemented::
-The statement of K-CUT-LOSS is formalised in this repo. The *only* existing proof is the degenerate single-static-edge base case in `echo-types` (`RoleGraded.choreo-grade-commute`). No proof for general cuts exists here.
+How this is intended to be implemented::
+The K-CUT-LOSS statement is a planned Agda target for this repo. The *only*
+existing proof is the degenerate single-static-edge base case in `echo-types`
+(`RoleGraded.choreo-grade-commute`). No proof for general cuts exists here.
 
 Caveat::
 **This is an open conjecture, not a theorem.** The base case suggests it is likely true, but compositionality across arbitrary antichains is unproved. This is the hardest open problem in the repo.
@@ -42,11 +49,25 @@ ____
 K-CUT-WARRANT: Warrant transport commutes with projection only as a bound, and only under a SoundWarrant side-condition. The type upper-bounds discoverability but cannot determine it.
 ____
 
-How this is implemented::
-The statement of K-CUT-WARRANT is formalised here, importing `SoundWarrant` from `epistemic-types`. No proof exists, not even a base case.
+How this is intended to be implemented::
+The K-CUT-WARRANT statement is a planned Agda target, importing
+`SoundWarrant` from `epistemic-types`. No proof exists, not even a base case.
 
 Caveat::
 **This is an open conjecture.** The directionality (bound, not equality) reflects the epistemic reality: an agent's local knowledge may exceed the type's requirements, so projection can only upper-bound the warrant, not determine it. This is the formal reflection of the `BeliefModality` / non-factive design in `epistemic-types`.
+
+=== The RapidNJ application isolates the first non-degenerate target
+
+[quote, applications/rapidnj-two-thread.adoc]
+____
+The smallest non-degenerate K-CUT lemma is a two-event loss-grade commuting square for a disjoint antichain frontier.
+____
+
+How this is implemented::
+`link:applications/rapidnj-two-thread.adoc[]` defines the application boundary and records the target in `link:applications/rapidnj-two-thread.agda[]`. The target names global and local reduction steps, projection, loss grading, transport, and an `Independent₂` witness. `Independent₂` is deliberately stronger than antichain membership: it must cover read/write disjointness, phase safety, and deterministic tie handling.
+
+Caveat::
+The accompanying Agda file contains open interfaces and postulated target signatures so that the proof obligation has a stable shape. It is not imported into the build and proves nothing. The RapidNJ state diamond (serialising two independent updates in either order) is an algorithmic prerequisite, separate from K-CUT-LOSS. No claim is made about the upstream implementation exposing this exact batch interface.
 
 === The tropical resource-dioid is re-proved in-site
 
@@ -94,7 +115,12 @@ This is a duplication by design. It must be kept in sync manually if the Lean 4 
 
 [CAUTION]
 ====
-**No non-degenerate compositionality.** The repo currently defines the objects (global types, projections, grades, cuts) but does not compose them. All composition theorems are deferred pending K-CUT.
+**No non-degenerate compositionality.** The repository's planned interfaces name the objects (global types, projections, grades, cuts) but the current checkout does not yet contain the canonical `src/` definitions or compose them. All composition theorems are deferred pending K-CUT.
+====
+
+[CAUTION]
+====
+**The RapidNJ target is not a proof.** `applications/rapidnj-two-thread.agda` is a standalone typed target with open interfaces and postulates. It is not imported into `All.agda`; the two-thread state diamond, projection square, and K-CUT-LOSS equality remain to be proved.
 ====
 
 [CAUTION]
@@ -109,7 +135,13 @@ This is a duplication by design. It must be kept in sync manually if the Lean 4 
 | Path | Proves
 
 | `src/ChoreographicTypes/`
-| Definitions of global types, projection, grades, cuts, K-CUT statements
+| Planned definitions of global types, projection, grades, cuts, K-CUT statements
+
+| `applications/rapidnj-two-thread.adoc`
+| RapidNJ application boundary and the two-event proof decomposition
+
+| `applications/rapidnj-two-thread.agda`
+| Open Agda signatures for the state diamond and two-thread K-CUT-LOSS target
 
 | `echo-types` (sibling)
 | `RoleGraded.choreo-grade-commute` (K-CUT-LOSS base case)

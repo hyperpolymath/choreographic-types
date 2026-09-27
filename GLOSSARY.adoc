@@ -64,6 +64,48 @@ K-CUT-WARRANT::
   *Classification:* **project-specific** (conjecture).
   *Status:* **OPEN**.
 
+== Applications
+
+[[rapidnj-reduction]]
+RapidNJ reduction::
+  In this repository's application note, one already-selected
+  RapidNJ-style neighbour-joining update over a global state. The note does
+  not claim that upstream RapidNJ has the same two-thread batch interface.
+  *Classification:* **application-specific**.
+  *See also:* <<two-thread-diamond>>, <<independent-frontier>>
+
+[[independent-frontier]]
+Independent frontier (`Independent₂`)::
+  A two-event frontier that is an antichain and additionally satisfies the
+  implementation's read/write disjointness, phase-safety, and deterministic
+  tie-policy conditions. Antichain membership alone is not enough to justify
+  concurrent mutation of a RapidNJ state.
+  *Classification:* **project-specific application predicate**.
+  *Status:* **OPEN** until instantiated and proved for a concrete reduction
+  representation.
+  *See also:* <<cut>>, <<rapidnj-reduction>>
+
+[[two-thread-diamond]]
+Two-thread state diamond::
+  The algorithmic equality, up to canonical state equivalence, that applying
+  two independent reductions in either serialisation gives the same observed
+  RapidNJ state: `step e2 (step e1 s) ~= step e1 (step e2 s)`. It is a
+  prerequisite for the K-CUT application, not K-CUT itself.
+  *Classification:* **application-specific proof target**.
+  *Status:* **OPEN**.
+  *See also:* <<k-cut-loss>>
+
+[[two-thread-k-cut-loss]]
+Two-thread K-CUT-LOSS::
+  The first non-degenerate K-CUT-LOSS target in the RapidNJ application. For
+  every endpoint `p` and witnessed independent two-event frontier, the local
+  grade after the two projected steps equals the transported global loss grade
+  after the two global steps. The conclusion is an equality of loss grades;
+  it is not the warrant bound.
+  *Classification:* **project-specific application conjecture**.
+  *Status:* **OPEN**.
+  *See also:* <<k-cut>>, <<k-cut-warrant>>
+
 == Patterns
 
 [[port-and-reprove]]

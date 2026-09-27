@@ -7,35 +7,73 @@
 
 image:https://img.shields.io/badge/OpenSSF-BestPractices-green[link="https://www.bestpractices.dev/projects/XXXX"]
 
-Agda formalisation of a graded multiparty-session and choreographic type theory, combining echo loss-grades and epistemic standpoint-warrants. The central artefact is the open keystone K-CUT: the conjecture that grading and transport commute with projection across a consistent frontier.
+Agda formalisation target for a graded multiparty-session and choreographic
+type theory, combining echo loss-grades and epistemic standpoint-warrants.
+The central artefact is the open keystone K-CUT: the conjecture that grading
+and transport commute with projection across a consistent frontier.
 
 == Overview
 
-A global choreographic type `G` is read as a partial causal order. It is projected to local types (endpoint projection), where each edge is graded by:
+A global choreographic type `G` is read as a partial causal order. It is
+projected to local types (endpoint projection), where each edge is graded by:
 
-* An **echo loss-grade** (from `echo-types`): the structured information loss at that interaction.
-* An **epistemic standpoint-warrant** (from `epistemic-types`): the evidence required to authorise that interaction.
+* An **echo loss-grade** (from `echo-types`): the structured information loss
+  at that interaction.
+* An **epistemic standpoint-warrant** (from `epistemic-types`): the evidence
+  required to authorise that interaction.
 
-A **cut** is a consistent frontier (antichain) across the causal order. Loss is read modally: ∇ contingent (loss may occur) / △ non-contingent (loss is impossible), indexed by an ordinal loss value.
+A **cut** is a consistent frontier (antichain) across the causal order. Loss
+is read modally: ∇ contingent (loss may occur) / △ non-contingent (loss is
+impossible), indexed by an ordinal loss value.
 
-The sole purpose of this repository is to prove or falsify the keystone conjecture **K-CUT**: that grading and transport commute with projection across a cut.
+The sole purpose of this repository is to prove or falsify the keystone
+conjecture **K-CUT**: that grading and transport commute with projection across
+a cut.
 
 == The keystone (K-CUT) — OPEN
 
-K-CUT states: grading and transport commute with endpoint projection across a consistent frontier. It splits into two fragments:
+K-CUT states: grading and transport commute with endpoint projection across a
+consistent frontier. It splits into two fragments:
 
 K-CUT-LOSS::
-  Grading commutes with projection as an *equality*. Loss is type-determined: the grade of the global cut equals the grade computed locally at the endpoint.
-  *Status:* **OPEN** (only degenerate single-static-edge base cases exist, proved in sibling repos).
+  Grading commutes with projection as an *equality*. Loss is type-determined:
+  the grade of the global cut equals the grade computed locally at the
+  endpoint.
+  *Status:* **OPEN** (only degenerate single-static-edge base cases exist,
+  proved in sibling repos).
 
 K-CUT-WARRANT::
-  Warrant transport commutes with projection only as a *bound*, and only under a `SoundWarrant` side-condition. The type upper-bounds discoverability but cannot determine it (an agent may know more than the type requires, but never less).
+  Warrant transport commutes with projection only as a *bound*, and only under
+  a `SoundWarrant` side-condition. The type upper-bounds discoverability but
+  cannot determine it (an agent may know more than the type requires, but
+  never less).
   *Status:* **OPEN** (no proof exists).
 
 [CAUTION]
 ====
-**Nothing in this repo is proven yet.** Only degenerate single-static-edge base cases exist, located in sibling repositories (`echo-types` `RoleGraded.choreo-grade-commute`, `ChoreoInjective`). This repo exists to hold the formalisation of the general case.
+**Nothing in this repo is proven yet.** Only degenerate single-static-edge
+base cases exist, located in sibling repositories (`echo-types`
+`RoleGraded.choreo-grade-commute`, `ChoreoInjective`). This repo currently
+holds the specification, provenance, and application proof targets for the
+formalisation of the general case.
 ====
+
+== Applications
+
+Applications are kept in a separate, explicitly non-normative section so that
+an algorithm or UI does not get mistaken for a proof of K-CUT. The first case
+study is a two-thread RapidNJ-style reduction:
+
+* link:applications/README.adoc[Applications index]
+* link:applications/rapidnj-two-thread.adoc[Two-thread RapidNJ reduction]
+* link:applications/rapidnj-two-thread.agda[Agda proof target]
+
+The smallest target in that case study is the two-event K-CUT-LOSS commuting
+square under an `Independent₂` witness. The witness must strengthen
+antichain membership with disjoint read/write footprints, phase safety, and a
+deterministic tie policy. The application note separates this algorithmic
+state diamond from the K-CUT equality and records the warrant component as
+deferred.
 
 == What is standard and what is ours
 
@@ -45,15 +83,15 @@ K-CUT-WARRANT::
 
 | Multiparty session / choreographic types
 | Standard (Honda–Yoshida–Carbone, Montesi, Hirsch–Garg, Bocchi–Yoshida)
-| Core definitions
+| Core definitions (planned)
 
 | Endpoint projection from global to local types
 | Standard
-| Projection module
+| Projection module (planned)
 
 | Dioid/tropical grading of sessions
 | Standard (various timed/costed session works)
-| Re-proved in-site (tropical resource-dioid)
+| Re-proved in-site (planned)
 
 | Echo loss-grades on choreographic edges
 | Imported from `echo-types`
@@ -65,7 +103,7 @@ K-CUT-WARRANT::
 
 | Assembly of echo + epistemic grades on partial causal orders
 | **Ours** (assembly)
-| Core definitions
+| Core definitions (planned)
 
 | K-CUT (grading/transport commutes with projection across a cut)
 | **Ours** (conjecture)
@@ -74,20 +112,32 @@ K-CUT-WARRANT::
 
 == Dependencies and the port-and-reprove pattern
 
-This repository imports from the estate's Agda kernel:
+The intended repository imports from the estate's Agda kernel:
 
-* `echo-types` — the `ℕ ∪ {∞}` loss-dioid and the `choreo-grade-commute` base case.
-* `epistemic-types` — the non-factive `Warrant` / `SoundWarrant` interface (the proof home for the warrant gap in K-CUT-WARRANT).
+* `echo-types` — the `ℕ ∪ {∞}` loss-dioid and the `choreo-grade-commute`
+  base case.
+* `epistemic-types` — the non-factive `Warrant` / `SoundWarrant` interface
+  (the proof home for the warrant gap in K-CUT-WARRANT).
 
-The tropical resource-dioid is **re-proved in-site** rather than imported across kernels. This follows the estate's port-and-reprove pattern (precedent: `typed-wasm/…/Tropical.idr`), ensuring this repo is self-contained at the resource-algebra layer while maintaining logical consistency with `tropical-resource-typing`.
+The tropical resource-dioid is **re-proved in-site** rather than imported
+across kernels. This follows the estate's port-and-reprove pattern (precedent:
+`typed-wasm/…/Tropical.idr`), ensuring that the resource-algebra layer can be
+self-contained while maintaining logical consistency with
+`tropical-resource-typing`.
 
-Full cited statement of borrowed vs. ours: `dev-notes/2026-06-16-choreographic-types-what-it-is.adoc`.
+The full cited borrowed-vs-ours statement is planned for
+`dev-notes/2026-06-16-choreographic-types-what-it-is.adoc`.
 
 == What this is not
 
-* **NOT Gentzen cut-elimination.** A cut here is a consistent frontier (antichain) of a causal order, not a proof-theoretic cut.
+* **NOT Gentzen cut-elimination.** A cut here is a consistent frontier
+  (antichain) of a causal order, not a proof-theoretic cut.
 * **NOT a kernel or engine.** Implementation belongs to `typell`.
-* **NOT a subdirectory of `echo-types` or `epistemic-types`.** It is a standalone repository registered in `nextgen-typing`.
+* **NOT a subdirectory of `echo-types` or `epistemic-types`.** It is a
+  standalone repository registered in `nextgen-typing`.
+* **NOT a claim about an upstream RapidNJ parallel implementation.** The
+  RapidNJ note is an application-shaped proof target and states its own
+  refinement boundary.
 
 == Repository Layout
 
@@ -96,10 +146,13 @@ Full cited statement of borrowed vs. ours: `dev-notes/2026-06-16-choreographic-t
 | Path | Purpose
 
 | `src/ChoreographicTypes/`
-| Agda formalisation (definitions, projection, K-CUT statement)
+| Planned Agda formalisation (definitions, projection, K-CUT statement)
+
+| `applications/`
+| Application notes and explicitly open Agda targets
 
 | `dev-notes/`
-| Design notes, borrowed-vs-ours statement
+| Planned design notes and borrowed-vs-ours statement
 
 | `.machine_readable/6a2/STATE.a2ml`
 | Pre-registration state (keystone, provenance, decisions)
@@ -107,85 +160,29 @@ Full cited statement of borrowed vs. ours: `dev-notes/2026-06-16-choreographic-t
 
 == Build
 
+The current checkout is a documentation and proof-target scaffold; the
+planned `src/` tree is not present yet. Once it is added, the intended
+standalone build is:
+
 [source,bash]
 ----
 agda --no-libraries -i src src/ChoreographicTypes/All.agda
 ----
 
+The application target under `applications/` is intentionally not part of
+that command until its interfaces are connected to the canonical definitions.
+
 == Documentation
 
-* link:EXPLAINME.adoc[EXPLAINME] — claim-by-claim receipts and known gaps
-* link:Glossary.adoc[Glossary] — terminology reference
-* `dev-notes/2026-06-16-choreographic-types-what-it-is.adoc` — full cited statement of foundations
+* link:EXPLAINME-new.adoc[EXPLAINME] — current claim-to-implementation map
+  and known gaps
+* link:applications/README.adoc[Applications] — application index
+* link:applications/rapidnj-two-thread.adoc[RapidNJ case study] — the
+  two-thread base-case proof target
+* link:GLOSSARY.adoc[Glossary] — terminology reference
+* link:EXPLAINME.adoc[Legacy resource-typing EXPLAINME] — retained historical
+  document
 
 == License
 
-SPDX-License-Identifier: MPL-2.0 — see link:LICENSE[LICENSE].= Choreographic Types — Graded Multiparty Session Fusion
-:toc: preamble
-:toc-title: Contents
-:icons: font
-:doctype: article
-
-image:https://img.shields.io/badge/OpenSSF-BestPractices-green[link="https://www.bestpractices.dev/projects/XXXX"]
-
-Agda formalisation of a graded multiparty-session and choreographic type theory, combining echo loss-grades and epistemic standpoint-warrants. The central artefact is the open keystone K-CUT: the conjecture that grading and transport commute with projection across a consistent frontier.
-
-== Overview
-
-A global choreographic type `G` is read as a partial causal order. It is projected to local types (endpoint projection), where each edge is graded by:
-
-* An **echo loss-grade** (from `echo-types`): the structured information loss at that interaction.
-* An **epistemic standpoint-warrant** (from `epistemic-types`): the evidence required to authorise that interaction.
-
-A **cut** is a consistent frontier (antichain) across the causal order. Loss is read modally: ∇ contingent (loss may occur) / △ non-contingent (loss is impossible), indexed by an ordinal loss value.
-
-The sole purpose of this repository is to prove or falsify the keystone conjecture **K-CUT**: that grading and transport commute with projection across a cut.
-
-== The keystone (K-CUT) — OPEN
-
-K-CUT states: grading and transport commute with endpoint projection across a consistent frontier. It splits into two fragments:
-
-K-CUT-LOSS::
-  Grading commutes with projection as an *equality*. Loss is type-determined: the grade of the global cut equals the grade computed locally at the endpoint.
-  *Status:* **OPEN** (only degenerate single-static-edge base cases exist, proved in sibling repos).
-
-K-CUT-WARRANT::
-  Warrant transport commutes with projection only as a *bound*, and only under a `SoundWarrant` side-condition. The type upper-bounds discoverability but cannot determine it (an agent may know more than the type requires, but never less).
-  *Status:* **OPEN** (no proof exists).
-
-[CAUTION]
-====
-**Nothing in this repo is proven yet.** Only degenerate single-static-edge base cases exist, located in sibling repositories (`echo-types` `RoleGraded.choreo-grade-commute`, `ChoreoInjective`). This repo exists to hold the formalisation of the general case.
-====
-
-== What is standard and what is ours
-
-[cols="1,2,2", options="header"]
-|===
-| Concept | Status | Home
-
-| Multiparty session / choreographic types
-| Standard (Honda–Yoshida–Carbone, Montesi, Hirsch–Garg, Bocchi–Yoshida)
-| Core definitions
-
-| Endpoint projection from global to local types
-| Standard
-| Projection module
-
-| Dioid/tropical grading of sessions
-| Standard (various timed/costed session works)
-| Re-proved in-site (tropical resource-dioid)
-
-| Echo loss-grades on choreographic edges
-| Imported from `echo-types`
-| `RoleGraded.choreo-grade-commute` (base case)
-
-| Epistemic warrants on choreographic edges
-| Imported from `epistemic-types`
-| `SoundWarrant` side-condition
-
-| Assembly of echo + epistemic grades on partial causal orders
-| **Ours** (assembly)
-| Core definitions
-
-| K-CUT (grading/transport commutes with projection across a cut)
+SPDX-License-Identifier: MPL-2.0 — see link:LICENSE[LICENSE].
