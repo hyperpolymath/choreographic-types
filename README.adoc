@@ -5,10 +5,9 @@
 :icons: font
 :doctype: article
 
-image:https://img.shields.io/badge/OpenSSF-BestPractices-green[link="https://www.bestpractices.dev/projects/XXXX"]
-
-Agda formalisation target for a graded multiparty-session and choreographic
-type theory, combining echo loss-grades and epistemic standpoint-warrants.
+A pre-registration and research notebook for a graded multiparty-session and
+choreographic type theory, combining echo loss-grades and epistemic
+standpoint-warrants. Agda is the intended prover, not a completed formalisation.
 The central artefact is the open keystone K-CUT: the conjecture that grading
 and transport commute with projection across a consistent frontier.
 
@@ -112,21 +111,21 @@ deferred.
 
 == Dependencies and the port-and-reprove pattern
 
-The intended repository imports from the estate's Agda kernel:
+The planned formalisation will import from the estate's Agda kernel:
 
 * `echo-types` — the `ℕ ∪ {∞}` loss-dioid and the `choreo-grade-commute`
   base case.
 * `epistemic-types` — the non-factive `Warrant` / `SoundWarrant` interface
   (the proof home for the warrant gap in K-CUT-WARRANT).
 
-The tropical resource-dioid is **re-proved in-site** rather than imported
+The tropical resource-dioid is planned to be **re-proved in-site** rather than imported
 across kernels. This follows the estate's port-and-reprove pattern (precedent:
-`typed-wasm/…/Tropical.idr`), ensuring that the resource-algebra layer can be
-self-contained while maintaining logical consistency with
-`tropical-resource-typing`.
+`typed-wasm/…/Tropical.idr`). The goal is a self-contained resource-algebra
+layer; consistency with `tropical-resource-typing` remains an explicit
+bridge obligation, not an automatic consequence of porting.
 
-The full cited borrowed-vs-ours statement is planned for
-`dev-notes/2026-06-16-choreographic-types-what-it-is.adoc`.
+The research intent, borrowed-vs-ours ledger and outstanding obligations are
+preserved in link:docs/pre-registration.adoc[the pre-registration record].
 
 == What this is not
 
@@ -145,32 +144,39 @@ The full cited borrowed-vs-ours statement is planned for
 |===
 | Path | Purpose
 
-| `src/ChoreographicTypes/`
-| Planned Agda formalisation (definitions, projection, K-CUT statement)
-
 | `applications/`
-| Application notes and explicitly open Agda targets
+| Application notes and explicitly postulated Agda targets (not proofs)
 
-| `dev-notes/`
-| Planned design notes and borrowed-vs-ours statement
+| `docs/pre-registration.adoc`
+| Research state, provenance and outstanding proof obligations
 
-| `.machine_readable/6a2/STATE.a2ml`
-| Pre-registration state (keystone, provenance, decisions)
+| `docs/actions-policy.adoc`
+| Owner-only Actions policy repair and verification
+
+| `scripts/` and `tests/`
+| Documentation integrity and regression checks (not proof checking)
 |===
 
-== Build
+== Validation
 
-The current checkout is a documentation and proof-target scaffold; the
-planned `src/` tree is not present yet. Once it is added, the intended
-standalone build is:
+There is no canonical Agda build in this checkout. The application target is
+an illustrative collection of postulates, not a checked proof or a substitute
+for the planned definitions. Do not treat successful documentation checks as
+mathematical verification.
+
+With Node.js 22 or newer:
 
 [source,bash]
 ----
-agda --no-libraries -i src src/ChoreographicTypes/All.agda
+node scripts/check-repository.mjs
+node --test tests/*.test.mjs
 ----
 
-The application target under `applications/` is intentionally not part of
-that command until its interfaces are connected to the canonical definitions.
+== Planned formalisation
+
+Canonical definitions, endpoint projection, a parametric resource algebra,
+and the K-CUT statements must be developed before a prover build can be
+published. No placeholder source tree is provided to imply otherwise.
 
 == Documentation
 
