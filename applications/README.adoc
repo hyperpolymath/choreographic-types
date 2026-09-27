@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Choreographic Types — Applications
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+This directory is an application notebook for the K-CUT programme. It is a
+place to test the interfaces and proof obligations against a concrete
+parallel algorithm without silently turning an application assumption into a
+new theorem.
+
+[CAUTION]
+====
+Application notes are **not proofs** and are not part of the Agda build yet.
+They may identify a useful target, a missing side-condition, or a
+counterexample. The K-CUT status in the repository root remains **OPEN**.
+====
+
+== Case studies
+
+[cols="1,2,2", options="header"]
+|===
+| Application | Smallest target | Status
+
+| link:rapidnj-two-thread.adoc[Two-thread RapidNJ reduction]
+| The two-event K-CUT-LOSS commuting square for a disjoint antichain frontier,
+  together with the underlying canonical-state diamond.
+| **Open proof target**; no RapidNJ theorem is claimed here.
+|===
+
+The RapidNJ note is deliberately phrased as a proof boundary: it distinguishes
+an algorithmic fact (two disjoint updates commute) from the K-CUT fact (local
+grading equals transported global grading). That separation is the part a
+consumer such as `metamanifold-webui` can safely use when it displays a proof
+status or a frontier certificate.
+
+== Application discipline
+
+Every application note should state:
+
+. which global state and local projection it uses;
+. which frontier is an antichain, and which stronger independence condition is
+  required by the implementation;
+. the smallest Agda statement being attempted;
+. whether the statement is a proof, an assumption, or an open target; and
+. which runtime or UI claims remain outside the formalisation.
+
+An application must not be used as evidence that K-CUT, RapidNJ correctness,
+or a downstream UI integration has been proved.

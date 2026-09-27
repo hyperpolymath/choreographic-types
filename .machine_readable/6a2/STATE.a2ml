@@ -145,5 +145,22 @@ title = "State K-CUT-LOSS as the first Agda signature, against [ResourceAlgebra 
 status = "open"
 priority = "high"
 
+# ---- Application proof targets (added after pre-registration) ----
+
+[[application-targets]]
+id = "app-rapidnj-002"
+name = "two-thread RapidNJ K-CUT-LOSS square"
+status = "OPEN TARGET (not a proof; application note only)"
+frontier = "two selected events e1/e2 with Independent₂ witness"
+minimum-lemma = "localGrade p (localStep p e2 (localStep p e1 (project p s))) ≡ transportLoss p (globalGrade (step e2 (step e1 s)))"
+prerequisite = "canonical state diamond for disjoint read/write footprints"
+non-claim = "Does not assert upstream RapidNJ exposes this batch interface; does not address K-CUT-WARRANT"
+
+[[application-targets]]
+id = "app-rapidnj-001"
+name = "two-thread RapidNJ canonical state diamond"
+status = "OPEN TARGET (algorithmic prerequisite, not K-CUT)"
+statement = "step e2 (step e1 s) ~= step e1 (step e2 s) under Independent₂"
+
 [blockers]
 note = "K-CUT cannot be typed until the repo is git-init'd + licensed by the owner. Everything below na-001 waits on that."

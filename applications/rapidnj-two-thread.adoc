@@ -1,0 +1,187 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= K-CUT application: a two-thread RapidNJ reduction
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+This is the first application note for link:README.adoc[Choreographic
+Types]. It uses a RapidNJ-style neighbour-joining reduction as a concrete
+shape for the open K-CUT question. It is a proof plan, not a result: the
+Agda target is recorded in link:rapidnj-two-thread.agda[the accompanying
+file], but it is intentionally not imported into `All.agda` and is not
+proved.
+
+[CAUTION]
+====
+This note does **not** claim that upstream RapidNJ has the exact two-thread
+batch interface below. It models a possible two-thread schedule around
+RapidNJ-style candidate selection and state updates. Establishing that an
+implementation exposes this schedule is a separate refinement obligation.
+====
+
+== Short answer
+
+The smallest non-degenerate K-CUT lemma is a **two-event loss-grade
+commuting square**. Let `s` be a RapidNJ state, `e1` and `e2` the two selected
+reductions, and `p` an endpoint. If the two events form a consistent frontier
+and are implementation-independent, prove:
+
+[source,text]
+----
+localGrade p
+  (localStep p e2 (localStep p e1 (project p s)))
+  ==
+transportLoss p (globalGrade (step e2 (step e1 s)))
+----
+
+where `==` is Agda propositional equality (`_≡_`), not an observational
+claim made by the UI. The same proof obligation must be invariant under the
+other serialisation of the frontier:
+
+[source,text]
+----
+step e2 (step e1 s)  ~=  step e1 (step e2 s)
+----
+
+Here `~=` is *canonical RapidNJ-state equivalence*, not necessarily raw record
+equality: map iteration order, row-cache layout, and other representation
+details must not affect the state observed by the grade or by projection.
+
+In words: execute the two independent reductions in either order, project to
+`p`, and compute the local loss grade; it must equal transporting the global
+loss grade across the same two-event cut. This is the smallest frontier larger
+than the already-known single-edge case. It is the right gate before an
+induction over arbitrary antichains.
+
+== What is being modelled
+
+RapidNJ accelerates the search for neighbour-joining pairs while retaining the
+neighbour-joining optimisation criterion. The application boundary here is
+narrower:
+
+* `State` contains the active clusters, distance data, row sums, and any
+  search/index state whose mutation is relevant to the reduction;
+* `step e s` applies one already-selected join or reduction event to the
+  global state;
+* `project p s` is the endpoint/local view used by the choreography;
+* `localStep p e` is the corresponding local event, or the identity when `p`
+  does not observe `e`;
+* `globalGrade` accumulates the echo loss grade at the frontier;
+* `localGrade` computes the grade from the projected state; and
+* `transportLoss` transports the global loss grade to endpoint `p`.
+
+This is intentionally below the search heuristic. Proving that two candidate
+pairs are selected, tie-broken, and safe to batch belongs to the RapidNJ
+refinement layer. K-CUT should not be used to hide that algorithmic proof.
+
+== The frontier and the missing side-condition
+
+An antichain is necessary but is not by itself sufficient for a parallel
+RapidNJ update. Two events can be incomparable in the causal order and still
+race on a shared distance-matrix entry or on a cached row bound. Define an
+`Independent2 s e1 e2` witness that contains at least:
+
+. `e1` and `e2` are incomparable, so `{e1, e2}` is a consistent frontier;
+. the selected cluster pairs are distinct and share no cluster;
+. the read/write footprints of the two updates are disjoint, or a proved
+   commutation rule covers their shared reads;
+. both events observe the same reduction phase and pre-state; and
+. the candidate/tie-breaking policy is deterministic, or its permitted
+   equivalence is included in canonical state equivalence.
+
+The first item is the choreographic condition. The remaining items are the
+algorithm-specific strengthening needed to justify treating the frontier as a
+parallel reduction. In the accompanying Agda target, `Independent2` implies
+`Antichain2`; it is not defined as mere antichain membership.
+
+== Separate the two diamonds
+
+There are two equalities here, and conflating them would make the application
+look proved when it is not.
+
+=== 1. RapidNJ state diamond
+
+First establish the implementation/refinement lemma:
+
+[source,text]
+----
+rapidnj-two-thread-diamond :
+  Independent2 s e1 e2 ->
+  step e2 (step e1 s) ~= step e1 (step e2 s)
+----
+
+This is an algorithmic statement. It should be proved using the disjoint
+footprints and then lifted through canonicalisation. It is not K-CUT.
+
+=== 2. K-CUT-LOSS at the two-event cut
+
+Then establish, for every endpoint `p`, the equality in the short answer:
+
+[source,text]
+----
+two-thread-K-CUT-LOSS :
+  Independent2 s e1 e2 ->
+  localGrade p
+    (localStep p e2 (localStep p e1 (project p s)))
+  ==
+  transportLoss p (globalGrade (step e2 (step e1 s)))
+----
+
+The state diamond supplies schedule independence. Projection naturality for
+each selected event and the grade composition law supply the two legs of the
+square. The target is still an equality of **loss** grades; it does not assert
+the warrant component.
+
+A useful proof trace is therefore:
+
+[source,text]
+----
+local serialisation 1
+       == transported global serialisation 1
+       == transported global serialisation 2   -- state diamond + grade congruence
+       == local serialisation 2
+----
+
+The first and last steps are the K-CUT-LOSS work. The middle step is the
+RapidNJ diamond. Keeping those obligations separate makes failures
+informative: a counterexample can be an unsafe batch, a projection mismatch,
+or a grading mismatch.
+
+== Why this is the smallest useful target
+
+* A one-event frontier is the degenerate single-static-edge shape already
+  represented by `RoleGraded.choreo-grade-commute` in `echo-types`.
+* Two events are the first frontier on which antichain independence and
+  serialisation order can differ.
+* An arbitrary `k`-event frontier can be reached only after showing that a
+  permitted adjacent swap preserves the state, projection, and grade. The
+  two-event square is exactly that local swap.
+* Proving the full NJ tree, the RapidNJ search heuristic, or a UI result first
+  would introduce unrelated algorithmic and representation obligations.
+
+Thus the recommended first theorem is not “parallel RapidNJ is correct”. It
+is the loss-only, two-event square under an explicit `Independent2` witness.
+
+== What is deliberately deferred
+
+`K-CUT-WARRANT` remains a separate target. Its conclusion is a bound under
+`SoundWarrant`, not the equality above, and this application note does not
+invent a warrant proof. Likewise deferred are:
+
+* the proof that a concrete RapidNJ implementation exposes the selected
+  disjoint events;
+* preservation of metric assumptions and the final unrooted tree;
+* performance, scheduling, and memory claims; and
+* any trust claim made by `metamanifold-webui` from a displayed trace.
+
+A downstream UI may display the frontier, the two serialisations, and the
+status **open / proved / refuted** once a checked certificate exists. Until
+then, it must treat this note and the Agda target as research metadata, not as
+a certificate.
+
+== References
+
+* Martin Simonsen, Thomas Mailund, and Christian N. S. Pedersen, link:https://users-birc.au.dk/cstorm/software/rapidnj/papers/SimonsenOthers2008_WABI.pdf[Rapid Neighbour-Joining (WABI 2008)].
+* link:https://github.com/johnlees/rapidnj[RapidNJ source repository] (implementation reference; not a proof dependency).
+* link:../README.adoc[Choreographic Types README] for the K-CUT-LOSS / K-CUT-WARRANT split.
