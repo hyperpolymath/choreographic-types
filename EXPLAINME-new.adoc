@@ -17,7 +17,7 @@ A global choreographic type G is read as a partial causal order. It is projected
 ____
 
 How this is intended to be implemented::
-The planned `link:src/ChoreographicTypes/[]` tree will define `GlobalType`, the
+The planned canonical source tree will define `GlobalType`, the
 partial causal order structure, the grading by `EchoGrade` (imported from
 `echo-types`) and `EpiGrade` (imported from `epistemic-types`), and the
 `EndpointProjection` mapping.
@@ -67,17 +67,19 @@ How this is implemented::
 `link:applications/rapidnj-two-thread.adoc[]` defines the application boundary and records the target in `link:applications/rapidnj-two-thread.agda[]`. The target names global and local reduction steps, projection, loss grading, transport, and an `Independent₂` witness. `Independent₂` is deliberately stronger than antichain membership: it must cover read/write disjointness, phase safety, and deterministic tie handling.
 
 Caveat::
-The accompanying Agda file contains open interfaces and postulated target signatures so that the proof obligation has a stable shape. It is not imported into the build and proves nothing. The RapidNJ state diamond (serialising two independent updates in either order) is an algorithmic prerequisite, separate from K-CUT-LOSS. No claim is made about the upstream implementation exposing this exact batch interface.
+The accompanying Agda file contains open interfaces and postulated target signatures so that the proof obligation has a stable shape. There is no canonical Agda build, and it proves nothing. The RapidNJ state diamond (serialising two independent updates in either order) is an algorithmic prerequisite, separate from K-CUT-LOSS. No claim is made about the upstream implementation exposing this exact batch interface.
 
-=== The tropical resource-dioid is re-proved in-site
+=== The tropical resource-dioid is planned to be re-proved in-site
 
 [quote, README.adoc]
 ____
-The tropical resource-dioid is re-proved in-site rather than imported across kernels. This follows the estate's port-and-reprove pattern.
+The tropical resource-dioid is planned to be re-proved in-site rather than imported across kernels. This follows the estate's port-and-reprove pattern.
 ____
 
 How this is implemented::
-The dioid structure and laws are proved directly in `link:src/ChoreographicTypes/ResourceDioid.agda[]` (or equivalent), without importing `tropical-resource-typing` (which is Lean 4, making a direct import impossible anyway; the port-and-reprove pattern ensures logical consistency across language boundaries).
+No local dioid implementation or proof exists. The plan is to re-prove its
+laws in Agda, with an explicit bridge obligation to the Lean 4 definitions.
+A port does not automatically establish cross-kernel consistency.
 
 Caveat::
 This is a duplication by design. It must be kept in sync manually if the Lean 4 definition changes. The precedent is `typed-wasm/…/Tropical.idr`.
@@ -86,7 +88,7 @@ This is a duplication by design. It must be kept in sync manually if the Lean 4 
 
 [cols="1,2,2", options="header"]
 |===
-| Technology / Pattern | Used here | Also used in
+| Technology / Pattern | Planned use here | Also used in
 
 | Echo loss-grades
 | Global type grading
@@ -120,7 +122,7 @@ This is a duplication by design. It must be kept in sync manually if the Lean 4 
 
 [CAUTION]
 ====
-**The RapidNJ target is not a proof.** `applications/rapidnj-two-thread.agda` is a standalone typed target with open interfaces and postulates. It is not imported into `All.agda`; the two-thread state diamond, projection square, and K-CUT-LOSS equality remain to be proved.
+**The RapidNJ target is not a proof.** `applications/rapidnj-two-thread.agda` is an illustrative target with open interfaces and postulates. There is no canonical Agda build; the two-thread state diamond, projection square, and K-CUT-LOSS equality remain to be proved.
 ====
 
 [CAUTION]
@@ -132,9 +134,9 @@ This is a duplication by design. It must be kept in sync manually if the Lean 4 
 
 [cols="2,3", options="header"]
 |===
-| Path | Proves
+| Path | Evidence or intent
 
-| `src/ChoreographicTypes/`
+| Canonical source tree (not yet implemented)
 | Planned definitions of global types, projection, grades, cuts, K-CUT statements
 
 | `applications/rapidnj-two-thread.adoc`
@@ -149,6 +151,6 @@ This is a duplication by design. It must be kept in sync manually if the Lean 4 
 | `ChoreoInjective` (sibling)
 | Degenerate single-static-edge base case
 
-| `.machine_readable/6a2/STATE.a2ml`
+| link:docs/pre-registration.adoc[Pre-registration record]
 | Pre-registration state and provenance ledger
 |===

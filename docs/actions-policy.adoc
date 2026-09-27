@@ -1,0 +1,103 @@
+// SPDX-License-Identifier: MPL-2.0
+= Actions policy: owner repair and verification
+
+== Boundaries and observations (2026-09-27)
+
+Issue https://github.com/hyperpolymath/choreographic-types/issues/16[#16]
+reported `selected` with an empty third-party allow-list. This is server-side
+configuration: a repository commit cannot repair it. The issue explicitly
+reserves the PUT for the owner. Do not widen policy to `all`, disable scanning,
+or change `verified_allowed` to work around this.
+
+This session's GitHub integration returns HTTP 403 for Actions permissions
+GETs and for updating the repository description. The current policy is
+therefore UNKNOWN, not confirmed empty and not verified repaired. The owner
+must use an appropriately authorised GitHub connection; no credentials belong
+in this repository or in an issue comment.
+
+The repository is now public. Secret Scanner runs 36287047076 and 36286986239
+succeeded; run 35478897141 also now reports success. The historical billing
+refusal in issue #15 is not evidence of a current billing failure. A green
+scanner does not prove that arbitrary third-party actions are admitted.
+
+== Canonical payload, not a remembered pattern count
+
+Prerequisites: Node.js 22+, `gh`, and an owner-authorised GitHub connection.
+Review the current standards policy and its rollout/pruning conditions first.
+Resolve it to one immutable commit so payload preparation and comparison use
+exactly the same revision. These commands only read remote settings:
+
+[source,bash]
+----
+set -euo pipefail
+ref=$(gh api repos/hyperpolymath/standards/commits/HEAD --jq .sha)
+work=$(mktemp -d)
+node scripts/actions-policy.mjs payload "$ref" > "$work/payload.json"
+cat "$work/payload.json"
+node scripts/actions-policy.mjs audit "$ref"
+----
+
+The audit checks both this repository and `echo-types` in the same invocation.
+It requires enabled Actions, the `selected` posture, both boolean flags, and
+exact pattern membership (order-independent), not merely matching counts.
+Access failures are UNKNOWN and exit nonzero. Payload generation rejects an
+empty/malformed list and excludes the canon's descriptive metadata from the
+API request. There is deliberately no automated write mode.
+
+If the audit reports drift, the owner reviews the payload, confirms that the
+live repository is still in `selected` mode, and executes the following
+owner-only repair. Refreshing `echo-types` is a separate owner decision in
+that repository, required for the issue's positive control:
+
+[source,bash]
+----
+# OWNER ONLY; use the same ref and work directory from above.
+gh api -X PUT repos/hyperpolymath/choreographic-types/actions/permissions/selected-actions --input "$work/payload.json"
+gh api -X PUT repos/hyperpolymath/echo-types/actions/permissions/selected-actions --input "$work/payload.json"
+node scripts/actions-policy.mjs audit "$ref"
+----
+
+Record the canonical SHA, payload count and successful read-back for BOTH
+repositories in #16 before closing it. Re-run the read-only audit whenever
+standards changes its policy or before adding a new third-party workflow.
+If the posture is disabled or not `selected`, stop for an owner decision
+rather than silently rewriting the broader permission settings.
+
+== Repository description (issue #15)
+
+The local documentation now describes the pre-registration honestly. The
+remote description still needs the following owner-authorised update:
+
+[source,bash]
+----
+gh repo edit hyperpolymath/choreographic-types --description 'Pre-registration and research notes for a graded multiparty-session theory combining echo loss-grades and epistemic warrants. K-CUT remains an open conjecture; application targets are not proofs.'
+gh repo view hyperpolymath/choreographic-types --json description
+----
+
+Do not restore an unqualified “Agda formalisation” description until a checked
+canonical module exists. Postulated application targets are not sufficient.
+
+== What automated validation means
+
+`Documentation Integrity` runs local link/status checks and their regression
+tests on pushes and pull requests. It uses no marketplace actions and requires
+only read access to repository contents. It does not type-check Agda, prove
+K-CUT, or inspect server-side policy. The allow-list audit remains an explicit
+owner-side check because ordinary Actions tokens cannot read admin settings.
+
+== Validation evidence for this repair
+
+* Canon fetched at `2479cf769ed5f0481ccf64860a2ab954514c2b59`:
+  payload preparation succeeded with 93 patterns. This is an observation,
+  not a count hard-coded into the audit.
+* Read-back audit: both repositories UNKNOWN (HTTP 403); neither is marked
+  repaired. The description update also returned HTTP 403.
+* Local documentation integrity check and all 12 regression tests passed.
+* The new workflow has not run remotely from this working branch. Its empty
+  dependency entry was added to `actions.lock`; the extension was unavailable
+  and its installation failed, so automatic lock regeneration was not run.
+* Label Triage run 35779001180 had a billing-refusal annotation before its
+  first step. No speculative classifier rewrite was made for that failure.
+
+Issues #15 and #16 must remain open until the repository changes are merged
+and the remaining owner-side acceptance checks pass.
