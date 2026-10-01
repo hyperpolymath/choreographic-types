@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
-title: "choreographic-types"
+title: "Choreographic Types"
 abstract: "Agda formalisation of a graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. The central artefact is K-CUT: the open conjecture that grading and transport commute with endpoint projection across a consistent frontier (antichain), splitting into equality on loss-grades/bound on warrants."
 authors:
   - family-names: "Jewell"
