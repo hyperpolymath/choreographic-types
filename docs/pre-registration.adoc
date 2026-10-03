@@ -2,13 +2,19 @@
 = Pre-registration, provenance and research obligations
 :toc:
 
-== Current status (2026-09-27)
+== Current status (2026-10-03)
 
 This repository exists and is licensed under MPL-2.0 (see link:../LICENSE[]).
 It is a pre-registration and research notebook, not a checked formalisation.
 K-CUT-LOSS and K-CUT-WARRANT remain OPEN. `SoundWarrant` is an assumed
 receiver-local side-condition, not a result established here.
 The application Agda file contains postulates, not proofs.
+
+The in-repo citation metadata (`CITATION.cff`) no longer claims a completed
+Agda formalisation; the integrity checks now fail such claims on the
+description-mirroring surfaces. The GitHub repository description still needs
+the owner-authorised correction recorded in
+link:actions-policy.adoc#_repository_description_issue_15[Actions policy, "Repository description"].
 
 This document retires the former machine-readable state format. The ledger
 below preserves the 2026-06-16 research intent and later application targets.

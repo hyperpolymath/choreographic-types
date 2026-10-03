@@ -34,6 +34,20 @@ export function checkRepository(root) {
   for (const [, source] of readme.matchAll(/\bagda\b[^\n]*?([\w./-]+\.agda)/g)) {
     if (!existsSync(resolve(root, source))) errors.push(`Nonexistent Agda build target: ${source}`);
   }
+  // The surfaces that mirror the repository description must not claim a
+  // completed formalisation until a checked module exists (issue #15, D-4).
+  // Relax this in the same change that lands the first checked module.
+  for (const surface of ['README.adoc', 'CITATION.cff']) {
+    const surfacePath = resolve(root, surface);
+    if (!existsSync(surfacePath)) continue;
+    if (/agda\s+formali[sz]ation/i.test(readFileSync(surfacePath, 'utf8'))) {
+      errors.push(`Description claim of a completed Agda formalisation in ${surface}; not true until a checked module exists`);
+    }
+  }
+  const citationPath = resolve(root, 'CITATION.cff');
+  if (existsSync(citationPath) && !/pre-registration/i.test(readFileSync(citationPath, 'utf8'))) {
+    errors.push('CITATION.cff must disclose pre-registration status');
+  }
   return errors;
 }
 

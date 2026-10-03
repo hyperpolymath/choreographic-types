@@ -66,11 +66,12 @@ rather than silently rewriting the broader permission settings.
 == Repository description (issue #15)
 
 The local documentation now describes the pre-registration honestly. The
-remote description still needs the following owner-authorised update:
+remote description still needs the following owner-authorised update. The
+canonical text is 345 characters (GitHub's limit is 350):
 
 [source,bash]
 ----
-gh repo edit hyperpolymath/choreographic-types --description 'Pre-registration and research notes for a graded multiparty-session theory combining echo loss-grades and epistemic warrants. K-CUT remains an open conjecture; application targets are not proofs.'
+gh repo edit hyperpolymath/choreographic-types --description 'Pre-registration and research notebook for a graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. Central artefact: K-CUT, the open conjecture that grading and transport commute with endpoint projection across a consistent frontier. Agda is the intended prover; no checked module yet.'
 gh repo view hyperpolymath/choreographic-types --json description
 ----
 
@@ -101,3 +102,24 @@ owner-side check because ordinary Actions tokens cannot read admin settings.
 
 Issues #15 and #16 must remain open until the repository changes are merged
 and the remaining owner-side acceptance checks pass.
+
+== Re-verification (2026-10-03, issue #15 follow-up)
+
+* README acceptance re-measured: `grep -c 'dev-notes/2026-06-16' README.adoc`
+  is 0 and `grep -c 'src/ChoreographicTypes' README.adoc` is 0. No `.a2ml`
+  file exists anywhere in the tree; the pre-registration text lives in
+  link:pre-registration.adoc[].
+* The citation abstract in `CITATION.cff` carried the same "Agda
+  formalisation" claim as the remote description. It was corrected to match
+  the pre-registration status.
+* `scripts/check-repository.mjs` now fails any completed-formalisation claim
+  ("Agda formalisation") on the two description-mirroring surfaces
+  (`README.adoc`, `CITATION.cff`), and requires `CITATION.cff` to disclose
+  pre-registration status. Regression tests cover all four cases (16 tests
+  total, all passing locally with Node 22).
+* Description PATCH re-attempted with the owner-authorised connection:
+  still HTTP 403 (resource not accessible by integration). The owner repair
+  command above therefore remains the only path for criterion 1 of #15.
+* CI state: this repository is public; Documentation Integrity and Secret
+  Scanner runs on `main` are green. The 2026-09-22 billing refusals noted in
+  #15 were private-repo billing state, not a workflow defect.
