@@ -29,6 +29,23 @@ for (const [name, files, expected] of [
   ['lost project disclosure', { 'README.adoc': 'Nothing in this repo is proven yet.' }, /pre-registration status/],
 ]) test(`regression: ${name}`, t => assert.match(checkRepository(fixture(t, files)).join('\n'), expected));
 
+test('regression: completed-formalisation claim in README', t => {
+  const files = { 'README.adoc': status + 'An Agda formalisation of a graded theory.\n' };
+  assert.match(checkRepository(fixture(t, files)).join('\n'), /completed Agda formalisation/);
+});
+test('regression: completed-formalisation claim in CITATION.cff', t => {
+  const files = { 'CITATION.cff': 'abstract: "Agda formalisation of a graded multiparty-session type theory."\n' };
+  assert.match(checkRepository(fixture(t, files)).join('\n'), /completed Agda formalisation/);
+});
+test('regression: citation without pre-registration disclosure', t => {
+  const files = { 'CITATION.cff': 'title: "Choreographic Types"\nabstract: "A graded theory notebook."\n' };
+  assert.match(checkRepository(fixture(t, files)).join('\n'), /CITATION\.cff must disclose/);
+});
+test('honest citation metadata passes', t => {
+  const files = { 'CITATION.cff': 'abstract: "A pre-registration; Agda is the intended prover, no checked formalisation yet."\n' };
+  assert.deepEqual(checkRepository(fixture(t, files)), []);
+});
+
 const canon = { github_owned_allowed: true, verified_allowed: true, patterns_allowed: ['owner/a@*', 'owner/b@*'] };
 test('payload strips non-API metadata', () => assert.deepEqual(payloadFrom({ ...canon, version: 1 }), canon));
 test('empty, malformed and duplicate patterns fail closed', () => {
