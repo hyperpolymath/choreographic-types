@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: MPL-2.0
+name: Documentation Integrity
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: documentation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  documentation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # No marketplace actions: this guard must not depend on the allow-list
+      # it helps document. Fetch the event SHA, never an untrusted branch name.
+      - name: Fetch event revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPOSITORY/tarball/$REVISION" > "$RUNNER_TEMP/source.tar.gz"
+          tar -xzf "$RUNNER_TEMP/source.tar.gz" --strip-components=1
+      - name: Check documentation and regression tests
+        run: |
+          set -euo pipefail
+          node --version
+          node scripts/check-repository.mjs
+          node --test tests/*.test.mjs
