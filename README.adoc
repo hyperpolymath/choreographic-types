@@ -180,14 +180,11 @@ published. No placeholder source tree is provided to imply otherwise.
 
 == Documentation
 
-* link:EXPLAINME-new.adoc[EXPLAINME] — current claim-to-implementation map
-  and known gaps
+* link:EXPLAINME.adoc[EXPLAINME] — claim-to-implementation map and known gaps
 * link:applications/README.adoc[Applications] — application index
 * link:applications/rapidnj-two-thread.adoc[RapidNJ case study] — the
   two-thread base-case proof target
 * link:GLOSSARY.adoc[Glossary] — terminology reference
-* link:EXPLAINME.adoc[Legacy resource-typing EXPLAINME] — retained historical
-  document
 
 == License
 

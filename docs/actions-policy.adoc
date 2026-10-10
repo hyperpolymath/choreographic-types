@@ -66,8 +66,9 @@ rather than silently rewriting the broader permission settings.
 == Repository description (issue #15)
 
 The local documentation now describes the pre-registration honestly. The
-remote description still needs the following owner-authorised update. The
-canonical text is 345 characters (GitHub's limit is 350):
+remote description already equals the canonical text below (345 characters;
+GitHub's limit is 350). The command is kept for re-verification and for any
+future owner correction:
 
 [source,bash]
 ----
@@ -100,8 +101,17 @@ owner-side check because ordinary Actions tokens cannot read admin settings.
 * Label Triage run 35779001180 had a billing-refusal annotation before its
   first step. No speculative classifier rewrite was made for that failure.
 
-Issues #15 and #16 must remain open until the repository changes are merged
-and the remaining owner-side acceptance checks pass.
+Issue #16 must remain open until the owner applies the PUT and records a
+successful read-back. Issue #15 criteria 1 to 4 were re-measured on 2026-10-10
+(description matches; no dev-note citation; no `src/ChoreographicTypes` table
+or Agda build command; no `.a2ml` file). Its one remaining blocker was the
+broken `EXPLAINME-new.adoc` link, fixed in this change.
+
+== Canon currency (observed 2026-10-10)
+
+The standards canon `config/settings/actions-allowlist.json` at `3108c1b`
+holds 94 patterns, not the 93 at `2479cf76` quoted above. Counts in this file
+are historical; the payload command is the source of truth.
 
 == Re-verification (2026-10-03, issue #15 follow-up)
 
