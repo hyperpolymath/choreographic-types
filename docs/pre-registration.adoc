@@ -12,9 +12,9 @@ The application Agda file contains postulates, not proofs.
 
 The in-repo citation metadata (`CITATION.cff`) no longer claims a completed
 Agda formalisation; the integrity checks now fail such claims on the
-description-mirroring surfaces. The GitHub repository description still needs
-the owner-authorised correction recorded in
-link:actions-policy.adoc#_repository_description_issue_15[Actions policy, "Repository description"].
+description-mirroring surfaces. The GitHub repository description matches the canonical text recorded in
+link:actions-policy.adoc#_repository_description_issue_15[Actions policy, "Repository description"]
+(observed 2026-10-10: 345 characters, identical to the canon).
 
 This document retires the former machine-readable state format. The ledger
 below preserves the 2026-06-16 research intent and later application targets.
