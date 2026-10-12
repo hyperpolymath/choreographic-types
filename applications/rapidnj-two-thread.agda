@@ -5,8 +5,9 @@
 -- below is an open interface or an open conjecture, not a proof.
 -- STATUS 2026-10-12: read at the type level in src/Choreographic/Operational.agda.
 -- Proved there, at the type level: the diamond (two-thread-diamond) and the
--- cut-loss equality after two steps (two-thread-kcut-loss, with transportLoss
--- taking the state). This file's declarations remain OPEN: the type-level
+-- cut-loss equality after two steps (two-thread-kcut-loss):
+-- lgrade (proj p t) ≡ grade↾ p t for a projectable final state t.
+-- This file's declarations remain OPEN: the type-level
 -- results are their counterparts, not their discharge, until Independent2
 -- (RapidNJ's own read/write and phase safety) is supplied.  Shown
 -- unsatisfiable as typed: transportLoss : Role → Grade → Grade (no function
