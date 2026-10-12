@@ -19,6 +19,16 @@ data Global : Set where
   msg    : (s r : Party) → Grade → Global → Global            -- s → r : g . G
   choice : (s r : Party) → Grade → Global → Global → Global   -- s → r chooses
 
+-- Well-formed global types have no self-interactions: an interaction s → r
+-- with s ≡ r would project to a send with no matching receive.  The theorems
+-- below are stated for all Global (they hold for the degenerate case too, by
+-- the projection convention), and applications state WellFormed as a
+-- hypothesis when the communicating reading is the point.
+data WellFormed : Global → Set where
+  end    : WellFormed end
+  msg    : ∀ {s r g G} → s ≢ r → WellFormed G → WellFormed (msg s r g G)
+  choice : ∀ {s r g G₁ G₂} → s ≢ r → WellFormed G₁ → WellFormed G₂ → WellFormed (choice s r g G₁ G₂)
+
 -- Global accumulation of grades: sequence is ⊗, alternatives are ⊕.
 grade : Global → Grade
 grade end                 = 𝟙

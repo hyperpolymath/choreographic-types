@@ -129,10 +129,8 @@ Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→
 * *Operational `step` as a function.* Kept relational; a functional step on
   the quotient needs decidable grade equality or a canonical-form theorem
   for swap-equivalence. Not attempted.
-* *Sibling pin.* `scripts/fetch-siblings.sh` defaults
-  `RESOURCE_ALGEBRA_COMMIT` to
-  `b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881`; CI is DESIGNED until its
-  first green run.
+* *Sibling pins.* resource-algebra at b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881, epistemic-types at 495db9c
+  (`scripts/fetch-siblings.sh`); `proofs.yml` ran green on the Debian 2.6.4.3 pin before #23 merged.
 
 == What W-4 says about the keystone
 

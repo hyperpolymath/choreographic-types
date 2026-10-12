@@ -13,7 +13,7 @@ K-CUT-LOSS::
   (`src/Choreographic/KCut.agda`, `kcut-loss`), discharged at the Loss,
   MaxPlus and HWM instances. Uses only ⊕-idempotence and ⊗-left-unit
   (certified by `scripts/minimal-laws.sh`). Recursion, full merge and
-  asynchrony remain OPEN. See link:PROOF-STATUS.adoc[].
+  asynchrony remain OPEN. See link:../PROOF-STATUS.adoc[].
 K-CUT-WARRANT::
   Warrant transport commutes with projection only as a *bound*, and only under
   a `SoundWarrant` side-condition.
@@ -28,7 +28,7 @@ K-CUT-WARRANT::
   sees at least what p sees" is epistemic-types' `Preorder` instantiated,
   and knowledge is monotone along it — a lawful world-indexed
   `AccessibleModality`. OPEN beyond the fragment: recursion, full merge,
-  asynchrony, data-dependent warrants. See link:PROOF-STATUS.adoc[].
+  asynchrony, data-dependent warrants. See link:../PROOF-STATUS.adoc[].
 
 [NOTE]
 ====
