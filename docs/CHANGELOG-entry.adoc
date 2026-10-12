@@ -1,0 +1,20 @@
+== 2026-10-12 — K-CUT-LOSS proved (fragment)
+
+* `src/Choreographic/`: Party, Global (grade, `grade↾`, Cut), Local, Projection
+  (plain merge, cut projection, Consistent), KCut (`proj-cut`, `grade-proj`,
+  `cut-projectable`, `kcut-loss`), Instances (three discharges, worked
+  protocol), Base/RoleGraded (base case correspondence).
+* Depends on hyperpolymath/resource-algebra (Agda, same kernel).
+* `scripts/minimal-laws.sh` certifies K-CUT-LOSS needs only ⊕-idempotence
+  and ⊗-left-unit.
+* Kripke (frame over consistent cuts; epistemic-types `Warrant`/`SoundWarrant`
+  instantiated; LOSS ⇒ WARRANT) and Bound (K-CUT-WARRANT in bound form,
+  three discharges, non-determination witness).
+* Transport (local frontier known; party access as epistemic-types'
+  `Preorder`; knowledge monotone; world-indexed `AccessibleModality`
+  instance, laws by `refl`). K-CUT complete for the fragment.
+* Swap (two-thread diamond at the type level) and Operational (relational
+  step; diamond and K-CUT target as theorems; two interface declarations
+  shown unsatisfiable as typed).
+* Four expected rejections show the side-conditions, the "cannot
+  determine" clause and the direction of access are load-bearing.

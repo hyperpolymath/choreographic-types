@@ -1,0 +1,150 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= choreographic-types — Proof Status (K-CUT development, 2026-10-12)
+:revdate: 2026-10-12
+
+Statuses: PROVEN / TESTED / ASSUMED / DESIGNED / OPEN. Every PROVEN line
+names the module that discharges it under
+`--safe --without-K --no-libraries --double-check`, with resource-algebra on
+the include path (same kernel; see `scripts/fetch-siblings.sh`).
+
+== Fragment formalised (scope, stated before the claims)
+
+Finite graded global types with message and *binary* choice; endpoint
+projection with *plain merge* (a non-participant's two branches must
+project identically); cuts as frontiers (`stop` / `cont-*`); consistent
+cuts = plain merge still holds on the truncated branches. Grades are drawn
+from any `ResourceAlgebra`. *Not* in the fragment: recursion (μ-types),
+full merge, delegation, asynchrony/queues, n-ary choice (a fold of binary),
+delegation, and data-dependent warrants (the frame carries only what the
+type determines). Both components of K-CUT-WARRANT — bound and transport
+— are in, for this fragment.
+
+== Keystone
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| K-1 | *K-CUT-LOSS*: for every party p, global G, cut c with `Consistent p c`, `grade↾ p (G ↾ c) ≡ lgrade (proj p G ↾ₗ cutproj p c)` — parametric in the resource algebra | PROVEN (`KCut.kcut-loss`)
+| K-2 | `proj-cut`: projection commutes with cutting, `proj p (G ↾ c) ≡ proj p G ↾ₗ cutproj p c`, with no side-conditions and no algebra laws | PROVEN (`KCut.proj-cut`)
+| K-3 | `grade-proj`: on a projectable G, the restricted global grade equals the grade of the projection | PROVEN (`KCut.grade-proj`)
+| K-4 | K-CUT-LOSS uses exactly two laws: `𝟙 ⊗ x ≡ x` and `x ⊕ x ≡ x`. Associativity, commutativity, ⊗-right-unit, distributivity, order and annihilation are not used | TESTED (`scripts/minimal-laws.sh`: KCut checks against a Core with only those two fields)
+| K-5 | `Projectable p G` is not a hypothesis of K-1: `Consistent p c` alone yields `Projectable p (G ↾ c)` (`cut-projectable`). The equality is local to the cut prefix; what happens after the frontier is irrelevant | PROVEN (`KCut.cut-projectable`)
+| K-6 | Discharged at the three estate instances: `kcut-loss-Loss`, `kcut-loss-MaxPlus`, `kcut-loss-HWM` | PROVEN (`Instances.agda`)
+| K-7 | Both side-conditions are load-bearing: without `Projectable` the equality fails (restricted grade 1, local 2); without `Consistent` it fails (1 vs 2) | TESTED (`tests/reject/UnprojectableChoice`, `InconsistentCut`, each refused with `1 != 2`)
+|===
+
+== K-CUT-WARRANT, bound form (Kripke.agda, Bound.agda)
+
+epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
+495db9c), not re-declared, so "SoundWarrant" below is their record.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| W-1 | Kripke frame for a choreography: worlds are p-consistent cuts, p's standpoint is its view (local timeline up to the projected cut), two worlds are p-accessible when the views coincide; an equivalence relation | PROVEN (`Kripke.Frame`)
+| W-2 | Knowledge is factive (reflexive frame), so every type-determined warrant is a `SoundWarrant` in epistemic-types' sense: the "global soundness of warrants" they leave unformalised, discharged for the warrants the choreography determines | PROVEN (`sound-warrant`)
+| W-3 | LOSS ⇒ WARRANT: by K-CUT-LOSS the restricted grade is a function of the view, so p knows it at every world and holds a sound warrant for it | PROVEN (`knows-own-grade`, `own-grade-warrant`)
+| W-4 | Bound: if every grade in G is ≽ 𝟙 then `grade↾ p G ≼ grade G`; if every grade is ≼ 𝟙 then `grade G ≼ grade↾ p G`. Uses ⊗-monotonicity (`IsOrdered`) and ⊕-monotonicity (every resource algebra): the first use of order in the keystone | PROVEN (`Bound.grade↾-≼`, `grade-≼↾`)
+| W-5 | *K-CUT-WARRANT (bound form)*: at every world p considers possible, the global grade up to the cut is bounded by p's own known restricted grade; direction set by where 𝟙 sits in the order; a sound warrant | PROVEN (`knows-lower-bound`, `knows-upper-bound`, `lower-bound-warrant`)
+| W-6 | Discharged: HWM unconditionally (𝟙 = 𝟘 is least), Loss unconditionally in the upper form (𝟙 = fin 0 is greatest), MaxPlus for bot-free types (bot = −∞ is the one grade below 𝟙) | PROVEN (`kcut-warrant-HWM/Loss/MaxPlus`)
+| W-7 | "Cannot determine": two worlds party 2 cannot tell apart carry different global grades, and a claim to know the global grade is refused | TESTED (`Instances.Witness`; `tests/reject/GlobalGradeKnown`)
+|===
+
+== K-CUT-WARRANT, transport component (Transport.agda)
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| T-1 | Truncating a local type is injective in the cut (`↾ₗ-injective`); injectivity of local constructors is by projections, since matching `refl` on an abstract `Grade` would need K | PROVEN
+| T-2 | *The local frontier is known*: at every world p knows exactly its projected cut, hence every fact about its own frontier — receiving is knowing it was received; synchronously, sending is knowing it was sent | PROVEN (`knows-local-cut`, `knows-local`; `receiver-knows`, `sender-knows`)
+| T-3 | p-accessibility is exactly sameness of p's projected cut (both directions) | PROVEN (`knows-local-cut`, `local-cut-determines`)
+| T-4 | Party access `p ⊑ q` ("q sees at least what p sees") is a preorder — epistemic-types' `Preorder` record, instantiated — and knowledge is monotone along it | PROVEN (`party-access`, `knows-mono`)
+| T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`); TESTED (`tests/reject/AccessWrongWay`)
+| T-6 | epistemic-types' `AccessibleModality` cannot be instantiated as stated: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` — field for field otherwise identical (`IndexedAccessible`) — the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); the mismatch is a finding for epistemic-types
+|===
+
+== Applications: the two-thread diamond (Swap.agda)
+
+`applications/rapidnj-two-thread.agda` states the first application target
+operationally (events, steps, a state diamond, `twoThreadKCutLoss`).  Its
+type-level counterpart:
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| A-1 | Two interactions between disjoint party pairs swap without changing any endpoint's projection (`swap-proj`) or restricted grade (`swap-grade↾`); ⊗-left-unit only | PROVEN
+| A-2 | The unrestricted global grade swaps iff the two grades commute under ⊗ (`swap-grade`); Loss and MaxPlus commute | PROVEN (`Diamond.loss-commutes`, `maxplus-commutes`)
+| A-3 | The high-water mark does not commute: independent threads have an order-dependent peak (3 vs 5) invisible at every endpoint | TESTED (`Diamond.hwm-order-sensitive`)
+| A-4 | Operational reading (`Operational.agda`): `Step` fires an interaction at the head or beneath independent heads; a global step is a local step at every endpoint (`step-proj`, `step-grade↾`); `StateEq` is projection-equivalence | PROVEN
+| A-5 | `twoThreadDiamond` as a theorem: two independent events fired in either order reach projection-equivalent states (`two-thread-diamond`) | PROVEN
+| A-6 | `twoThreadKCutLoss` as a theorem once `transportLoss` takes the state: after two steps the local grade at a projectable state is the restricted global grade (`two-thread-kcut-loss`, i.e. K-3) | PROVEN
+| A-7 | `transportLoss : Role → Grade → Grade` is unsatisfiable: no function of the global grade returns the local grade (two states of global grade `val 1` give party 0 `val 1` and `val 0`) | TESTED (`Instances.NoTransportLoss`)
+| A-8 | `globalGradeRespectsStateEq` is false for occupancy: projection-equivalent states with peaks 3 and 5 — `StateEq` must be finer than swap-equivalence for HWM, as predicted | TESTED (`Instances.GradeNotStateInvariant`)
+|===
+
+What stays postulated in `applications/rapidnj-two-thread.agda` after this:
+`Independent2` and `independentToAntichain` (the implementation's read/write
+and phase-safety conditions), which are RapidNJ's, not the type's.
+
+== Base case correspondence (Base/RoleGraded.agda)
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| B-1 | echo-types' three-grade order `keep ≤g residue ≤g forget` embeds into Loss by keep ↦ fin 0, residue ↦ fin 1, forget ↦ inf, and `a ≤g b` iff `embed b ≼ embed a` (the converse of the absorption order) — both directions | PROVEN (`≤g→≼`, `≼→≤g`)
+| B-2 | The base lattice is closed under alternatives (min) | PROVEN (`alt-closed`)
+| B-3 | The base lattice is not closed under sequence (`fin 1 +g fin 1 = fin 2`): why RoleGraded could only grade one edge | PROVEN (`seq-escapes`)
+| B-4 | `EGrade`/`_≤g_` are textually EchoGraded's | ASSUMED (transcription; echo-types uses the standard library and cannot be imported)
+| B-5 | RoleGraded's *role transport* (`applyRole`, Client ⊑ Server) is reproduced | OPEN — that is the transport/warrant side, K-CUT-WARRANT territory, not graded loss
+|===
+
+== Worked protocol (Instances.agda, computed)
+
+Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→1:c}`.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Reading | Status
+| W-1 | Loss (1,2,5): broker's restricted grade `fin 8`; at the cut before the server answers, `fin 3` | TESTED
+| W-2 | MaxPlus (1,2,5): broker `val 8` | TESTED
+| W-3 | HWM peaks (1,2,5), nothing held: broker's peak `5`, at the cut `2` — an occupancy reading is not a cost reading, inside one protocol | TESTED
+| W-4 | `Projectable 1 G` and `Consistent 1 c₁` are inhabited (by `refl` at the merge) and K-1 instantiates to `broker-cut` | PROVEN
+|===
+
+== Open (honest — NOT proved)
+
+* *Data-dependent warrants.* The frame carries only what the type
+  determines; warrants about payloads are outside it, and there
+  `SoundWarrant` stays an assumption — with a precise scope (W-2, T-2).
+* *Asynchrony.* With queues, T-2's sender half (`sender-knows`) is expected
+  to fail: a send without receipt is a world the sender cannot distinguish
+  from one with receipt. Pre-registered as the falsifier that separates
+  synchronous from asynchronous K-CUT.
+* *Recursion.* μ-types change `Cut` (a frontier through an unfolding) and need
+  a coinductive or fuel-indexed grade. Not attempted.
+* *Full merge.* Only plain merge. Full merge (branches may differ in labels
+  the non-participant later distinguishes) would weaken `Merge`; K-3's
+  idempotence step is exactly what would need to generalise.
+* *Role transport* (B-5).
+* *Operational `step` as a function.* Kept relational; a functional step on
+  the quotient needs decidable grade equality or a canonical-form theorem
+  for swap-equivalence. Not attempted.
+* *Sibling pin.* `scripts/fetch-siblings.sh` has `FILL-IN-COMMIT-SHA` until
+  resource-algebra is pushed; CI is DESIGNED until its first green run.
+
+== What W-4 says about the keystone
+
+The bound's direction is not a convention: it is the S-3 finding of
+resource-algebra (opposite-running orders) surfacing in the keystone. In HWM
+and MaxPlus p's view is a *lower* bound on the global grade; in Loss it is
+an *upper* bound in ≼, i.e. numerically p's view accounts for no more loss
+than the global total. Any K-CUT-WARRANT statement must say which.
+
+== What K-4 says about the keystone
+
+That K-CUT-LOSS survives with only idempotence and a left unit means the
+*equality* half of the keystone is algebraically weak: it holds for
+non-commutative, non-associative alternatives. The structure the family
+cares about — order, monotone sequencing, the opposite-running orders of
+Loss and MaxPlus — is first exercised by the *bound* half, K-CUT-WARRANT.
+That is where the next proof effort belongs.

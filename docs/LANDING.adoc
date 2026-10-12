@@ -1,0 +1,29 @@
+= Landing runbook — 2026-10-12 K-CUT development
+:revdate: 2026-10-12
+
+Order matters: nothing below is citable until step 6 is green.
+
+. *resource-algebra.* Create `hyperpolymath/resource-algebra` from the RSR
+  template; `just repo-init`; then `git pull` the bundle
+  `resource-algebra-2026-10-12.bundle` (one commit, `main`) over the
+  scaffold, resolving README by splicing the project section. Push.
+  Note the commit SHA.
+. *choreographic-types.* `git fetch <bundle> kcut-2026-10-12` from
+  `choreographic-types-kcut-2026-10-12.bundle` (branched off `099bd48`'s
+  sibling — the clone's HEAD on 2026-10-12). Open a PR; CodeRabbit and the
+  estate workflows run; address every finding before merge (standing rule).
+. Fill `RESOURCE_ALGEBRA_COMMIT` in `scripts/fetch-siblings.sh` with the SHA
+  from step 1; the epistemic-types pin `495db9c` is already set.
+. Splice `docs/README-keystone-section.adoc` into README (replacing the OPEN
+  keystone section) and `docs/applications-header-patch.adoc` into the
+  applications file; `CHANGELOG-entry.adoc` into CHANGELOG.
+. Cross-repo: nextgen-typing decision record and TYPE-CONNECTIONS rows;
+  absolute-zero T1 exception record (and a ruling on T7); the
+  epistemic-types issue (`cross-repo/`). occupancy-types: an issue linking
+  H-2 (its R2–R3 algebra will supersede `Instances/HWM.agda`) and A-3.
+. CI: both `proofs.yml` files are DESIGNED until their first green run on
+  the Debian `agda-bin=2.6.4.3-1+b2` pin. If the pin fails to install, that
+  is the same hazard residual-evidence-types documents; copy its recipe
+  verbatim rather than widening the pin.
+. Memory for the estate: the kernel ruling is recorded; the K-4 and T-6
+  findings are the two to carry into the family map.

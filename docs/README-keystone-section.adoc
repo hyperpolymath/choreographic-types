@@ -1,0 +1,40 @@
+// Replacement for the "== The keystone (K-CUT) — OPEN" section of README.adoc.
+== The keystone (K-CUT)
+
+K-CUT states: grading and transport commute with endpoint projection across a
+consistent frontier. It splits into two fragments:
+
+K-CUT-LOSS::
+  Grading commutes with projection as an *equality*. Loss is type-determined:
+  the grade of the global cut, restricted to the endpoint, equals the grade
+  read locally at the endpoint up to the projected cut.
+  *Status:* **PROVEN** for the finite binary-choice, plain-merge fragment,
+  parametric in any `ResourceAlgebra`
+  (`src/Choreographic/KCut.agda`, `kcut-loss`), discharged at the Loss,
+  MaxPlus and HWM instances. Uses only ⊕-idempotence and ⊗-left-unit
+  (certified by `scripts/minimal-laws.sh`). Recursion, full merge and
+  asynchrony remain OPEN. See link:PROOF-STATUS.adoc[].
+K-CUT-WARRANT::
+  Warrant transport commutes with projection only as a *bound*, and only under
+  a `SoundWarrant` side-condition.
+  *Status:* **PROVEN in bound form** for the same fragment
+  (`src/Choreographic/Bound.agda`): in a Kripke frame whose worlds are
+  consistent cuts and whose accessibility is sameness of local view, every
+  party knows its restricted grade (a `SoundWarrant` in epistemic-types'
+  own interface, imported) and knows a one-sided bound on the global grade,
+  whose direction depends on where the sequence unit sits in the algebra's
+  order. The *transport* component is in too: the local frontier is known
+  at every world (receiving is knowing it was received), party access "q
+  sees at least what p sees" is epistemic-types' `Preorder` instantiated,
+  and knowledge is monotone along it — a lawful world-indexed
+  `AccessibleModality`. OPEN beyond the fragment: recursion, full merge,
+  asynchrony, data-dependent warrants. See link:PROOF-STATUS.adoc[].
+
+[NOTE]
+====
+The single-static-edge base case in echo-types
+(`RoleGraded.choreo-grade-commute`) is recovered as the Loss instance on
+{fin 0, fin 1, inf}: its coarsening order is the converse of the absorption
+order (`src/Choreographic/Base/RoleGraded.agda`). It was single-edge because
+that sub-lattice is not closed under sequence.
+====

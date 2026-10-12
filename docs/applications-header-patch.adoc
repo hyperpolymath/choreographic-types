@@ -1,0 +1,9 @@
+// Insert after the first comment block of applications/rapidnj-two-thread.agda.
+-- STATUS 2026-10-12: read at the type level in src/Choreographic/Operational.agda.
+-- Discharged there: twoThreadDiamond (two-thread-diamond), twoThreadKCutLoss
+-- (two-thread-kcut-loss, with transportLoss taking the state).  Shown
+-- unsatisfiable as typed: transportLoss : Role → Grade → Grade (no function
+-- of the global grade returns a local grade; Instances.NoTransportLoss) and
+-- globalGradeRespectsStateEq for occupancy (Instances.GradeNotStateInvariant).
+-- Still open, and RapidNJ's rather than the type's: Independent2 and
+-- independentToAntichain (read/write and phase safety).

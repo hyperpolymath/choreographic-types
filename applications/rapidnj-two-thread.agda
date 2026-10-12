@@ -3,6 +3,14 @@
 -- Typed target for the first RapidNJ application.  This file is deliberately
 -- standalone and is not imported by the repository build: every declaration
 -- below is an open interface or an open conjecture, not a proof.
+-- STATUS 2026-10-12: read at the type level in src/Choreographic/Operational.agda.
+-- Discharged there: twoThreadDiamond (two-thread-diamond), twoThreadKCutLoss
+-- (two-thread-kcut-loss, with transportLoss taking the state).  Shown
+-- unsatisfiable as typed: transportLoss : Role → Grade → Grade (no function
+-- of the global grade returns a local grade; Instances.NoTransportLoss) and
+-- globalGradeRespectsStateEq for occupancy (Instances.GradeNotStateInvariant).
+-- Still open, and RapidNJ's rather than the type's: Independent2 and
+-- independentToAntichain (read/write and phase safety).
 module Applications.RapidNJ.TwoThread where
 
 open import Agda.Builtin.Equality using (_≡_)

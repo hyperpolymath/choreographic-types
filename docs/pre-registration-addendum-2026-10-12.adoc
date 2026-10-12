@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Pre-registration addendum — 2026-10-12
+:revdate: 2026-10-12
+
+== Status changes
+
+* K-CUT-LOSS: OPEN → PROVEN (fragment: finite, binary choice, plain merge;
+  parametric in `ResourceAlgebra`; three discharges).
+* "Canonical definitions must be developed": done for the fragment
+  (`Global`, `Local`, `proj`, `Cut`, `Consistent`).
+* "Cross-prover bridge": dissolved for loss — resource-algebra is Agda, same
+  kernel, imported not re-proved. The Lean bridge obligation lives in
+  resource-algebra (M-2), not here.
+* The vocabulary clash ("echo loss-grade" vs. echo's foundation contract)
+  is resolved by construction: a grade names its algebra through the
+  instance; `grade↾` is defined once over the record.
+
+* K-CUT-WARRANT, bound form: OPEN → PROVEN (same fragment). The model is a
+  Kripke frame over consistent cuts with sameness-of-view accessibility;
+  epistemic-types' `SoundWarrant` is instantiated, not imitated. The
+  pre-registered statement below (warrant as a second grade function) was
+  replaced before any proof by the knowledge formulation, because the
+  frame makes "the type cannot determine it" a theorem rather than a remark.
+
+* K-CUT-WARRANT, transport: OPEN → PROVEN (same fragment). Delivered as
+  pre-registered, with one correction made before proving: the statement
+  "r knows the global cut extends the send" is false under plain merge
+  when the send sits inside a choice r is outside of (the other branch
+  carries an identical local event), so the theorem is about the *local*
+  frontier — which is exactly what r can know. `AccessibleModality` needed
+  a world index to be instantiable (T-6).
+
+== Pre-registered next statements (before any proof)
+
+* Operational bridge: PROVEN as pre-registered (relational `step`), with
+  the prediction confirmed: `globalGradeRespectsStateEq` fails for
+  occupancy under swap-equivalence (A-8), and `transportLoss` had to be
+  re-typed (A-7).
+
+. *(discharged — kept for the record) Operational bridge for the RapidNJ target.* Interpret
+  `applications/rapidnj-two-thread.agda`: `State` = global types modulo
+  swap-equivalence (`StateEq`), `step e` = consuming a head interaction,
+  `Independent2` = `Disjoint`. Claims: `twoThreadDiamond` = `swap-proj`
+  lifted to the quotient; `twoThreadKCutLoss` = `swap-grade↾` + `kcut-loss`.
+  Falsifier: an independent pair whose local grades differ by order at some
+  endpoint. Prediction from A-3: the global *occupancy* reading will need
+  `StateEq` to be finer than swap-equivalence, because peaks are
+  order-sensitive.
+
+. *Asynchrony.* Cuts over a global type with queues; `sender-knows` is the
+  falsifier (expected to fail; `receiver-knows` expected to survive).
+. *Recursive fragment.* μ-types with a fuel-indexed `grade↾`; K-1 restated
+  at every fuel. Falsifier: a cut through an unfolding where projection and
+  cutting fail to commute.
+. *Full merge.* Replace `Merge p (outside …) G₁ G₂` by a merge relation on
+  local types; K-3 must then prove `lgrade (merge L₁ L₂) ≡ lgrade L₁ ⊕ lgrade L₂`.
+  Falsifier: a mergeable pair where the merged grade is not the join.
+
+== Provenance
+
+Global/local syntax: the binary-choice fragment of multiparty session types
+(Honda–Yoshida–Carbone 2008, plain merge), restated with grades. Cuts as
+frontiers: ours. Everything in `src/` is new Agda; `Base/RoleGraded` is a
+transcription of echo-types' `EchoGraded` order.

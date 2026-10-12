@@ -1,0 +1,39 @@
+// Issue text for hyperpolymath/epistemic-types.
+= An external model discharges "global soundness of warrants" for type-determined warrants
+
+README lists *global soundness of warrants* and *Kripke semantics* as
+intentionally unformalised. choreographic-types (K-CUT development,
+2026-10-12) now imports `EpistemicTypes.Warrant` (at 495db9c) and builds a
+Kripke frame in which both are theorems for a class of warrants:
+
+* worlds = consistent cuts of a global type; standpoint of party p = its
+  local timeline; accessibility = sameness of timeline (Halpern–Moses);
+* knowledge is factive, so every warrant the choreography determines is a
+  `SoundWarrant` (`Choreographic.Kripke.Frame.sound-warrant`);
+* the restricted grade is such a warrant (`own-grade-warrant`), and a
+  one-sided bound on the global grade is another (`lower-bound-warrant`).
+
+What this does *not* do: warrants about data the type does not determine
+are outside the frame, so `SoundWarrant` stays an assumption there — but
+the scope of the assumption is now exact.
+
+Transport (`Choreographic.Transport`, same date) adds:
+
+* `Preorder Party` instantiated by "q sees at least what p sees";
+  knowledge is monotone along it (`knows-mono`).
+* `AccessibleModality` could *not* be instantiated as stated: `E : K → Set
+  → Set` has no world index, and world-free Kripke knowledge collapses to
+  the proposition itself by reflexivity. With
+  `E : K → (World → Set) → (World → Set)` and otherwise identical fields,
+  the frame is a lawful instance with every law by `refl`.
+
+Asks:
+. Record choreographic-types as an external model in README's
+  "intentionally unformalised" section rather than leaving it blanket.
+. Consider an indexed variant of `Modality`/`AccessibleModality` (carrier
+  `K → (W → Set ℓ) → (W → Set ℓ)` for a world type `W`); the current
+  records remain the `W = ⊤` special case. This is the shape Kripke
+  semantics needs, and it is what the `Base`/`Access` README item is
+  waiting on.
+. Keep `Warrant.agda`, `Base.agda`, `Access.agda` builtins-only (they are,
+  which is what made the imports possible).
