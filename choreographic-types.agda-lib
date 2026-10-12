@@ -1,0 +1,4 @@
+name: choreographic-types
+include: src
+depend: resource-algebra epistemic-types
+flags: --safe --without-K

@@ -89,3 +89,4 @@ composer/build/
 erl_crash.dump
 htmlcov/
 secrets/
+_build/
