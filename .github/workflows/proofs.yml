@@ -18,6 +18,8 @@ jobs:
           apt-get update
           apt-get install --no-install-recommends -y ca-certificates git agda-bin=2.6.4.3-1+b2
       - uses: actions/checkout@v6.0.3
+        with:
+          persist-credentials: false
       - name: Verify the checked Agda version
         run: test "$(agda --version)" = 'Agda version 2.6.4.3'
       - name: Fetch resource-algebra at its pinned commit
