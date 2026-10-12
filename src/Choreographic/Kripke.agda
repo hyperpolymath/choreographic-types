@@ -59,18 +59,23 @@ module Frame (G : Global) where
   ~-trans : ∀ {p w w' w''} → w ~[ p ] w' → w' ~[ p ] w'' → w ~[ p ] w''
   ~-trans = trans
 
+  -- Require φ at every world with the same local view for p, including w.
   Knows : Party → World → (World → Set) → Set
   Knows p w φ = ∀ w' → w ~[ p ] w' → φ w'
 
+  -- Extract truth at the current world from knowledge there.
   knows-factive : ∀ p w φ → Knows p w φ → φ w
   knows-factive p w φ k = k w refl
 
   ----------------------------------------------------------------------
   -- epistemic-types' interface, instantiated.  Evidence tokens are
   -- knowledge in this frame; soundness is reflexivity of the frame.
+  -- Define the evidence type as Knows p w φ; no evidence token is supplied.
   warrant : (p : Party) (w : World) (φ : World → Set) → Warrant Party p (φ w)
   warrant p w φ = mkWarrant (Knows p w φ)
 
+  -- Package the warrant with a map from knowledge evidence to truth at w.
+  -- The caller must supply an evidence token to obtain a proof of φ w.
   sound-warrant : (p : Party) (w : World) (φ : World → Set) → SoundWarrant Party p (φ w)
   sound-warrant p w φ = soundWarrant (warrant p w φ) (knows-factive p w φ)
 
@@ -83,6 +88,7 @@ module Frame (G : Global) where
     (trans (cong lgrade (sym e))
            (sym (kcut-loss p G c (k p))))
 
-  -- ... and holds a sound warrant for it, in epistemic-types' sense.
+  -- Construct the sound warrant for equality with the grade at w;
+  -- knows-own-grade supplies its knowledge evidence separately.
   own-grade-warrant : ∀ p w → SoundWarrant Party p (grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w))
   own-grade-warrant p w = sound-warrant p w (λ w' → grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w))

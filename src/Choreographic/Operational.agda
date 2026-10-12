@@ -81,8 +81,9 @@ proj-msg-inj (receiver _ _) g e = cong left e
 proj-msg-inj (outside _ _)  g e = e
 
 ----------------------------------------------------------------------
--- twoThreadDiamond, as a theorem: firing two independent events in either
--- order reaches projection-equivalent states.
+-- twoThreadDiamond, as a theorem: given executions of two independent
+-- events in both orders from the same state, their final states are
+-- projection-equivalent.  Existence of both executions is a premise.
 two-thread-diamond : ∀ {e₁ e₂ s s₁ s₂ t t'} → Antichain2 e₁ e₂
                    → Step e₁ s s₁ → Step e₂ s₁ t
                    → Step e₂ s s₂ → Step e₁ s₂ t'

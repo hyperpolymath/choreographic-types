@@ -51,6 +51,7 @@ swap-msg (sender e)      (receiver _ e')  d g g' L = ⊥-elim (Disjoint.s≢r' d
 swap-msg (receiver _ e)  (sender e')      d g g' L = ⊥-elim (Disjoint.r≢s' d (trans (sym e) e'))
 swap-msg (receiver _ e)  (receiver _ e')  d g g' L = ⊥-elim (Disjoint.r≢r' d (trans (sym e) e'))
 
+-- Swapping adjacent messages between disjoint pairs preserves p's endpoint.
 swap-proj : ∀ {s r s' r'} → Disjoint s r s' r' → ∀ p g g' G
           → proj p (msg s r g (msg s' r' g' G)) ≡ proj p (msg s' r' g' (msg s r g G))
 swap-proj {s} {r} {s'} {r'} d p g g' G = swap-msg (role p s r) (role p s' r') d g g' (proj p G)
@@ -69,11 +70,14 @@ swap-at (sender e)      (receiver _ e')  d g g' x = ⊥-elim (Disjoint.s≢r' d 
 swap-at (receiver _ e)  (sender e')      d g g' x = ⊥-elim (Disjoint.r≢s' d (trans (sym e) e'))
 swap-at (receiver _ e)  (receiver _ e')  d g g' x = ⊥-elim (Disjoint.r≢r' d (trans (sym e) e'))
 
+-- Swapping adjacent messages between disjoint pairs preserves p's
+-- restricted grade without requiring sequence commutativity.
 swap-grade↾ : ∀ {s r s' r'} → Disjoint s r s' r' → ∀ p g g' G
             → grade↾ p (msg s r g (msg s' r' g' G)) ≡ grade↾ p (msg s' r' g' (msg s r g G))
 swap-grade↾ {s} {r} {s'} {r'} d p g g' G = swap-at (role p s r) (role p s' r') d g g' (grade↾ p G)
 
--- The global grade swaps exactly when the two grades commute under ⊗.
+-- Commutativity of the two grades under ⊗ suffices to preserve the global
+-- grade when swapping adjacent messages; disjointness is not required.
 swap-grade : ∀ {s r s' r'} g g' G → g ⊗ g' ≡ g' ⊗ g
            → grade (msg s r g (msg s' r' g' G)) ≡ grade (msg s' r' g' (msg s r g G))
 swap-grade g g' G c =

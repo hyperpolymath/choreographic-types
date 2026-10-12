@@ -20,6 +20,7 @@ suc-inj : ∀ {m n : Nat} → suc m ≡ suc n → m ≡ n
 suc-inj refl = refl
 
 infix 4 _≟_
+-- Decide party equality, returning either an equality proof or its refutation.
 _≟_ : (m n : Party) → Dec (m ≡ n)
 zero  ≟ zero  = yes refl
 zero  ≟ suc n = no (λ ())
@@ -34,6 +35,7 @@ data Role (p s r : Party) : Set where
   receiver : p ≢ s → p ≡ r → Role p s r
   outside  : p ≢ s → p ≢ r → Role p s r
 
+-- Classify p in the interaction s → r; sender takes precedence when s = r.
 role : ∀ p s r → Role p s r
 role p s r with p ≟ s
 ... | yes e  = sender e

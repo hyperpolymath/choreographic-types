@@ -36,11 +36,13 @@ data Each (P : Grade → Set) : Global → Set where
   msg    : ∀ {s r g G} → P g → Each P G → Each P (msg s r g G)
   choice : ∀ {s r g G₁ G₂} → P g → Each P G₁ → Each P G₂ → Each P (choice s r g G₁ G₂)
 
+-- Establish P for every interaction grade from a proof valid for all grades.
 each-of : ∀ {P} → (∀ g → P g) → ∀ G → Each P G
 each-of h end                   = end
 each-of h (msg s r g G)         = msg (h g) (each-of h G)
 each-of h (choice s r g G₁ G₂)  = choice (h g) (each-of h G₁) (each-of h G₂)
 
+-- Preserve a predicate on interaction grades when truncating at any cut.
 each-cut : ∀ {P G} → Each P G → (c : Cut G) → Each P (G ↾ c)
 each-cut e               stop                = end
 each-cut (msg h e)       (cont-msg c)        = msg h (each-cut e c)
@@ -83,17 +85,22 @@ grade-≼↾ p {choice s r g G₁ G₂} (choice u e₁ e₂)      =
 module _ (G : Global) (p : Party) where
   open Frame G
 
+  -- The restricted grade at w is a lower bound at every world p cannot
+  -- distinguish from w, provided every interaction grade is above 𝟙.
   knows-lower-bound : Each (𝟙 ≼_) G → ∀ w
                     → Knows p w (λ w' → grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w'))
   knows-lower-bound e w w' s =
     ≡-≼ (sym (knows-own-grade p w w' s)) (grade↾-≼ p (each-cut e (cut w')))
 
+  -- The restricted grade at w is an upper bound at every world p cannot
+  -- distinguish from w, provided every interaction grade is below 𝟙.
   knows-upper-bound : Each (_≼ 𝟙) G → ∀ w
                     → Knows p w (λ w' → grade (G ↾ cut w') ≼ grade↾ p (G ↾ cut w))
   knows-upper-bound e w w' s =
     ≼-trans (grade-≼↾ p (each-cut e (cut w'))) (≡-≼ (knows-own-grade p w w' s) (≼-refl _))
 
-  -- ... and these are sound warrants in epistemic-types' sense.
+  -- Construct a sound warrant whose evidence type is knowledge of the
+  -- lower bound.  knows-lower-bound supplies an evidence token separately.
   lower-bound-warrant : Each (𝟙 ≼_) G → ∀ w
                       → SoundWarrant Party p (grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w))
   lower-bound-warrant e w = sound-warrant p w (λ w' → grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w'))

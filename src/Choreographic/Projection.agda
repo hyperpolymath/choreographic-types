@@ -21,16 +21,23 @@ open ResourceAlgebra R
 -- representative; `Projectable` below demands the branches agree there
 -- (plain merge).  Projection is therefore total and the side-condition is
 -- explicit, which is what the theorems need.
+-- Prepend a send or receive for a participant; leave an outsider's
+-- continuation unchanged.
 proj-msg : ∀ {p s r} → Role p s r → Grade → Local → Local
 proj-msg {s = s} {r = r} (sender _)     g L = send r g L
 proj-msg {s = s} {r = r} (receiver _ _) g L = recv s g L
 proj-msg                 (outside _ _)  _ L = L
 
+-- Form a selection or branch for a participant; return the left
+-- continuation for an outsider without checking agreement with the right.
 proj-choice : ∀ {p s r} → Role p s r → Grade → Local → Local → Local
 proj-choice {s = s} {r = r} (sender _)     g L₁ L₂ = select r g L₁ L₂
 proj-choice {s = s} {r = r} (receiver _ _) g L₁ L₂ = branch s g L₁ L₂
 proj-choice                 (outside _ _)  _ L₁ L₂ = L₁
 
+-- Compute p's endpoint, omitting messages it does not take part in and
+-- choosing the left branch of choices it does not take part in.  This
+-- computes a local type even when Projectable p G has no witness.
 proj : Party → Global → Local
 proj p end                   = end
 proj p (msg s r g G)         = proj-msg    (role p s r) g (proj p G)
@@ -53,17 +60,23 @@ data Projectable (p : Party) : Global → Set where
 
 ----------------------------------------------------------------------
 -- Projecting a cut: follow the projection node by node.
+-- Retain a message cut at a participating endpoint; pass the continuation
+-- cut through unchanged for an outsider.
 cutproj-msg : ∀ {p s r g L} (ρ : Role p s r) → LCut L → LCut (proj-msg ρ g L)
 cutproj-msg (sender _)     c = cont-send c
 cutproj-msg (receiver _ _) c = cont-recv c
 cutproj-msg (outside _ _)  c = c
 
+-- Retain both branch cuts for a participant; use only the left cut for
+-- an outsider, matching proj-choice.
 cutproj-choice : ∀ {p s r g L₁ L₂} (ρ : Role p s r)
                → LCut L₁ → LCut L₂ → LCut (proj-choice ρ g L₁ L₂)
 cutproj-choice (sender _)     c₁ c₂ = cont-select c₁ c₂
 cutproj-choice (receiver _ _) c₁ c₂ = cont-branch c₁ c₂
 cutproj-choice (outside _ _)  c₁ c₂ = c₁
 
+-- Map a global frontier to p's endpoint, with stop mapping to stop.
+-- No consistency witness is required to compute the projected cut.
 cutproj : ∀ {G} (p : Party) → Cut G → LCut (proj p G)
 cutproj p stop                                       = stop
 cutproj p (cont-msg    {s} {r} {g} {G} c)            = cutproj-msg    (role p s r) (cutproj p c)

@@ -34,6 +34,8 @@ data LCut : Local → Set where
   cont-branch : ∀ {q g L₁ L₂} → LCut L₁ → LCut L₂ → LCut (branch q g L₁ L₂)
 
 infixl 5 _↾ₗ_
+-- Truncate an endpoint at its local frontier.  stop yields end; continuing
+-- retains the action and truncates each continuation at its own cut.
 _↾ₗ_ : (L : Local) → LCut L → Local
 L                ↾ₗ stop               = end
 send q g L       ↾ₗ cont-send c        = send q g (L ↾ₗ c)

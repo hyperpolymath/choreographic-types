@@ -47,6 +47,8 @@ data Cut : Global → Set where
   cont-choice : ∀ {s r g G₁ G₂} → Cut G₁ → Cut G₂ → Cut (choice s r g G₁ G₂)
 
 infixl 5 _↾_
+-- Truncate at the frontier: stop replaces a subtree with end; continuing
+-- retains the interaction and truncates each continuation at its own cut.
 _↾_ : (G : Global) → Cut G → Global
 G                  ↾ stop               = end
 msg s r g G        ↾ cont-msg c         = msg s r g (G ↾ c)

@@ -37,6 +37,8 @@ open ResourceAlgebra R
 -- Injectivity of the local constructors, via projections (matching `refl`
 -- on `send q g L ≡ send q g L'` would need K to discharge g ≡ g on an
 -- abstract Grade; projections need nothing).
+-- Return the left or right branch of a choice respectively, the sole
+-- continuation of send/recv, or end for end.
 left right : Local → Local
 left  end                = end
 left  (send _ _ L)       = L
@@ -67,6 +69,7 @@ branch-inj₁ = cong left
 branch-inj₂ : ∀ {q g L₁ L₂ L₁' L₂'} → branch q g L₁ L₂ ≡ branch q g L₁' L₂' → L₂ ≡ L₂'
 branch-inj₂ = cong right
 
+-- Equal truncations of the same local type imply equal cuts.
 ↾ₗ-injective : ∀ L (c c' : LCut L) → L ↾ₗ c ≡ L ↾ₗ c' → c ≡ c'
 ↾ₗ-injective L                  stop                 stop                   e = refl
 ↾ₗ-injective (send q g L)       stop                 (cont-send c')         ()
@@ -102,6 +105,7 @@ module Over (G : Global) where
               → P (cutproj p (cut w)) → Knows p w (λ w' → P (cutproj p (cut w')))
   knows-local p w P h w' e = subst P (sym (knows-local-cut p w w' e)) h
 
+  -- Equal projected cuts make the worlds indistinguishable to p.
   local-cut-determines : ∀ p {w w'} → cutproj p (cut w) ≡ cutproj p (cut w') → w ~[ p ] w'
   local-cut-determines p e = cong (proj p G ↾ₗ_) e
 
@@ -117,6 +121,8 @@ module Over (G : Global) where
   ⊑-trans : ∀ {p q r} → p ⊑ q → q ⊑ r → p ⊑ r
   ⊑-trans pq qr w w' a = pq w w' (qr w w' a)
 
+  -- Transport knowledge from p to q at the same world when q sees at
+  -- least what p sees.
   knows-mono : ∀ {p q} w {φ} → p ⊑ q → Knows p w φ → Knows q w φ
   knows-mono w pq k w' a = k w' (pq w w' a)
 
