@@ -8,7 +8,7 @@
 A pre-registration and research notebook for a graded multiparty-session and
 choreographic type theory, combining echo loss-grades and epistemic
 standpoint-warrants. Agda is the intended prover, not a completed formalisation.
-The central artefact is the open keystone K-CUT: the conjecture that grading
+The central artefact is the keystone K-CUT — proved for the finite, binary-choice, plain-merge, synchronous fragment (see the formalisation section below) and open beyond it — the statement that grading
 and transport commute with projection across a consistent frontier.
 
 == Overview
@@ -118,7 +118,7 @@ deferred.
 
 | K-CUT (grading/transport commutes with projection across a cut)
 | **Ours** (conjecture)
-| The keystone — OPEN
+| The keystone — PROVEN (fragment); OPEN beyond it
 |===
 
 == Dependencies and the port-and-reprove pattern

@@ -29,7 +29,9 @@ for file in "${rejects[@]}"; do
     echo "ERROR: invalid proof accepted: $name" >&2
     exit 1
   fi
-  if ! grep -Eq "/$name\.agda:[0-9]+,[0-9]+" "$log" ||
+  invalid_line="$(grep -nE '^invalid ' "$file" | head -1 | cut -d: -f1)"
+  diag_line="$(grep -oE "/$name\.agda:[0-9]+,[0-9]+" "$log" | head -1 | sed -E 's/.*:([0-9]+),.*/\1/')"
+  if [ -z "$invalid_line" ] || [ -z "$diag_line" ] || [ "$diag_line" -lt "$invalid_line" ] ||
      ! grep -q 'when checking that' "$log" ||
      grep -Eq 'Not in scope|Failed to find|Unsolved|Parse error' "$log"; then
     cat "$log"

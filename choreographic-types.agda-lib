@@ -1,4 +1,6 @@
 name: choreographic-types
 include: src
-depend: resource-algebra epistemic-types
+-- Siblings are fetched as source trees by scripts/fetch-siblings.sh and
+-- passed with explicit -i paths under --no-libraries (scripts/check.sh is the
+-- supported workflow); no library descriptors are registered.
 flags: --safe --without-K
