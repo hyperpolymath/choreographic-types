@@ -4,7 +4,7 @@
 # FILL IN the commit once hyperpolymath/resource-algebra is pushed.
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
-RESOURCE_ALGEBRA_COMMIT="${RESOURCE_ALGEBRA_COMMIT:-FILL-IN-COMMIT-SHA}"
+RESOURCE_ALGEBRA_COMMIT="${RESOURCE_ALGEBRA_COMMIT:-b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881}"
 EPISTEMIC_TYPES_COMMIT="${EPISTEMIC_TYPES_COMMIT:-495db9c}"   # Warrant/Base/Access as read 2026-10-12
 mkdir -p _build/dependencies
 if [ ! -d _build/dependencies/epistemic-types ]; then
