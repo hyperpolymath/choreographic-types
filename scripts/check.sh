@@ -24,6 +24,8 @@ stdlib="${AGDA_STDLIB_SRC:-/usr/share/agda-stdlib/src}"
 
 # require_dir <path> <what> <how to get it>
 # Fails the gate with a usable message when an include path is missing.
+# Returns success if <path> is a directory; otherwise exits the script with
+# status 1. <what> names the missing sources; <how to get it> suggests a remedy.
 require_dir() {
   test -d "$1" || { echo "ERROR: $2 not found at $1 ($3)" >&2; exit 1; }
 }

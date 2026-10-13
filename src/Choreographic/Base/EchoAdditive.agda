@@ -68,10 +68,12 @@ EchoAdditive-annihilating = record { annihilˡ = E.+g-absorbˡ ; annihilʳ = E.+
 ----------------------------------------------------------------------
 -- Agreement with resource-algebra's transcription, operation for operation
 
+-- Convert an echo-additive grade to Loss, preserving finite loss and infinity.
 toLoss : E.Grade → L.Grade
 toLoss (E.fin n) = L.fin n
 toLoss E.inf     = L.inf
 
+-- Convert a Loss grade back to echo-additive, preserving finite loss and infinity.
 fromLoss : L.Grade → E.Grade
 fromLoss (L.fin n) = E.fin n
 fromLoss L.inf     = E.inf
@@ -111,6 +113,7 @@ toLoss-⊗ E.inf     b         = refl
 -- The three-grade base lattice: Base/RoleGraded's transcription of
 -- EchoGraded, matched against the original constructor by constructor
 
+-- Map each original base grade to its corresponding RoleGraded constructor.
 transcribe : Old.Grade → RG.EGrade
 transcribe Old.keep    = RG.keep
 transcribe Old.residue = RG.residue
@@ -132,6 +135,7 @@ embed-agrees Old.forget  = refl
 ≤g-transcribe Old.residue≤forget  = RG.residue≤forget
 ≤g-transcribe Old.forget≤forget   = RG.forget≤forget
 
+-- Recover an original coarsening proof from one between the transcribed grades.
 ≤g-original : ∀ a b → transcribe a RG.≤g transcribe b → a Old.≤g b
 ≤g-original Old.keep    Old.keep    _  = Old.keep≤keep
 ≤g-original Old.keep    Old.residue _  = Old.keep≤residue

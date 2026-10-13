@@ -12,6 +12,8 @@ import { fileURLToPath } from 'node:url';
  * pre-registration or stops pointing at the proof ledger, and any Agda or
  * script path cited in README or PROOF-STATUS that does not exist.
  * Returns the list of findings; an empty list is a pass.
+ * Filesystem errors during directory scans or file reads propagate to the
+ * caller rather than becoming findings, including a missing README.adoc.
  */
 export function checkRepository(root) {
   const errors = [];
@@ -21,6 +23,7 @@ export function checkRepository(root) {
    * Git directories.
    * @param {string} dir - Directory to scan.
    * @returns {void}
+   * @throws {Error} If a directory cannot be scanned or an AsciiDoc file read.
    */
   function walk(dir) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {

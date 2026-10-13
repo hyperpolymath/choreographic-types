@@ -23,11 +23,12 @@ DEPENDENCIES_DIR="${DEPENDENCIES_DIR:-_build/dependencies}"
 
 # fetch_pinned <repo> <commit>
 # Fetches exactly <commit> of hyperpolymath/<repo> into $DEPENDENCIES_DIR/<repo>
-# (reusing a checkout that already holds the commit) and fails unless HEAD
-# is then that commit AND the tree is exactly that commit: a reused checkout
-# with edited or added source would let the gate read something other than
-# the pin.  Agda's own .agdai interface files are the one tolerated residue;
-# the gate ignores them (--ignore-interfaces).
+# (reusing a checkout that already holds the commit) and detaches HEAD there.
+# Requires a full 40-character lowercase hexadecimal SHA. Exits the script
+# with status 1 for an invalid pin, a HEAD mismatch, or tracked changes or
+# untracked files reported by Git, excluding .agdai files. Git-ignored files
+# are not checked; the proof gate ignores .agdai files (--ignore-interfaces).
+# Other Git command failures terminate the script with the command's status.
 fetch_pinned() {
   local repo="$1" commit="$2" dir="$DEPENDENCIES_DIR/$1" head dirty
   if ! [[ "$commit" =~ ^[0-9a-f]{40}$ ]]; then
