@@ -9,8 +9,13 @@ import { payloadFrom, samePolicy } from '../scripts/actions-policy.mjs';
 
 const status = 'A pre-registration. What is and is not proved: PROOF-STATUS.adoc.\n';
 const ledger = '| K-1 | claim | OPEN |\n';
-// A fixture is an honest minimal repository: README plus the ledger it points
-// at. Pass `null` for a file to leave it out.
+/**
+ * Creates a temporary repository with a README and proof ledger, applying
+ * file overrides and registering cleanup after the test.
+ * @param {import('node:test').TestContext} t - Test context used for cleanup.
+ * @param {Record<string, string | null>} files - File contents; null omits a file.
+ * @returns {string} Path to the temporary repository.
+ */
 function fixture(t, files = {}) {
   const root = mkdtempSync(join(tmpdir(), 'choreo-check-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));

@@ -15,6 +15,13 @@ import { fileURLToPath } from 'node:url';
  */
 export function checkRepository(root) {
   const errors = [];
+  /**
+   * Recursively checks AsciiDoc links and stale references, and flags retired
+   * state files, appending findings to `errors`. Skips dependency, cache and
+   * Git directories.
+   * @param {string} dir - Directory to scan.
+   * @returns {void}
+   */
   function walk(dir) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       if (['.git', 'node_modules', '.cache', '_build'].includes(entry.name)) continue;
