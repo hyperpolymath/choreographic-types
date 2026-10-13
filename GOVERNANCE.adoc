@@ -41,8 +41,11 @@ Maintain existing tests - Update documentation as needed
 === Commit and tag signing
 
 Every commit and every tag in this repository is signed, and GitHub must
-show it as *Verified*. The server enforces this through rulesets, never
-through a bypass: `Immutable-Tags` (active) rejects unsigned tags, and
+show it as *Verified*, or as *Partially verified* when a maintainer has
+signed on behalf of a different author (the re-sign recipe under "Agents
+and bots" produces exactly that). Both badges mean a verified signature;
+what is never acceptable is *Unverified* or no badge at all. The server
+enforces this through rulesets, never through a bypass: `Immutable-Tags` (active) rejects unsigned tags, and
 `Require-Signed-Commits` on `main` rejects unsigned pushes once enabled.
 It is disabled at the time of writing (2026-10-13); enable it as soon as
 every maintainer's key below is registered, and do not add bypass actors
@@ -56,6 +59,12 @@ authentication key), and the commit's committer email is a verified email
 of that account (the `@users.noreply.github.com` address counts). One
 account and one key per person. A private key is never shared, and two
 people never commit under one identity.
+
+GitHub shows *Partially verified* instead of *Verified* when the signer
+is not the author and the author has Vigilant mode on. The
+`Require-Signed-Commits` rule accepts both badges, so no separate check
+is needed: a commit signed by a maintainer for a bot author passes, and
+an unsigned commit does not.
 
 ==== Set-up, once per person and machine
 
