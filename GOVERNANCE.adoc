@@ -38,6 +38,73 @@ Maintain existing tests - Update documentation as needed
 * Need approval from majority of maintainers
 * Must include migration guide
 
+=== Commit and tag signing
+
+Every commit and every tag in this repository is signed, and GitHub must
+show it as *Verified*. The server enforces this through rulesets, never
+through a bypass: `Immutable-Tags` (active) rejects unsigned tags, and
+`Require-Signed-Commits` on `main` rejects unsigned pushes once enabled.
+It is disabled at the time of writing (2026-10-13); enable it as soon as
+every maintainer's key below is registered, and do not add bypass actors
+for bots.
+
+==== What "Verified" needs
+
+Two things, on the same GitHub account: the signing key is registered
+under _Settings → SSH and GPG keys_ as a *Signing key* (not an
+authentication key), and the commit's committer email is a verified email
+of that account (the `@users.noreply.github.com` address counts). One
+account and one key per person. A private key is never shared, and two
+people never commit under one identity.
+
+==== Set-up, once per person and machine
+
+SSH signing is the house choice: no agent, no expiry, verified by GitHub
+exactly like GPG.
+
+[source,bash]
+----
+ssh-keygen -t ed25519 -f ~/.ssh/git-signing -C "you@verified-email.example"
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/git-signing.pub
+git config --global commit.gpgsign true
+git config --global tag.gpgsign true
+git config --global user.email "you@verified-email.example"
+mkdir -p ~/.config/git
+echo "you@verified-email.example $(cat ~/.ssh/git-signing.pub)" >> ~/.config/git/allowed_signers
+git config --global gpg.ssh.allowedSignersFile ~/.config/git/allowed_signers
+----
+
+Then add the contents of `~/.ssh/git-signing.pub` to the account as a
+Signing key, turn on *Vigilant mode* in the same settings page so any
+unsigned commit shows as Unverified, and test with one commit on a scratch
+branch before relying on it.
+
+Two people on one machine: one clone directory per account, and an
+`includeIf "gitdir:..."` block per directory in `~/.gitconfig` that sets
+`user.email` and `user.signingkey`, so the wrong identity cannot sign.
+
+==== Checking
+
+`git log --show-signature` locally (needs the allowed-signers file above);
+the Verified badge on GitHub; or the public API, where
+`commit.verification.reason` reads `valid` for a good signature and
+`unsigned` for none.
+
+==== Agents and bots
+
+* Claude Code cloud sessions sign automatically: SSH signatures with a key
+  registered to the `claude` GitHub account, committer
+  `Claude <noreply@anthropic.com>`. Measured on #25: every commit from the
+  session reported `verified: true, reason: valid`.
+* Squash and merge commits that GitHub creates are signed by GitHub.
+* CodeRabbit's "commit to this branch" features (docstring generation,
+  autofix) write unsigned commits through the API. Keep those features
+  off, or have a maintainer re-sign the commits before merge:
+  `git rebase --exec 'git commit --amend --no-edit' <base>` with signing
+  configured re-signs each one and keeps the bot as author. Never grant a
+  ruleset bypass to a bot instead.
+
 === Code of Conduct
 
 All participants are expected to follow our Code of Conduct. Violations
@@ -57,4 +124,4 @@ contributions accordingly.
 
 '''''
 
-_Last updated: 2026-07-18_
+_Last updated: 2026-10-13_
