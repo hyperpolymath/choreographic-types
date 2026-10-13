@@ -39,6 +39,22 @@ if [ "$version" != "Agda version $expected_version" ]; then
   exit 1
 fi
 
+# 0. Trusted base: the only postulates in the repository are the sanctioned
+#    interface declarations of the RapidNJ application target, which is not
+#    part of the gate (.cicd-hygiene-allow).  Nothing under src/ or tests/
+#    may postulate; the target keeps exactly one `postulate` block.
+if stray="$(grep -rlw --include='*.agda' postulate src tests)"; then
+  echo "ERROR: postulate outside the sanctioned application target:" >&2
+  echo "$stray" >&2
+  exit 1
+fi
+blocks="$(grep -cE '^[[:space:]]*postulate\b' applications/rapidnj-two-thread.agda || true)"
+if [ "$blocks" != 1 ]; then
+  echo "ERROR: applications/rapidnj-two-thread.agda has $blocks postulate blocks, expected exactly 1" >&2
+  exit 1
+fi
+echo 'PASS: trusted base (no postulates under src/ or tests/; one block in the application target)'
+
 flags=(--safe --without-K --no-libraries --ignore-interfaces --double-check
        -W error -W noUnsupportedIndexedMatch
        -i src -i "$ra" -i "$et")

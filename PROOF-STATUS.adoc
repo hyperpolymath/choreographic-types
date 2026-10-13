@@ -192,8 +192,10 @@ That is where the next proof effort belongs.
 (`sha256:a29215f6…`, resolved 2026-10-13), `apt-get install
 agda-bin=2.6.4.3-1+b2 agda-stdlib=2.1-4`, `actions/checkout` by full SHA
 (`3d3c42e5…`, v7.0.1), `test "$(agda --version)" = 'Agda version 2.6.4.3'`,
-then `scripts/fetch-siblings.sh`, `scripts/check.sh` (core root with no
-library path; the echo-additive root with echo-types and the standard library;
+then `scripts/fetch-siblings.sh`, `scripts/check.sh` (a trusted-base step:
+no `postulate` under `src/` or `tests/`, exactly one block in the
+application target, which `.cicd-hygiene-allow` sanctions; the core root
+with no library path; the echo-additive root with echo-types and the standard library;
 every `tests/reject/*.agda` must fail at its `invalid` declaration with a
 type mismatch) and `scripts/minimal-laws.sh`. Flags on every check:
 `--safe --without-K --no-libraries --ignore-interfaces --double-check -W error
