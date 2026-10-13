@@ -1,14 +1,33 @@
 // SPDX-License-Identifier: MPL-2.0
-// Documentation checks only: never evidence that K-CUT is proved.
+// Documentation checks only: never evidence that K-CUT is proved.  The proof
+// gate is scripts/check.sh under .github/workflows/proofs.yml.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/**
+ * Checks the documentation of the repository rooted at `root` for the
+ * structural lies this notebook has told before: broken local links, retired
+ * formats, placeholder badges, a README that stops disclosing that it is a
+ * pre-registration or stops pointing at the proof ledger, and any Agda or
+ * script path cited in README or PROOF-STATUS that does not exist.
+ * Returns the list of findings; an empty list is a pass.
+ * Filesystem errors during directory scans or file reads propagate to the
+ * caller rather than becoming findings, including a missing README.adoc.
+ */
 export function checkRepository(root) {
   const errors = [];
+  /**
+   * Recursively checks AsciiDoc links and stale references, and flags retired
+   * state files, appending findings to `errors`. Skips dependency, cache and
+   * Git directories.
+   * @param {string} dir - Directory to scan.
+   * @returns {void}
+   * @throws {Error} If a directory cannot be scanned or an AsciiDoc file read.
+   */
   function walk(dir) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (['.git', 'node_modules', '.cache'].includes(entry.name)) continue;
+      if (['.git', 'node_modules', '.cache', '_build'].includes(entry.name)) continue;
       const path = resolve(dir, entry.name);
       if (entry.isDirectory()) walk(path);
       else if (entry.isFile()) {
@@ -30,18 +49,22 @@ export function checkRepository(root) {
   walk(root);
   const readme = readFileSync(resolve(root, 'README.adoc'), 'utf8');
   if (!/pre-registration/i.test(readme)) errors.push('README must disclose pre-registration status');
-  if (!readme.includes('Nothing in this repo is proven yet.')) errors.push('README must disclose proof status');
-  for (const [, source] of readme.matchAll(/\bagda\b[^\n]*?([\w./-]+\.agda)/g)) {
-    if (!existsSync(resolve(root, source))) errors.push(`Nonexistent Agda build target: ${source}`);
-  }
-  // The surfaces that mirror the repository description must not claim a
-  // completed formalisation until a checked module exists (issue #15, D-4).
-  // Relax this in the same change that lands the first checked module.
-  for (const surface of ['README.adoc', 'CITATION.cff']) {
+  // Proof status lives in one place, the ledger, so README must point at it
+  // rather than carry a status sentence of its own that can drift from it.
+  if (!readme.includes('PROOF-STATUS.adoc')) errors.push('README must point at PROOF-STATUS.adoc for what is and is not proved');
+  // The ledger README points at must itself exist.
+  if (!existsSync(resolve(root, 'PROOF-STATUS.adoc'))) errors.push('PROOF-STATUS.adoc, the proof ledger, is missing');
+  // Every Agda module or script a reader could copy from README or the ledger
+  // must exist: a cited path is a claim that the file is there to check.
+  for (const surface of ['README.adoc', 'PROOF-STATUS.adoc']) {
     const surfacePath = resolve(root, surface);
     if (!existsSync(surfacePath)) continue;
-    if (/agda\s+formali[sz]ation/i.test(readFileSync(surfacePath, 'utf8'))) {
-      errors.push(`Description claim of a completed Agda formalisation in ${surface}; not true until a checked module exists`);
+    const text = readFileSync(surfacePath, 'utf8');
+    for (const [, source] of text.matchAll(/\b((?:src|tests|applications|scripts)\/[\w./-]+\.(?:agda|sh|mjs))\b/g)) {
+      if (existsSync(resolve(root, source))) continue;
+      errors.push(source.endsWith('.agda')
+        ? `Nonexistent Agda build target cited in ${surface}: ${source}`
+        : `Nonexistent script cited in ${surface}: ${source}`);
     }
   }
   const citationPath = resolve(root, 'CITATION.cff');

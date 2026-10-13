@@ -1,6 +1,9 @@
 name: choreographic-types
 include: src
--- Siblings are fetched as source trees by scripts/fetch-siblings.sh and
--- passed with explicit -i paths under --no-libraries (scripts/check.sh is the
--- supported workflow); no library descriptors are registered.
+-- Siblings (resource-algebra, epistemic-types, echo-types) are fetched as
+-- source trees at pinned commits by scripts/fetch-siblings.sh and passed with
+-- explicit -i paths under --no-libraries; scripts/check.sh is the supported
+-- workflow and no library descriptors are registered.  Only
+-- Choreographic.Base.EchoAdditive needs agda-stdlib (through echo-types);
+-- everything reachable from Choreographic.All is builtins-only.
 flags: --safe --without-K

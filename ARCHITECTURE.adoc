@@ -1,0 +1,101 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Architecture — choreographic-types
+:toc: preamble
+:toc-title: Contents
+
+This repository is a checked Agda development plus the documents that say,
+honestly, what it does and does not prove. There is no runtime, no package
+and no service: the "architecture" is the shape of the proof development,
+the siblings it imports, and the gate that checks it.
+
+== Layout
+
+[cols="1,3", options="header"]
+|===
+| Path | What lives there
+
+| `src/Choreographic/`
+| The development. `Party`, `Global` (graded global types, cuts),
+  `Local`, `Projection` (plain merge, cut projection, `Consistent`), `KCut`
+  (K-CUT-LOSS), `Kripke` and `Bound` (K-CUT-WARRANT in bound form),
+  `Transport` (the transport component), `Swap` and `Operational` (the
+  two-thread diamond), `Instances` (the discharges at `Loss`, `MaxPlus`
+  and `HWM`), `Base/RoleGraded` (the echo-types base case recovered) and
+  `Base/EchoAdditive` (echo-types' ℕ ∪ {∞} grade as a `ResourceAlgebra`).
+  `All.agda` is the root that checks everything builtins-only.
+
+| `tests/reject/`
+| Expected rejections. Each file must fail at its `invalid` declaration
+  with a type mismatch, so that every side-condition is seen to be
+  load-bearing.
+
+| `tests/minimal-laws/`
+| A deliberately impoverished `ResourceAlgebra.Core` used to certify which
+  algebra laws K-CUT-LOSS depends on.
+
+| `scripts/`
+| The gate (`fetch-siblings.sh`, `check.sh`, `minimal-laws.sh`) and the
+  documentation integrity check (`check-repository.mjs`).
+
+| `applications/`
+| Application notes and a postulated RapidNJ target; not part of the gate
+  and not a proof.
+
+| `docs/`
+| The pre-registration record and its dated addenda, the Actions policy
+  note, and cross-repository issue drafts.
+
+| `.github/workflows/`
+| `proofs.yml` (the Agda gate), `documentation-integrity.yml`, the estate's
+  shared scanners, and `actions.lock`.
+
+| `PROOF-STATUS.adoc`
+| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN
+  and the module that discharges it.
+|===
+
+== Layers
+
+. *Resource algebra* — imported from the sibling `resource-algebra` at a
+  pinned commit: the parametric `ResourceAlgebra` (alternatives ⊕, sequence
+  ⊗, the induced order ≼) with its dioid, ordered and annihilating layers,
+  and the `Loss`, `MaxPlus` and `HWM` instances.
+. *Global and local types, projection, cuts* — `src/Choreographic/Global`,
+  `Local`, `Projection`: the finite, binary-choice, plain-merge fragment,
+  graded over any resource algebra.
+. *The keystone* — `KCut` proves K-CUT-LOSS as an equality; `Kripke`,
+  `Bound` and `Transport` prove K-CUT-WARRANT in bound form and its
+  transport component, instantiating `epistemic-types`' `Warrant`,
+  `SoundWarrant` and `Access.Preorder` rather than imitating them.
+. *Instances and applications* — `Instances` discharges the keystone at
+  the three estate algebras and computes a worked protocol; `Swap` and
+  `Operational` read the RapidNJ two-thread diamond at the type level;
+  `Base/EchoAdditive` ties echo-types' own grade to `Loss`.
+
+== Dependencies and pins
+
+`scripts/fetch-siblings.sh` fetches exactly one commit of each sibling
+(`resource-algebra`, `epistemic-types`, `echo-types`), by full SHA, and
+fails on a mismatch. The siblings are passed as explicit include paths
+under `--no-libraries`; nothing outside the pins is read. Only
+`Base/EchoAdditive` needs the Agda standard library, through echo-types, so
+it is checked as its own root and `All.agda` stays builtins-only.
+
+== The gate
+
+`.github/workflows/proofs.yml` runs in a digest-pinned Debian 13 container
+with the distribution's `agda-bin=2.6.4.3-1+b2` and `agda-stdlib=2.1-4`,
+asserts the prover version, fetches the siblings, and runs `scripts/check.sh`
+and `scripts/minimal-laws.sh` with
+`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error`.
+The documentation integrity workflow is structural only and never evidence
+that anything is proved.
+
+== Boundaries
+
+* A cut is a consistent frontier of a causal order, not a proof-theoretic
+  cut.
+* Lean 4 developments (tropical-types) are provenance, never imports: the
+  Lean→Agda bridge for `MaxPlus` is resource-algebra's open obligation M-2.
+* Implementation belongs to `typell`; this repository proves, it does not
+  run.

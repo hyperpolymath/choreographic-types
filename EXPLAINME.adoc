@@ -5,7 +5,11 @@
 :icons: font
 :doctype: article
 
-This file backs every factual claim in link:README.adoc[README.adoc] with code paths and honest caveats. Read it if you are doing due diligence on whether the story matches the code.
+This file backs every factual claim in link:README.adoc[README.adoc] with
+code paths and honest caveats. Read it if you are doing due diligence on
+whether the story matches the code. The ledger of every claim with its
+status is link:PROOF-STATUS.adoc[PROOF-STATUS.adoc]; this file says where
+each README sentence comes from.
 
 == Claim-to-implementation map
 
@@ -16,16 +20,18 @@ ____
 A global choreographic type G is read as a partial causal order. It is projected to local types (endpoint projection), where each edge is graded by an echo loss-grade and an epistemic standpoint-warrant.
 ____
 
-How this is intended to be implemented::
-The planned canonical source tree will define `GlobalType`, the
-partial causal order structure, the grading by `EchoGrade` (imported from
-`echo-types`) and `EpiGrade` (imported from `epistemic-types`), and the
-`EndpointProjection` mapping.
+How this is implemented::
+`src/Choreographic/Global.agda` defines finite global types with message
+and binary choice, every interaction carrying a grade from a parametric
+`ResourceAlgebra`; cuts are frontiers (`Cut`). `src/Choreographic/Local.agda`
+is the local side, `src/Choreographic/Projection.agda` endpoint projection
+with plain merge, cut projection and `Consistent`.
 
 Caveat::
-The current checkout does not contain the planned `src/` tree. The deep
-integration — proving that the grading laws hold under the projection mapping
-in the general case — remains the open K-CUT problem.
+The fragment is finite, binary-choice, plain-merge and synchronous. There is
+no recursion, no full merge, no delegation, no asynchrony. Warrants are what
+the type determines (`src/Choreographic/Kripke.agda`); data-dependent
+warrants are outside the model.
 
 === K-CUT-LOSS holds as equality
 
@@ -34,27 +40,54 @@ ____
 K-CUT-LOSS: Grading commutes with projection as an equality. Loss is type-determined.
 ____
 
-How this is intended to be implemented::
-The K-CUT-LOSS statement is a planned Agda target for this repo. The *only*
-existing proof is the degenerate single-static-edge base case in `echo-types`
-(`RoleGraded.choreo-grade-commute`). No proof for general cuts exists here.
+How this is implemented::
+`src/Choreographic/KCut.agda`, `kcut-loss`, parametric in any
+`ResourceAlgebra`; discharged at `Loss`, `MaxPlus` and `HWM` in
+`src/Choreographic/Instances.agda`. `scripts/minimal-laws.sh` certifies the
+proof uses only ⊕-idempotence and ⊗-left-unit.
 
 Caveat::
-**This is an open conjecture, not a theorem.** The base case suggests it is likely true, but compositionality across arbitrary antichains is unproved. This is the hardest open problem in the repo.
+**Proved for the fragment only.** Beyond it (recursion, full merge,
+asynchrony) K-CUT-LOSS is open and pre-registered with its falsifiers
+(`docs/pre-registration-addendum-2026-10-12.adoc`).
 
-=== K-CUT-WARRANT holds only as a bound under SoundWarrant
+=== K-CUT-WARRANT holds as a bound, with its transport component
 
 [quote, README.adoc]
 ____
-K-CUT-WARRANT: Warrant transport commutes with projection only as a bound, and only under a SoundWarrant side-condition. The type upper-bounds discoverability but cannot determine it.
+K-CUT-WARRANT: Warrant transport commutes with projection only as a bound, and only under a SoundWarrant side-condition.
 ____
 
-How this is intended to be implemented::
-The K-CUT-WARRANT statement is a planned Agda target, importing
-`SoundWarrant` from `epistemic-types`. No proof exists, not even a base case.
+How this is implemented::
+`src/Choreographic/Kripke.agda` (the frame over consistent cuts;
+epistemic-types' `Warrant` / `SoundWarrant` imported, not imitated),
+`src/Choreographic/Bound.agda` (the one-sided bound and its direction),
+`src/Choreographic/Transport.agda` (the local frontier is known; party
+access as epistemic-types' `Preorder`; a world-indexed `AccessibleModality`).
 
 Caveat::
-**This is an open conjecture.** The directionality (bound, not equality) reflects the epistemic reality: an agent's local knowledge may exceed the type's requirements, so projection can only upper-bound the warrant, not determine it. This is the formal reflection of the `BeliefModality` / non-factive design in `epistemic-types`.
+**Same fragment.** `SoundWarrant` is discharged only for warrants the
+choreography determines; for anything about payloads it stays an
+assumption. Asynchrony is expected to break the sender half of the transport
+result and is the pre-registered falsifier.
+
+=== The resource algebra is imported, the tropical bridge is named
+
+[quote, README.adoc]
+____
+The tropical algebra was re-proved in-site, in resource-algebra, rather than imported across kernels.
+____
+
+How this is implemented::
+`scripts/fetch-siblings.sh` pins `resource-algebra`, `epistemic-types` and
+`echo-types` to full commit SHAs. `src/Choreographic/Base/EchoAdditive.agda`
+imports echo-types' `experimental/echo-additive/Grade.agda`, packages it as
+a `ResourceAlgebra` and proves it is `Loss` operation for operation.
+
+Caveat::
+The Lean→Agda bridge is resource-algebra's open row M-2 and is inherited
+here as provenance only; nothing mechanical links `MaxPlus` to the Lean
+development (`docs/pre-registration-addendum-2026-10-13.adoc`).
 
 === The RapidNJ application isolates the first non-degenerate target
 
@@ -64,70 +97,52 @@ The smallest non-degenerate K-CUT lemma is a two-event loss-grade commuting squa
 ____
 
 How this is implemented::
-`link:applications/rapidnj-two-thread.adoc[]` defines the application boundary and records the target in `link:applications/rapidnj-two-thread.agda[]`. The target names global and local reduction steps, projection, loss grading, transport, and an `Independent₂` witness. `Independent₂` is deliberately stronger than antichain membership: it must cover read/write disjointness, phase safety, and deterministic tie handling.
+`src/Choreographic/Swap.agda` and `src/Choreographic/Operational.agda` prove
+the diamond and the two-step cut-loss equality at the type level.
+`applications/rapidnj-two-thread.agda` states the operational target with
+postulates and is not part of the gate.
 
 Caveat::
-The accompanying Agda file contains open interfaces and postulated target signatures so that the proof obligation has a stable shape. There is no canonical Agda build, and it proves nothing. The RapidNJ state diamond (serialising two independent updates in either order) is an algorithmic prerequisite, separate from K-CUT-LOSS. No claim is made about the upstream implementation exposing this exact batch interface.
+`Independent₂` and `independentToAntichain` are RapidNJ's read/write and
+phase-safety conditions, not the type's; they stay postulated. Two of the
+file's original declarations were shown unsatisfiable as typed
+(PROOF-STATUS A-7, A-8).
 
-=== The tropical resource-dioid is planned to be re-proved in-site
+== The gate
 
-[quote, README.adoc]
-____
-The tropical resource-dioid is planned to be re-proved in-site rather than imported across kernels. This follows the estate's port-and-reprove pattern.
-____
-
-How this is implemented::
-No local dioid implementation or proof exists. The plan is to re-prove its
-laws in Agda, with an explicit bridge obligation to the Lean 4 definitions.
-A port does not automatically establish cross-kernel consistency.
-
-Caveat::
-This is a duplication by design. It must be kept in sync manually if the Lean 4 definition changes. The precedent is `typed-wasm/…/Tropical.idr`.
-
-== Dogfooded Across The Account
-
-[cols="1,2,2", options="header"]
-|===
-| Technology / Pattern | Planned use here | Also used in
-
-| Echo loss-grades
-| Global type grading
-| link:https://github.com/hyperpolymath/echo-types[echo-types]
-
-| Epistemic warrants
-| Global type grading
-| link:https://github.com/hyperpolymath/epistemic-types[epistemic-types]
-
-| Port-and-reprove pattern
-| In-site tropical dioid
-| link:https://github.com/hyperpolymath/typed-wasm[typed-wasm]
-|===
+Every PROVEN line in PROOF-STATUS is checked by `.github/workflows/proofs.yml`
+running `scripts/check.sh` in a digest-pinned Debian 13 container with the
+distribution's Agda 2.6.4.3 and standard library 2.1, under
+`--safe --without-K --no-libraries --ignore-interfaces --double-check
+-W error`. The four `tests/reject/` fixtures must each fail at their
+`invalid` declaration, so the side-conditions are seen to be load-bearing.
+The documentation integrity check (`scripts/check-repository.mjs`) is
+structural and is never evidence that anything is proved.
 
 == Known gaps
 
 [CAUTION]
 ====
-**K-CUT-LOSS is open.** No proof exists for general cuts (consistent frontiers of size > 1). Only the degenerate single-static-edge base case is proved (in `echo-types`).
+**K-CUT is open beyond the fragment.** Recursion, full merge, asynchrony and
+data-dependent warrants are pre-registered, not proved.
 ====
 
 [CAUTION]
 ====
-**K-CUT-WARRANT is open.** No proof exists, not even a base case. The `SoundWarrant` side-condition has not been discharged in a choreographic context.
+**The RapidNJ target is not a proof.** `applications/rapidnj-two-thread.agda`
+is a postulated target; its type-level counterparts are in `src/`.
 ====
 
 [CAUTION]
 ====
-**No non-degenerate compositionality.** The repository's planned interfaces name the objects (global types, projections, grades, cuts) but the current checkout does not yet contain the canonical `src/` definitions or compose them. All composition theorems are deferred pending K-CUT.
+**Cross-kernel consistency is manual.** `MaxPlus` and tropical-types' Lean
+definition are kept in agreement by review (resource-algebra M-2).
 ====
 
 [CAUTION]
 ====
-**The RapidNJ target is not a proof.** `applications/rapidnj-two-thread.agda` is an illustrative target with open interfaces and postulates. There is no canonical Agda build; the two-thread state diamond, projection square, and K-CUT-LOSS equality remain to be proved.
-====
-
-[CAUTION]
-====
-**Cross-kernel consistency is manual.** The in-site tropical dioid must be kept logically consistent with the Lean 4 definition in `tropical-resource-typing` by hand.
+**echo-types' `Grade.agda` is checked only here.** At the pinned commit no
+echo-types CI root imports it.
 ====
 
 == Evidence Index
@@ -136,20 +151,29 @@ This is a duplication by design. It must be kept in sync manually if the Lean 4 
 |===
 | Path | Evidence or intent
 
-| Canonical source tree (not yet implemented)
-| Planned definitions of global types, projection, grades, cuts, K-CUT statements
+| `src/Choreographic/All.agda`
+| Checks the whole builtins-only development
 
-| `applications/rapidnj-two-thread.adoc`
-| RapidNJ application boundary and the two-event proof decomposition
+| `src/Choreographic/KCut.agda`
+| K-CUT-LOSS (`kcut-loss`, `proj-cut`, `grade-proj`, `cut-projectable`)
+
+| `src/Choreographic/Kripke.agda`, `src/Choreographic/Bound.agda`, `src/Choreographic/Transport.agda`
+| K-CUT-WARRANT, bound form and transport component
+
+| `src/Choreographic/Base/EchoAdditive.agda`
+| echo-types' ℕ ∪ {∞} grade as a `ResourceAlgebra`, equal to `Loss`
+
+| `src/Choreographic/Base/RoleGraded.agda`
+| The echo-types base case recovered inside `Loss`
+
+| `tests/reject/`
+| Side-conditions shown load-bearing by expected rejections
 
 | `applications/rapidnj-two-thread.agda`
-| Open Agda signatures for the state diamond and two-thread K-CUT-LOSS target
+| Postulated RapidNJ target (not a proof)
 
-| `echo-types` (sibling)
-| `RoleGraded.choreo-grade-commute` (K-CUT-LOSS base case)
-
-| `ChoreoInjective` (sibling)
-| Degenerate single-static-edge base case
+| link:PROOF-STATUS.adoc[]
+| The ledger
 
 | link:docs/pre-registration.adoc[Pre-registration record]
 | Pre-registration state and provenance ledger

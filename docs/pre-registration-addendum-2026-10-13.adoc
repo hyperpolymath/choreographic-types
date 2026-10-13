@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Pre-registration addendum — 2026-10-13 (ladder increment I0: the gate)
+:revdate: 2026-10-13
+
+This addendum records increment I0 of the K-CUT ladder
+(link:pre-registration.adoc[], "Next increments"): the proof gate, the
+pinned siblings, the echo-additive instance, the relaxed integrity guard,
+and the named Lean→Agda bridge obligation. It changes no theorem of the
+2026-10-12 development.
+
+== What landed
+
+* *The gate runs.* The `proofs.yml` merged with #23 never executed on
+  GitHub: every run ended in `startup_failure` with no jobs, because
+  `actions/checkout@v6.0.3` is a tag ref and this repository's Actions
+  policy requires SHA pinning. The workflow now uses a full-SHA `uses:`
+  (recorded in `.github/workflows/actions.lock`), a digest-pinned
+  `debian:13-slim`, the distribution's `agda-bin=2.6.4.3-1+b2` and
+  `agda-stdlib=2.1-4`, a version assertion, and
+  `--safe --without-K --no-libraries --ignore-interfaces --double-check
+  -W error` on every check. Committed `.agdai` files are gone.
+* *Pins are full SHAs and verified.* `scripts/fetch-siblings.sh` fetches
+  exactly one commit per sibling and fails on a mismatch: resource-algebra
+  `b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881`, epistemic-types
+  `495db9cca003e12066a3cb9c9f2d7afa1a953aec`, echo-types
+  `da140cc26fd174b20d5d7fcfafcb4febd3276ff3`.
+* *The echo-additive ℕ ∪ {∞} instance.* `Choreographic.Base.EchoAdditive`
+  imports echo-types' `experimental/echo-additive/Grade.agda` and packages it
+  as a `ResourceAlgebra` (dioid, ordered, annihilating) from echo-types' own
+  lemmas, then proves it is the same algebra as resource-algebra's `Loss`
+  operation for operation. "MinPlus" and "echo-additive" in the handoff's
+  wording are therefore one checked algebra; `MaxPlus` and `Loss` come from
+  resource-algebra as before. B-4 (the `EGrade`/`_≤g_` transcription) goes
+  from ASSUMED to PROVEN: it is matched against EchoGraded constructor by
+  constructor and the order is reflected in both directions.
+* *The integrity guard is relaxed in the same change.* `scripts/check-repository.mjs`
+  no longer demands the sentence "Nothing in this repo is proven yet." nor
+  rejects the words "Agda formalisation"; it now demands that README point at
+  `PROOF-STATUS.adoc` and that every `src/`, `tests/`, `applications/` or
+  `scripts/` path cited in README or the ledger exists. The regression that a
+  README naming a missing `.agda` file is rejected is kept.
+
+== The Lean→Agda bridge obligation, named
+
+The pre-registration (lines "DEPEND-ON-SIBLING via in-site PORT", "The real
+residual is the cross-prover bridge", "explicit NAMED prover-bridge
+obligation citing tropical-types' Lean proof") asked for the tropical
+algebra to be re-axiomatised in Agda with the Lean theorem cited as warrant
+of inhabitation, never called an import. That is now exactly the situation:
+
+* The port lives in resource-algebra, `Instances/MaxPlus.agda`, same kernel
+  as this repository, imported here at a pinned commit.
+* The bridge obligation is resource-algebra's ledger row *M-2*: `MaxPlus`
+  agrees with tropical-types' Lean 4 `instance : CommSemiring Tropical`.
+  It is OPEN there, cross-prover, with no mechanical link existing or
+  claimed.
+* This repository inherits M-2 wherever MaxPlus is discharged
+  (`kcut-loss-MaxPlus`, `kcut-warrant-MaxPlus`, `maxplus-commutes`): those
+  are theorems about the Agda `MaxPlus`; their correspondence to the Lean
+  development is provenance. PROOF-STATUS carries the obligation under
+  "Open".
+
+Nothing here closes M-2. A closed bridge would be a checked translation or a
+shared definition; neither exists.
+
+== Pre-registered for the next increments (before any proof)
+
+. *I1–I2 are already discharged by the 2026-10-12 development* (canonical
+  definitions; K-CUT-LOSS parametric in `ResourceAlgebra`). The ladder's
+  remaining proof work is I3 beyond the fragment (recursion, full merge,
+  asynchrony, data-dependent warrants) and I4 (RapidNJ `Independent₂` and
+  `independentToAntichain`, which are the implementation's, not the type's).
+. *Falsifier kept:* asynchrony is expected to break `sender-knows` and keep
+  `receiver-knows` (2026-10-12 addendum).
+. *Echo-types follow-up (theirs, not ours):* promote
+  `experimental/echo-additive/Grade.agda` into an echo-types CI root; until
+  then this gate is its only check.
+
+== Version
+
+CITATION.cff now carries `version: 0.1.0` and `date-released: 2026-10-13`
+for this increment: the first checked development under a running gate.
+The tag is the owner's to push.

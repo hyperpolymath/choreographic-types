@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MPL-2.0
-# Only the runtime used by this pre-registration's integrity checks.
-# There is no Agda, Cargo, npm-package or Go build to invoke.
+# Node is only the runtime of the documentation integrity checks.  The proof
+# gate is Agda 2.6.4.3 (Debian agda-bin=2.6.4.3-1+b2, agda-stdlib=2.1-4),
+# installed from the distribution package, not through mise; see README
+# "Validation" and .github/workflows/proofs.yml.
 [tools]
 node = "22"
 
@@ -11,3 +13,11 @@ run = "node scripts/check-repository.mjs"
 [tasks.test]
 description = "Run integrity and policy regression tests"
 run = "node --test tests/*.test.mjs"
+
+[tasks.siblings]
+description = "Fetch resource-algebra, epistemic-types and echo-types at their pinned commits"
+run = "bash scripts/fetch-siblings.sh"
+
+[tasks.proofs]
+description = "The proof gate: core proofs, echo-additive instance, expected rejections, minimal-laws certificate"
+run = "bash scripts/check.sh && bash scripts/minimal-laws.sh"

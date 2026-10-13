@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MPL-2.0
+# Paths the estate code-hygiene gate must not scan for proof circumventions.
+# Each entry is a sanctioned, documented exception; scripts/check.sh enforces
+# that postulates occur nowhere else and counts them here.
+#
+# The RapidNJ application target is a postulated interface by design: an
+# open proof target, not a proof, and not part of the Agda gate (README
+# "Validation", PROOF-STATUS "Applications"). One `postulate` block.
+applications/rapidnj-two-thread.agda
