@@ -8,10 +8,15 @@ import { checkRepository } from '../scripts/check-repository.mjs';
 import { payloadFrom, samePolicy } from '../scripts/actions-policy.mjs';
 
 const status = 'A pre-registration. What is and is not proved: PROOF-STATUS.adoc.\n';
+const ledger = '| K-1 | claim | OPEN |\n';
+// A fixture is an honest minimal repository: README plus the ledger it points
+// at. Pass `null` for a file to leave it out.
 function fixture(t, files = {}) {
   const root = mkdtempSync(join(tmpdir(), 'choreo-check-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  for (const [name, text] of Object.entries({ 'README.adoc': status, ...files })) writeFileSync(join(root, name), text);
+  for (const [name, text] of Object.entries({ 'README.adoc': status, 'PROOF-STATUS.adoc': ledger, ...files })) {
+    if (text !== null) writeFileSync(join(root, name), text);
+  }
   return root;
 }
 test('honest pre-registration passes', t => assert.deepEqual(checkRepository(fixture(t)), []));
@@ -38,7 +43,8 @@ for (const [name, files, expected] of [
   ['missing script', { 'README.adoc': status + 'run `bash scripts/absent.sh`' }, /Nonexistent script cited in README/],
   ['missing note', { 'note.adoc': '`dev-notes/2026-06-16-choreographic-types-what-it-is.adoc`' }, /nonexistent design-note/],
   ['false badge', { 'note.adoc': 'https://www.bestpractices.dev/projects/XXXX' }, /Placeholder/],
-  ['lost ledger pointer', { 'README.adoc': 'A pre-registration with a status line of its own: everything is proven.' }, /PROOF-STATUS\.adoc/],
+  ['lost ledger pointer', { 'README.adoc': 'A pre-registration with a status line of its own: everything is proven.' }, /must point at PROOF-STATUS\.adoc/],
+  ['missing ledger', { 'PROOF-STATUS.adoc': null }, /PROOF-STATUS\.adoc, the proof ledger, is missing/],
   ['lost project disclosure', { 'README.adoc': 'Status: PROOF-STATUS.adoc' }, /pre-registration status/],
 ]) test(`regression: ${name}`, t => assert.match(checkRepository(fixture(t, files)).join('\n'), expected));
 

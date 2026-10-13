@@ -24,9 +24,12 @@ DEPENDENCIES_DIR="${DEPENDENCIES_DIR:-_build/dependencies}"
 # fetch_pinned <repo> <commit>
 # Fetches exactly <commit> of hyperpolymath/<repo> into $DEPENDENCIES_DIR/<repo>
 # (reusing a checkout that already holds the commit) and fails unless HEAD
-# is then that commit.
+# is then that commit AND the tree is exactly that commit: a reused checkout
+# with edited or added source would let the gate read something other than
+# the pin.  Agda's own .agdai interface files are the one tolerated residue;
+# the gate ignores them (--ignore-interfaces).
 fetch_pinned() {
-  local repo="$1" commit="$2" dir="$DEPENDENCIES_DIR/$1" head
+  local repo="$1" commit="$2" dir="$DEPENDENCIES_DIR/$1" head dirty
   if ! [[ "$commit" =~ ^[0-9a-f]{40}$ ]]; then
     echo "ERROR: $repo pin must be a full 40-character commit SHA, got '$commit'" >&2
     exit 1
@@ -42,6 +45,12 @@ fetch_pinned() {
   head="$(git -C "$dir" rev-parse HEAD)"
   if [ "$head" != "$commit" ]; then
     echo "ERROR: $repo pin mismatch: want $commit got $head" >&2
+    exit 1
+  fi
+  dirty="$(git -C "$dir" status --porcelain --untracked-files=all -- . ':(exclude,glob)**/*.agdai')"
+  if [ -n "$dirty" ]; then
+    echo "ERROR: $repo checkout at $dir is not exactly $commit; remove the directory and re-run:" >&2
+    echo "$dirty" >&2
     exit 1
   fi
   echo "$repo at $head"

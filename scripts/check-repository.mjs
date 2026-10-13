@@ -42,6 +42,8 @@ export function checkRepository(root) {
   // Proof status lives in one place, the ledger, so README must point at it
   // rather than carry a status sentence of its own that can drift from it.
   if (!readme.includes('PROOF-STATUS.adoc')) errors.push('README must point at PROOF-STATUS.adoc for what is and is not proved');
+  // The ledger README points at must itself exist.
+  if (!existsSync(resolve(root, 'PROOF-STATUS.adoc'))) errors.push('PROOF-STATUS.adoc, the proof ledger, is missing');
   // Every Agda module or script a reader could copy from README or the ledger
   // must exist: a cited path is a claim that the file is there to check.
   for (const surface of ['README.adoc', 'PROOF-STATUS.adoc']) {

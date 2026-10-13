@@ -233,7 +233,7 @@ node --test tests/*.test.mjs
 
 == Formalisation (fragment, 2026-10-12)
 
-See `src/Choreographic/` and link:PROOF-STATUS.adoc[]: K-CUT-LOSS and both components of K-CUT-WARRANT are proved for the finite, binary-choice, plain-merge, synchronous fragment, parametric in resource-algebra, and checked by the gate above on every push since 2026-10-13. The plan below is kept as the record of what was planned.
+See `src/Choreographic/` and link:PROOF-STATUS.adoc[]: K-CUT-LOSS and both components of K-CUT-WARRANT are proved for the finite, binary-choice, plain-merge, synchronous fragment, parametric in resource-algebra, and checked by the gate above on every pull request and every push to `main` since 2026-10-13. The plan below is kept as the record of what was planned.
 
 === As planned (2026-10-03)
 

@@ -65,28 +65,26 @@ rather than silently rewriting the broader permission settings.
 
 == Repository description (issue #15)
 
-The local documentation now describes the pre-registration honestly. The
-remote description already equals the canonical text below (345 characters;
-GitHub's limit is 350). The command is kept for re-verification and for any
-future owner correction:
+The remote description still carries the 2026-10-10 text, which ends "Agda
+is the intended prover; no checked module yet." That was true until
+2026-10-13: `src/Choreographic/` is now checked by
+`.github/workflows/proofs.yml` under the Debian Agda 2.6.4.3 pin (see
+`PROOF-STATUS.adoc`, "The gate"), so the sentence has become false and the
+description is the owner's to update (#15, criterion 1; the description PATCH
+returns HTTP 403 for this integration). The command below sets the current
+candidate (318 characters; GitHub's limit is 350) and reads it back:
 
 [source,bash]
 ----
-gh repo edit hyperpolymath/choreographic-types --description 'Pre-registration and research notebook for a graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. Central artefact: K-CUT, the open conjecture that grading and transport commute with endpoint projection across a consistent frontier. Agda is the intended prover; no checked module yet.'
+gh repo edit hyperpolymath/choreographic-types --description 'Graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. K-CUT (grading and transport commute with endpoint projection across a consistent frontier) is proved in Agda for the finite, binary-choice, plain-merge, synchronous fragment and pre-registered beyond it.'
 gh repo view hyperpolymath/choreographic-types --json description
 ----
 
-Do not restore an unqualified “Agda formalisation” description until a checked
-canonical module exists. Postulated application targets are not sufficient.
-
-Update 2026-10-13: that condition is now met. `src/Choreographic/` is checked
-by `.github/workflows/proofs.yml` under the Debian Agda 2.6.4.3 pin (see
-`PROOF-STATUS.adoc`, "The gate"). The description is still the owner's to
-edit (#15, criterion 1); a candidate within GitHub's 350-character limit:
-
-----
-Graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. K-CUT (grading and transport commute with endpoint projection across a consistent frontier) is proved in Agda for the finite, binary-choice, plain-merge, synchronous fragment and pre-registered beyond it.
-----
+The candidate names the fragment and keeps "pre-registered": an unqualified
+"Agda formalisation" description would still overstate what is checked.
+The 2026-10-10 text is historical and must not be restored; it is recorded in
+the git history of this file, not here, so that no retained command can
+reinstate it.
 
 == What automated validation means
 
