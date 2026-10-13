@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
-= choreographic-types — Proof Status (K-CUT development, 2026-10-12)
-:revdate: 2026-10-12
+= choreographic-types — Proof Status (K-CUT development, 2026-10-13)
+:revdate: 2026-10-13
 
 Statuses: PROVEN / TESTED / ASSUMED / DESIGNED / OPEN. Every PROVEN line
 names the module that discharges it under
-`--safe --without-K --no-libraries --double-check`, with resource-algebra on
-the include path (same kernel; see `scripts/fetch-siblings.sh`).
+`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error`
+on Agda 2.6.4.3 (Debian `agda-bin=2.6.4.3-1+b2`), with resource-algebra and
+epistemic-types on the include path (same kernel; pinned by
+`scripts/fetch-siblings.sh`) and, for the one module that needs it,
+echo-types with `agda-stdlib=2.1-4`. The gate is
+`.github/workflows/proofs.yml` running `scripts/check.sh` and
+`scripts/minimal-laws.sh`; see "The gate" at the end.
 
 == Fragment formalised (scope, stated before the claims)
 
@@ -94,9 +99,30 @@ and phase-safety conditions), which are RapidNJ's, not the type's.
 | B-1 | echo-types' three-grade order `keep ≤g residue ≤g forget` embeds into Loss by keep ↦ fin 0, residue ↦ fin 1, forget ↦ inf, and `a ≤g b` iff `embed b ≼ embed a` (the converse of the absorption order) — both directions | PROVEN (`≤g→≼`, `≼→≤g`)
 | B-2 | The base lattice is closed under alternatives (min) | PROVEN (`alt-closed`)
 | B-3 | The base lattice is not closed under sequence (`fin 1 +g fin 1 = fin 2`): why RoleGraded could only grade one edge | PROVEN (`seq-escapes`)
-| B-4 | `EGrade`/`_≤g_` are textually EchoGraded's | ASSUMED (transcription; echo-types uses the standard library and cannot be imported)
+| B-4 | `EGrade`/`_≤g_` are EchoGraded's: the transcription matches the original constructor by constructor, and the order in both directions | PROVEN (`EchoAdditive.transcribe`, `≤g-transcribe`, `≤g-original`; echo-types is imported at its pin, with agda-stdlib, in that one root)
 | B-5 | RoleGraded's *role transport* (`applyRole`, Client ⊑ Server) is reproduced | OPEN — that is the transport/warrant side, K-CUT-WARRANT territory, not graded loss
 |===
+
+== Echo-additive instance (Base/EchoAdditive.agda)
+
+echo-types' `experimental/echo-additive/Grade.agda` (pinned commit
+`da140cc2`) is imported, not transcribed. This is the "echo-additive ℕ ∪ {∞}
+instance" of the ladder's increment I0, and it makes resource-algebra's L-2
+("textually identical, reviewed by eye") a checked theorem for this
+repository's use.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| E-1 | `EchoAdditive` is a `ResourceAlgebra` with ⊕ = `⊓g` (min), ⊗ = `+g`, 𝟘 = `inf`, 𝟙 = `fin 0`, filled from echo-types' own lemmas; `IsDioid` (right distributivity from the left law and `+g-comm`), hence `IsOrdered`; `IsAnnihilating` | PROVEN (`EchoAdditive`, `EchoAdditive-dioid`, `EchoAdditive-ordered`, `EchoAdditive-annihilating`)
+| E-2 | `EchoAdditive` and resource-algebra's `Loss` are the same algebra: `toLoss` / `fromLoss` are inverse and `toLoss` carries ⊕, ⊗, 𝟘 and 𝟙 across (the standard library's `⊓` and the Prelude's `min` agree clause for clause) | PROVEN (`toLoss∘fromLoss`, `fromLoss∘toLoss`, `toLoss-⊕`, `toLoss-⊗`, `toLoss-𝟘`, `toLoss-𝟙`, `⊓-min`)
+| E-3 | echo-types' own `embed : EchoGraded.Grade → Grade` and RoleGraded's `embed` agree through `toLoss` | PROVEN (`embed-agrees`)
+| E-4 | `EchoAdditive` is not imported by `Choreographic.All`: the keystone development stays builtins-only, and the standard library enters only through this root | TESTED (`scripts/check.sh` checks `All.agda` with no stdlib path, then this module with one)
+|===
+
+Not claimed: that echo-types' `Grade.agda` is checked by echo-types' own CI
+(at `da140cc2` no root there imports it; this gate is its only check), and
+nothing about the direction resource-algebra chooses for its L-2 import.
 
 == Worked protocol (Instances.agda, computed)
 
@@ -129,8 +155,19 @@ Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→
 * *Operational `step` as a function.* Kept relational; a functional step on
   the quotient needs decidable grade equality or a canonical-form theorem
   for swap-equivalence. Not attempted.
-* *Sibling pins.* resource-algebra at b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881, epistemic-types at 495db9c
-  (`scripts/fetch-siblings.sh`); `proofs.yml` ran green on the Debian 2.6.4.3 pin before #23 merged.
+* *Lean→Agda bridge (resource-algebra M-2).* `MaxPlus` is a port of
+  tropical-types' Lean 4 `instance : CommSemiring Tropical`; no mechanical
+  link exists or is claimed. Every MaxPlus discharge above (K-6, W-6, A-2)
+  inherits that obligation: the Lean theorem is provenance, never an import.
+* *Sibling pins.* resource-algebra at
+  `b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881`, epistemic-types at
+  `495db9cca003e12066a3cb9c9f2d7afa1a953aec`, echo-types at
+  `da140cc26fd174b20d5d7fcfafcb4febd3276ff3` (`scripts/fetch-siblings.sh`,
+  full SHAs verified after checkout). Correction to the 2026-10-12 entry: the
+  `proofs.yml` that merged with #23 never ran on GitHub — all eight runs
+  ended in `startup_failure` with no jobs, because its `actions/checkout@v6.0.3`
+  is a tag ref and this repository's Actions policy requires SHA pinning. The
+  green runs it cited were local. The gate below is the first that runs.
 
 == What W-4 says about the keystone
 
@@ -148,3 +185,22 @@ non-commutative, non-associative alternatives. The structure the family
 cares about — order, monotone sequencing, the opposite-running orders of
 Loss and MaxPlus — is first exercised by the *bound* half, K-CUT-WARRANT.
 That is where the next proof effort belongs.
+
+== The gate
+
+`.github/workflows/proofs.yml`: container `debian:13-slim` by digest
+(`sha256:a29215f6…`, resolved 2026-10-13), `apt-get install
+agda-bin=2.6.4.3-1+b2 agda-stdlib=2.1-4`, `actions/checkout` by full SHA
+(`3d3c42e5…`, v7.0.1), `test "$(agda --version)" = 'Agda version 2.6.4.3'`,
+then `scripts/fetch-siblings.sh`, `scripts/check.sh` (core root with no
+library path; the echo-additive root with echo-types and the standard library;
+every `tests/reject/*.agda` must fail at its `invalid` declaration with a
+type mismatch) and `scripts/minimal-laws.sh`. Flags on every check:
+`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error
+-W noUnsupportedIndexedMatch` (the last because the standard library emits
+that warning under `--without-K` and its `.agda-lib` flags are not read under
+`--no-libraries`). Committed `.agdai` files were removed in the same change:
+the gate never reads an interface it did not just write.
+
+Pattern: epistemic-types `.github/workflows/agda.yml`. Not yet a required
+status check on `main` (owner action after the first green run on `main`).

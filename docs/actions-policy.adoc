@@ -79,6 +79,15 @@ gh repo view hyperpolymath/choreographic-types --json description
 Do not restore an unqualified “Agda formalisation” description until a checked
 canonical module exists. Postulated application targets are not sufficient.
 
+Update 2026-10-13: that condition is now met. `src/Choreographic/` is checked
+by `.github/workflows/proofs.yml` under the Debian Agda 2.6.4.3 pin (see
+`PROOF-STATUS.adoc`, "The gate"). The description is still the owner's to
+edit (#15, criterion 1); a candidate within GitHub's 350-character limit:
+
+----
+Graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. K-CUT (grading and transport commute with endpoint projection across a consistent frontier) is proved in Agda for the finite, binary-choice, plain-merge, synchronous fragment and pre-registered beyond it.
+----
+
 == What automated validation means
 
 `Documentation Integrity` runs local link/status checks and their regression

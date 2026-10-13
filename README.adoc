@@ -7,9 +7,12 @@
 
 A pre-registration and research notebook for a graded multiparty-session and
 choreographic type theory, combining echo loss-grades and epistemic
-standpoint-warrants. Agda is the intended prover, not a completed formalisation.
-The central artefact is the keystone K-CUT — proved for the finite, binary-choice, plain-merge, synchronous fragment (see the formalisation section below) and open beyond it — the statement that grading
-and transport commute with projection across a consistent frontier.
+standpoint-warrants. Agda is the prover: the finite, binary-choice, plain-merge,
+synchronous fragment is checked under a pinned `--safe --without-K` gate (see
+Validation), and link:PROOF-STATUS.adoc[PROOF-STATUS] ledgers what is and is
+not proved. The central artefact is the keystone K-CUT — proved for that
+fragment and open beyond it — the statement that grading and transport
+commute with projection across a consistent frontier.
 
 == Overview
 
@@ -94,19 +97,19 @@ deferred.
 
 | Multiparty session / choreographic types
 | Standard (Honda–Yoshida–Carbone, Montesi, Hirsch–Garg, Bocchi–Yoshida)
-| Core definitions (planned)
+| `src/Choreographic/Global.agda`, `src/Choreographic/Local.agda`, `src/Choreographic/Party.agda`
 
 | Endpoint projection from global to local types
 | Standard
-| Projection module (planned)
+| `src/Choreographic/Projection.agda` (plain merge, cut projection, `Consistent`)
 
 | Dioid/tropical grading of sessions
 | Standard (various timed/costed session works)
-| Re-proved in-site (planned)
+| Imported from `resource-algebra` at a pinned commit (same kernel); see Dependencies
 
 | Echo loss-grades on choreographic edges
-| Imported from `echo-types`
-| `RoleGraded.choreo-grade-commute` (base case)
+| Imported from `echo-types` at a pinned commit
+| `src/Choreographic/Base/EchoAdditive.agda` (echo-types' ℕ ∪ {∞} grade packaged as a `ResourceAlgebra`); base case in `src/Choreographic/Base/RoleGraded.agda`
 
 | Epistemic warrants on choreographic edges
 | Imported from `epistemic-types`
@@ -114,27 +117,43 @@ deferred.
 
 | Assembly of echo + epistemic grades on partial causal orders
 | **Ours** (assembly)
-| Core definitions (planned)
+| `src/Choreographic/` (Global, Projection, KCut, Kripke, Bound, Transport)
 
 | K-CUT (grading/transport commutes with projection across a cut)
 | **Ours** (conjecture)
-| The keystone — PROVEN (fragment); OPEN beyond it
+| `src/Choreographic/KCut.agda`, `src/Choreographic/Bound.agda`, `src/Choreographic/Transport.agda` — PROVEN (fragment); OPEN beyond it
 |===
 
-== Dependencies and the port-and-reprove pattern
+== Dependencies, pins and the port-and-reprove pattern
 
-The planned formalisation will import from the estate's Agda kernel:
+The development imports three siblings of the estate's Agda kernel, each at
+one pinned commit fetched by `scripts/fetch-siblings.sh` (a full SHA,
+verified after checkout; the gate fails on a mismatch):
 
-* `echo-types` — the `ℕ ∪ {∞}` loss-dioid and the `choreo-grade-commute`
-  base case.
-* `epistemic-types` — the non-factive `Warrant` / `SoundWarrant` interface
-  (the proof home for the warrant gap in K-CUT-WARRANT).
+* `resource-algebra` — the parametric `ResourceAlgebra` (alternatives ⊕,
+  sequence ⊗, the induced order ≼; dioid, ordered and annihilating layers)
+  and the `Loss` (min-plus, ℕ ∪ {∞}), `MaxPlus` (ℕ ∪ {−∞}) and `HWM`
+  instances. Same kernel: imported, not re-proved.
+* `epistemic-types` — `Warrant` / `SoundWarrant` and `Access.Preorder`,
+  imported, not imitated (the proof home for the warrant side of
+  K-CUT-WARRANT).
+* `echo-types` — `experimental/echo-additive/Grade.agda`, the echo-additive
+  ℕ ∪ {∞} grade. `src/Choreographic/Base/EchoAdditive.agda` packages it as a
+  `ResourceAlgebra` from echo-types' own lemmas and proves it agrees with
+  `Loss` operation for operation, so "min-plus" and "echo-additive" are one
+  checked algebra, not two transcriptions. That module is the only one that
+  needs the Agda standard library (through echo-types) and is checked as its
+  own root, so the keystone stays builtins-only.
 
-The tropical resource-dioid is planned to be **re-proved in-site** rather than imported
-across kernels. This follows the estate's port-and-reprove pattern (precedent:
-`typed-wasm/…/Tropical.idr`). The goal is a self-contained resource-algebra
-layer; consistency with `tropical-resource-typing` remains an explicit
-bridge obligation, not an automatic consequence of porting.
+The tropical algebra was **re-proved in-site**, in `resource-algebra`
+(`Instances/MaxPlus.agda`), rather than imported across kernels, following
+the estate's port-and-reprove pattern (precedent: `typed-wasm/…/Tropical.idr`).
+The named cross-prover bridge obligation — that `MaxPlus` agrees with
+tropical-types' Lean 4 `instance : CommSemiring Tropical` — is
+resource-algebra's ledger row M-2 and is OPEN there. This repository inherits
+it: every MaxPlus discharge (`kcut-loss-MaxPlus`, `kcut-warrant-MaxPlus`)
+carries the Lean theorem as provenance, never as an import. See
+link:docs/pre-registration-addendum-2026-10-13.adoc[].
 
 The research intent, borrowed-vs-ours ledger and outstanding obligations are
 preserved in link:docs/pre-registration.adoc[the pre-registration record].
@@ -156,6 +175,21 @@ preserved in link:docs/pre-registration.adoc[the pre-registration record].
 |===
 | Path | Purpose
 
+| `src/Choreographic/`
+| The checked development (`--safe --without-K`, builtins only except `src/Choreographic/Base/EchoAdditive.agda`); `src/Choreographic/All.agda` checks the whole core
+
+| `tests/reject/`
+| Expected rejections: each must fail at its `invalid` declaration with a type mismatch
+
+| `tests/minimal-laws/`
+| A deliberately impoverished `ResourceAlgebra.Core` certifying which laws K-CUT-LOSS uses
+
+| `scripts/fetch-siblings.sh`, `scripts/check.sh`, `scripts/minimal-laws.sh`
+| The proof gate, as run by `.github/workflows/proofs.yml`
+
+| `PROOF-STATUS.adoc`
+| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN and the module that discharges it
+
 | `applications/`
 | Application notes and explicitly postulated Agda targets (not proofs)
 
@@ -165,18 +199,31 @@ preserved in link:docs/pre-registration.adoc[the pre-registration record].
 | `docs/actions-policy.adoc`
 | Owner-only Actions policy repair and verification
 
-| `scripts/` and `tests/`
+| `scripts/check-repository.mjs` and `tests/`
 | Documentation integrity and regression checks (not proof checking)
 |===
 
 == Validation
 
-There is no canonical Agda build in this checkout. The application target is
-an illustrative collection of postulates, not a checked proof or a substitute
-for the planned definitions. Do not treat successful documentation checks as
-mathematical verification.
+The proof gate is `.github/workflows/proofs.yml`: a digest-pinned Debian 13
+container with `agda-bin=2.6.4.3-1+b2` and `agda-stdlib=2.1-4` from the
+distribution, siblings fetched at pinned commits, and every module checked
+with `--safe --without-K --no-libraries --ignore-interfaces --double-check
+-W error`. To run it locally with that Agda (any other version is refused;
+set `AGDA_VERSION` to check deliberately with another):
 
-With Node.js 22 or newer:
+[source,bash]
+----
+bash scripts/fetch-siblings.sh   # resource-algebra, epistemic-types, echo-types at their pins
+bash scripts/check.sh            # core proofs, echo-additive instance, expected rejections
+bash scripts/minimal-laws.sh     # which laws K-CUT-LOSS uses
+----
+
+`applications/rapidnj-two-thread.agda` is not part of the gate: it is a
+postulated target, not a proof (see link:PROOF-STATUS.adoc[]).
+
+The documentation integrity checks are structural only and never evidence
+that anything is proved. With Node.js 22 or newer:
 
 [source,bash]
 ----
@@ -186,7 +233,7 @@ node --test tests/*.test.mjs
 
 == Formalisation (fragment, 2026-10-12)
 
-See `src/Choreographic/` and link:PROOF-STATUS.adoc[]: K-CUT-LOSS and both components of K-CUT-WARRANT are proved for the finite, binary-choice, plain-merge, synchronous fragment, parametric in resource-algebra. The plan below is kept as the record of what was planned.
+See `src/Choreographic/` and link:PROOF-STATUS.adoc[]: K-CUT-LOSS and both components of K-CUT-WARRANT are proved for the finite, binary-choice, plain-merge, synchronous fragment, parametric in resource-algebra, and checked by the gate above on every push since 2026-10-13. The plan below is kept as the record of what was planned.
 
 === As planned (2026-10-03)
 

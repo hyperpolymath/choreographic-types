@@ -1,3 +1,25 @@
+== 2026-10-13 — the gate runs (ladder increment I0; v0.1.0)
+
+* `.github/workflows/proofs.yml` re-made on the epistemic-types pattern:
+  digest-pinned `debian:13-slim`, `agda-bin=2.6.4.3-1+b2` and
+  `agda-stdlib=2.1-4`, `actions/checkout` by full SHA (the previous tag ref
+  died at startup on every run under this repository's SHA-pinning policy),
+  `--ignore-interfaces --double-check -W error` on every check; committed
+  `.agdai` files removed.
+* `scripts/fetch-siblings.sh`: full-SHA pins, verified after checkout;
+  echo-types `da140cc2` added beside resource-algebra `b2c9f1f6` and
+  epistemic-types `495db9cc`.
+* `src/Choreographic/Base/EchoAdditive.agda`: echo-types' echo-additive
+  ℕ ∪ {∞} grade imported and packaged as a `ResourceAlgebra` (dioid,
+  ordered, annihilating), proved equal to resource-algebra's `Loss` operation
+  for operation; B-4 (the EchoGraded transcription) ASSUMED → PROVEN.
+* `scripts/check-repository.mjs` relaxed in the same change: README must
+  point at PROOF-STATUS and every cited `src/`/`tests/`/`scripts/` path must
+  exist; the "nothing is proven yet" sentence is no longer demanded.
+* README, CITATION (`version: 0.1.0`), EXPLAINME and PROOF-STATUS brought to
+  the truth; the Lean→Agda bridge obligation (resource-algebra M-2) named in
+  `docs/pre-registration-addendum-2026-10-13.adoc`.
+
 == 2026-10-12 — K-CUT-LOSS proved (fragment)
 
 * `src/Choreographic/`: Party, Global (grade, `grade↾`, Cut), Local, Projection

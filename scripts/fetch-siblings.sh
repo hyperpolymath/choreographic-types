@@ -1,21 +1,53 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MPL-2.0
-# Fetch the compared sibling at a pinned commit (pattern: residual-evidence-types).
-# FILL IN the commit once hyperpolymath/resource-algebra is pushed.
+# Fetch every sibling the proofs import, each at ONE pinned commit, into
+# _build/dependencies/<repo>.  Pattern: residual-evidence-types.
+#
+# Each pin is a full 40-character commit SHA, fetched directly (no branch,
+# no history) and verified after checkout, so an upstream force-push can
+# never change what this gate checks.  Override a pin only through its
+# environment variable, and only deliberately.
+#
+#   resource-algebra  the ResourceAlgebra port: Core, Loss (min-plus),
+#                     MaxPlus, HWM — same kernel, imported not re-proved
+#   epistemic-types   Warrant / SoundWarrant / Access — imported, not copied
+#   echo-types        experimental/echo-additive/Grade.agda, the echo-additive
+#                     ℕ ∪ {∞} grade; the one sibling that needs agda-stdlib
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
+
 RESOURCE_ALGEBRA_COMMIT="${RESOURCE_ALGEBRA_COMMIT:-b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881}"
-EPISTEMIC_TYPES_COMMIT="${EPISTEMIC_TYPES_COMMIT:-495db9c}"   # Warrant/Base/Access as read 2026-10-12
-mkdir -p _build/dependencies
-if [ ! -d _build/dependencies/epistemic-types ]; then
-  git clone --quiet https://github.com/hyperpolymath/epistemic-types.git _build/dependencies/epistemic-types
-fi
-git -C _build/dependencies/epistemic-types fetch --quiet origin
-git -C _build/dependencies/epistemic-types checkout --quiet "$EPISTEMIC_TYPES_COMMIT"
-echo "epistemic-types at $(git -C _build/dependencies/epistemic-types rev-parse --short HEAD)"
-if [ ! -d _build/dependencies/resource-algebra ]; then
-  git clone --quiet https://github.com/hyperpolymath/resource-algebra.git _build/dependencies/resource-algebra
-fi
-git -C _build/dependencies/resource-algebra fetch --quiet origin
-git -C _build/dependencies/resource-algebra checkout --quiet "$RESOURCE_ALGEBRA_COMMIT"
-echo "resource-algebra at $(git -C _build/dependencies/resource-algebra rev-parse --short HEAD)"
+EPISTEMIC_TYPES_COMMIT="${EPISTEMIC_TYPES_COMMIT:-495db9cca003e12066a3cb9c9f2d7afa1a953aec}"
+ECHO_TYPES_COMMIT="${ECHO_TYPES_COMMIT:-da140cc26fd174b20d5d7fcfafcb4febd3276ff3}"
+DEPENDENCIES_DIR="${DEPENDENCIES_DIR:-_build/dependencies}"
+
+# fetch_pinned <repo> <commit>
+# Fetches exactly <commit> of hyperpolymath/<repo> into $DEPENDENCIES_DIR/<repo>
+# (reusing a checkout that already holds the commit) and fails unless HEAD
+# is then that commit.
+fetch_pinned() {
+  local repo="$1" commit="$2" dir="$DEPENDENCIES_DIR/$1" head
+  if ! [[ "$commit" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "ERROR: $repo pin must be a full 40-character commit SHA, got '$commit'" >&2
+    exit 1
+  fi
+  if [ ! -d "$dir/.git" ]; then
+    git init --quiet "$dir"
+    git -C "$dir" remote add origin "https://github.com/hyperpolymath/$repo.git"
+  fi
+  if ! git -C "$dir" cat-file -e "$commit^{commit}" 2>/dev/null; then
+    git -C "$dir" fetch --quiet --depth 1 origin "$commit"
+  fi
+  git -C "$dir" checkout --quiet --detach "$commit"
+  head="$(git -C "$dir" rev-parse HEAD)"
+  if [ "$head" != "$commit" ]; then
+    echo "ERROR: $repo pin mismatch: want $commit got $head" >&2
+    exit 1
+  fi
+  echo "$repo at $head"
+}
+
+mkdir -p "$DEPENDENCIES_DIR"
+fetch_pinned resource-algebra "$RESOURCE_ALGEBRA_COMMIT"
+fetch_pinned epistemic-types  "$EPISTEMIC_TYPES_COMMIT"
+fetch_pinned echo-types       "$ECHO_TYPES_COMMIT"

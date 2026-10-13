@@ -2,7 +2,9 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
 title: "Choreographic Types"
-abstract: "Pre-registration and research notebook for a graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. The central artefact is K-CUT: the open conjecture that grading and transport commute with endpoint projection across a consistent frontier (antichain), splitting into equality on loss-grades/bound on warrants. Agda is the intended prover; no checked formalisation exists yet."
+version: "0.1.0"
+date-released: "2026-10-13"
+abstract: "Pre-registration and research notebook for a graded multiparty-session type theory combining echo loss-grades and epistemic warrants on partial causal orders. The central artefact is K-CUT: the conjecture that grading and transport commute with endpoint projection across a consistent frontier (antichain), splitting into equality on loss-grades/bound on warrants. Agda is the prover: the finite, binary-choice, plain-merge, synchronous fragment is checked under a pinned --safe --without-K gate, with siblings imported at pinned commits; what is and is not proved is ledgered in PROOF-STATUS.adoc. Beyond that fragment (recursion, full merge, asynchrony, data-dependent warrants) K-CUT remains a pre-registration."
 authors:
   - family-names: "Jewell"
     given-names: "Jonathan D.A."
