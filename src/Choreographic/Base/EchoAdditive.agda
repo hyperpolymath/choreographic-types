@@ -94,7 +94,7 @@ fromLoss∘toLoss E.inf     = refl
 toLoss-𝟘 : toLoss E.inf ≡ L.inf
 toLoss-𝟘 = refl
 
-toLoss-𝟙 : toLoss (E.fin 0) ≡ L.fin 1
+toLoss-𝟙 : toLoss (E.fin 0) ≡ L.fin 0
 toLoss-𝟙 = refl
 
 toLoss-⊕ : ∀ a b → toLoss (a E.⊓g b) ≡ toLoss a L.⊓g toLoss b
