@@ -109,7 +109,9 @@ the Verified badge on GitHub; or the public API, where
 * Squash and merge commits that GitHub creates are signed by GitHub.
 * CodeRabbit's "commit to this branch" features (docstring generation,
   autofix) write unsigned commits through the API. Keep those features
-  off, or have a maintainer re-sign the commits before merge:
+  off (`.coderabbit.yaml` pins the docstring and unit-test generators off;
+  Autofix is a dashboard setting), or have a maintainer re-sign the
+  commits before merge:
   `git rebase --exec 'git commit --amend --no-edit' <base>` with signing
   configured re-signs each one and keeps the bot as author. Never grant a
   ruleset bypass to a bot instead.

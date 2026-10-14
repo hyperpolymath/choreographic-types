@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MPL-2.0
+# CodeRabbit configuration.  A file in the repository takes precedence over
+# the organisation dashboard, so a dashboard setting that should apply here
+# must be repeated in this file.
+#
+# Nothing that commits to a branch is enabled.  Every commit in this
+# repository is signed by a person or by the proof-gate agent (GOVERNANCE.adoc,
+# "Commit and tag signing"); CodeRabbit's generated commits are written
+# through the API and are not.
+---
+reviews:
+  profile: assertive
+  # The dashboard reviewed draft pull requests; a file without this line
+  # turns that off (seen on #28).
+  auto_review:
+    drafts: true
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
