@@ -19,3 +19,29 @@ reviews:
       enabled: false
     unit_tests:
       enabled: false
+  # The documentation convention (GOVERNANCE.adoc, "Documentation
+  # convention"): the reviewer enforces it instead of asking for docstrings.
+  path_instructions:
+    - path: "src/**/*.agda"
+      instructions: >-
+        The type signature is the specification and PROOF-STATUS.adoc is the
+        documentation. Do not ask for a comment that restates a type. Do
+        flag: a definition the ledger cites whose comment block, directly
+        above it with no blank line, lacks its "-- Ledger <ID>." line; a
+        comment that claims more than the type proves; a postulate anywhere
+        under src/ or tests/; a comment naming a ledger row that does not
+        exist.
+    - path: "tests/**/*.agda"
+      instructions: >-
+        Expected-rejection fixtures: the header names the ledger row they
+        test ("-- Ledger <ID>.") and the `invalid` declaration is the only
+        thing that may fail. Do not ask for docstrings.
+    - path: "scripts/*.sh"
+      instructions: >-
+        Every function has a header comment stating inputs, side effects and
+        exit codes; a script the ledger cites names the row in its header.
+        Ask for those; do not ask for per-line comments.
+    - path: "scripts/*.mjs"
+      instructions: >-
+        JSDoc here is prose and is not type-checked; keep @param and @returns
+        truthful and do not ask for comments that repeat a name.

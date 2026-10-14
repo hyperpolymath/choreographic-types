@@ -36,6 +36,7 @@ open import Data.Nat.Base using (_⊓_)
 ----------------------------------------------------------------------
 -- The instance, filled from echo-types' own lemmas
 
+-- Ledger E-1.
 EchoAdditive : ResourceAlgebra
 EchoAdditive = record
   { Grade = E.Grade
@@ -49,6 +50,7 @@ EchoAdditive = record
                    ; unitʳ = E.+g-identityʳ }
   }
 
+-- Ledger E-1.
 EchoAdditive-dioid : IsDioid EchoAdditive
 EchoAdditive-dioid = record { distribˡ = E.+g-distribˡ-⊓g ; distribʳ = distribʳ }
   where
@@ -59,9 +61,11 @@ EchoAdditive-dioid = record { distribˡ = E.+g-distribˡ-⊓g ; distribʳ = dist
     (trans (E.+g-distribˡ-⊓g c a b)
            (cong₂ E._⊓g_ (E.+g-comm c a) (E.+g-comm c b)))
 
+-- Ledger E-1.
 EchoAdditive-ordered : IsOrdered EchoAdditive
 EchoAdditive-ordered = IsDioid.ordered EchoAdditive-dioid
 
+-- Ledger E-1.
 EchoAdditive-annihilating : IsAnnihilating EchoAdditive
 EchoAdditive-annihilating = record { annihilˡ = E.+g-absorbˡ ; annihilʳ = E.+g-absorbʳ }
 
@@ -78,32 +82,39 @@ fromLoss : L.Grade → E.Grade
 fromLoss (L.fin n) = E.fin n
 fromLoss L.inf     = E.inf
 
+-- Ledger E-2.
 toLoss∘fromLoss : ∀ g → toLoss (fromLoss g) ≡ g
 toLoss∘fromLoss (L.fin _) = refl
 toLoss∘fromLoss L.inf     = refl
 
+-- Ledger E-2.
 fromLoss∘toLoss : ∀ g → fromLoss (toLoss g) ≡ g
 fromLoss∘toLoss (E.fin _) = refl
 fromLoss∘toLoss E.inf     = refl
 
 -- The standard library's ⊓ and the Prelude's min are the same function,
 -- clause for clause.
+-- Ledger E-2.
 ⊓-min : ∀ m n → m ⊓ n ≡ min m n
 ⊓-min zero    n       = refl
 ⊓-min (suc m) zero    = refl
 ⊓-min (suc m) (suc n) = cong suc (⊓-min m n)
 
+-- Ledger E-2.
 toLoss-𝟘 : toLoss E.inf ≡ L.inf
 toLoss-𝟘 = refl
 
+-- Ledger E-2.
 toLoss-𝟙 : toLoss (E.fin 0) ≡ L.fin 0
 toLoss-𝟙 = refl
 
+-- Ledger E-2.
 toLoss-⊕ : ∀ a b → toLoss (a E.⊓g b) ≡ toLoss a L.⊓g toLoss b
 toLoss-⊕ (E.fin m) (E.fin n) = cong L.fin (⊓-min m n)
 toLoss-⊕ (E.fin m) E.inf     = refl
 toLoss-⊕ E.inf     b         = refl
 
+-- Ledger E-2.
 toLoss-⊗ : ∀ a b → toLoss (a E.+g b) ≡ toLoss a L.+g toLoss b
 toLoss-⊗ (E.fin m) (E.fin n) = refl
 toLoss-⊗ (E.fin m) E.inf     = refl
@@ -114,6 +125,7 @@ toLoss-⊗ E.inf     b         = refl
 -- EchoGraded, matched against the original constructor by constructor
 
 -- Map each original base grade to its corresponding RoleGraded constructor.
+-- Ledger B-4.
 transcribe : Old.Grade → RG.EGrade
 transcribe Old.keep    = RG.keep
 transcribe Old.residue = RG.residue
@@ -121,12 +133,14 @@ transcribe Old.forget  = RG.forget
 
 -- echo-types' own embedding into ℕ ∪ {∞} (Grade.agda `embed`) and
 -- RoleGraded's agree through toLoss.
+-- Ledger E-3.
 embed-agrees : ∀ g → toLoss (E.embed g) ≡ RG.embed (transcribe g)
 embed-agrees Old.keep    = refl
 embed-agrees Old.residue = refl
 embed-agrees Old.forget  = refl
 
 -- The coarsening order is transcribed faithfully, in both directions.
+-- Ledger B-4.
 ≤g-transcribe : ∀ {a b} → a Old.≤g b → transcribe a RG.≤g transcribe b
 ≤g-transcribe Old.keep≤keep       = RG.keep≤keep
 ≤g-transcribe Old.keep≤residue    = RG.keep≤residue
@@ -136,6 +150,7 @@ embed-agrees Old.forget  = refl
 ≤g-transcribe Old.forget≤forget   = RG.forget≤forget
 
 -- Recover an original coarsening proof from one between the transcribed grades.
+-- Ledger B-4.
 ≤g-original : ∀ a b → transcribe a RG.≤g transcribe b → a Old.≤g b
 ≤g-original Old.keep    Old.keep    _  = Old.keep≤keep
 ≤g-original Old.keep    Old.residue _  = Old.keep≤residue

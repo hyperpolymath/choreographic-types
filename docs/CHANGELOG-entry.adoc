@@ -1,3 +1,19 @@
+== 2026-10-14 — the ledger is bound to the code
+
+* `scripts/check-repository.mjs`: every name a PROVEN or TESTED row of
+  PROOF-STATUS cites must be a definition (or a file), and the comment
+  directly above it (or the file's header) must carry `-- Ledger <ID>.`;
+  duplicate row IDs and references to rows that do not exist are rejected.
+  Nine regression tests cover it.
+* PROOF-STATUS: the worked-protocol rows reused W-1 to W-4 and are now
+  P-1 to P-4; every row that said only PROVEN or TESTED now names what
+  discharges it; `kcut-warrant-HWM/Loss/MaxPlus` is spelled out.
+* `-- Ledger <ID>.` lines above 69 cited definitions and in 6 cited file
+  headers. No proof changed; the gate re-ran green.
+* `.coderabbit.yaml`: path instructions carry the convention, so the
+  reviewer enforces it instead of asking for docstrings; GOVERNANCE states
+  it under "Documentation convention".
+
 == 2026-10-13 — the gate runs (ladder increment I0; v0.1.0)
 
 * `.github/workflows/proofs.yml` re-made on the epistemic-types pattern:

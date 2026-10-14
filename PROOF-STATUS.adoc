@@ -12,6 +12,12 @@ echo-types with `agda-stdlib=2.1-4`. The gate is
 `.github/workflows/proofs.yml` running `scripts/check.sh` and
 `scripts/minimal-laws.sh`; see "The gate" at the end.
 
+Every name in a status cell is bound to the code by
+`scripts/check-repository.mjs`: it must be a definition (or a file), and the
+comment directly above that definition (or the file's header) must name the
+row, as `-- Ledger K-1.`  A row cannot outlive its proof, and a proof cannot
+be claimed by a row that does not point at it.
+
 == Fragment formalised (scope, stated before the claims)
 
 Finite graded global types with message and *binary* choice; endpoint
@@ -34,8 +40,8 @@ type determines). Both components of K-CUT-WARRANT — bound and transport
 | K-3 | `grade-proj`: on a projectable G, the restricted global grade equals the grade of the projection | PROVEN (`KCut.grade-proj`)
 | K-4 | K-CUT-LOSS uses exactly two laws: `𝟙 ⊗ x ≡ x` and `x ⊕ x ≡ x`. Associativity, commutativity, ⊗-right-unit, distributivity, order and annihilation are not used | TESTED (`scripts/minimal-laws.sh`: KCut checks against a Core with only those two fields)
 | K-5 | `Projectable p G` is not a hypothesis of K-1: `Consistent p c` alone yields `Projectable p (G ↾ c)` (`cut-projectable`). The equality is local to the cut prefix; what happens after the frontier is irrelevant | PROVEN (`KCut.cut-projectable`)
-| K-6 | Discharged at the three estate instances: `kcut-loss-Loss`, `kcut-loss-MaxPlus`, `kcut-loss-HWM` | PROVEN (`Instances.agda`)
-| K-7 | Both side-conditions are load-bearing: without `Projectable` the equality fails (restricted grade 1, local 2); without `Consistent` it fails (1 vs 2) | TESTED (`tests/reject/UnprojectableChoice`, `InconsistentCut`, each refused with `1 != 2`)
+| K-6 | Discharged at the three estate instances: `kcut-loss-Loss`, `kcut-loss-MaxPlus`, `kcut-loss-HWM` | PROVEN (`Instances.kcut-loss-Loss`, `kcut-loss-MaxPlus`, `kcut-loss-HWM`)
+| K-7 | Both side-conditions are load-bearing: without `Projectable` the equality fails (restricted grade 1, local 2); without `Consistent` it fails (1 vs 2) | TESTED (`tests/reject/UnprojectableChoice`, `tests/reject/InconsistentCut`, each refused with `1 != 2`)
 |===
 
 == K-CUT-WARRANT, bound form (Kripke.agda, Bound.agda)
@@ -51,7 +57,7 @@ epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
 | W-3 | LOSS ⇒ WARRANT: by K-CUT-LOSS the restricted grade is a function of the view, so p knows it at every world and holds a sound warrant for it | PROVEN (`knows-own-grade`, `own-grade-warrant`)
 | W-4 | Bound: if every grade in G is ≽ 𝟙 then `grade↾ p G ≼ grade G`; if every grade is ≼ 𝟙 then `grade G ≼ grade↾ p G`. Uses ⊗-monotonicity (`IsOrdered`) and ⊕-monotonicity (every resource algebra): the first use of order in the keystone | PROVEN (`Bound.grade↾-≼`, `grade-≼↾`)
 | W-5 | *K-CUT-WARRANT (bound form)*: at every world p considers possible, the global grade up to the cut is bounded by p's own known restricted grade; direction set by where 𝟙 sits in the order; a sound warrant | PROVEN (`knows-lower-bound`, `knows-upper-bound`, `lower-bound-warrant`)
-| W-6 | Discharged: HWM unconditionally (𝟙 = 𝟘 is least), Loss unconditionally in the upper form (𝟙 = fin 0 is greatest), MaxPlus for bot-free types (bot = −∞ is the one grade below 𝟙) | PROVEN (`kcut-warrant-HWM/Loss/MaxPlus`)
+| W-6 | Discharged: HWM unconditionally (𝟙 = 𝟘 is least), Loss unconditionally in the upper form (𝟙 = fin 0 is greatest), MaxPlus for bot-free types (bot = −∞ is the one grade below 𝟙) | PROVEN (`Instances.kcut-warrant-HWM`, `kcut-warrant-Loss`, `kcut-warrant-MaxPlus`)
 | W-7 | "Cannot determine": two worlds party 2 cannot tell apart carry different global grades, and a claim to know the global grade is refused | TESTED (`Instances.Witness`; `tests/reject/GlobalGradeKnown`)
 |===
 
@@ -60,7 +66,7 @@ epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
 [cols="1,3,1",options="header"]
 |===
 | ID | Claim | Status
-| T-1 | Truncating a local type is injective in the cut (`↾ₗ-injective`); injectivity of local constructors is by projections, since matching `refl` on an abstract `Grade` would need K | PROVEN
+| T-1 | Truncating a local type is injective in the cut (`↾ₗ-injective`); injectivity of local constructors is by projections, since matching `refl` on an abstract `Grade` would need K | PROVEN (`Transport.↾ₗ-injective`)
 | T-2 | *The local frontier is known*: at every world p knows exactly its projected cut, hence every fact about its own frontier — receiving is knowing it was received; synchronously, sending is knowing it was sent | PROVEN (`knows-local-cut`, `knows-local`; `receiver-knows`, `sender-knows`)
 | T-3 | p-accessibility is exactly sameness of p's projected cut (both directions) | PROVEN (`knows-local-cut`, `local-cut-determines`)
 | T-4 | Party access `p ⊑ q` ("q sees at least what p sees") is a preorder — epistemic-types' `Preorder` record, instantiated — and knowledge is monotone along it | PROVEN (`party-access`, `knows-mono`)
@@ -77,12 +83,12 @@ type-level counterpart:
 [cols="1,3,1",options="header"]
 |===
 | ID | Claim | Status
-| A-1 | Two interactions between disjoint party pairs swap without changing any endpoint's projection (`swap-proj`) or restricted grade (`swap-grade↾`); ⊗-left-unit only | PROVEN
+| A-1 | Two interactions between disjoint party pairs swap without changing any endpoint's projection (`swap-proj`) or restricted grade (`swap-grade↾`); ⊗-left-unit only | PROVEN (`Swap.swap-proj`, `swap-grade↾`)
 | A-2 | The unrestricted global grade swaps iff the two grades commute under ⊗ (`swap-grade`); Loss and MaxPlus commute | PROVEN (`Diamond.loss-commutes`, `maxplus-commutes`)
 | A-3 | The high-water mark does not commute: independent threads have an order-dependent peak (3 vs 5) invisible at every endpoint | TESTED (`Diamond.hwm-order-sensitive`)
-| A-4 | Operational reading (`Operational.agda`): `Step` fires an interaction at the head or beneath independent heads; a global step is a local step at every endpoint (`step-proj`, `step-grade↾`); `StateEq` is projection-equivalence | PROVEN
-| A-5 | `twoThreadDiamond` as a theorem: two independent events fired in either order reach projection-equivalent states (`two-thread-diamond`) | PROVEN
-| A-6 | `twoThreadKCutLoss` as a theorem once `transportLoss` takes the state: after two steps the local grade at a projectable state is the restricted global grade (`two-thread-kcut-loss`, i.e. K-3) | PROVEN
+| A-4 | Operational reading (`Operational.agda`): `Step` fires an interaction at the head or beneath independent heads; a global step is a local step at every endpoint (`step-proj`, `step-grade↾`); `StateEq` is projection-equivalence | PROVEN (`Operational.step-proj`, `step-grade↾`)
+| A-5 | `twoThreadDiamond` as a theorem: two independent events fired in either order reach projection-equivalent states (`two-thread-diamond`) | PROVEN (`Operational.two-thread-diamond`)
+| A-6 | `twoThreadKCutLoss` as a theorem once `transportLoss` takes the state: after two steps the local grade at a projectable state is the restricted global grade (`two-thread-kcut-loss`, i.e. K-3) | PROVEN (`Operational.two-thread-kcut-loss`)
 | A-7 | `transportLoss : Role → Grade → Grade` is unsatisfiable: no function of the global grade returns the local grade (two states of global grade `val 1` give party 0 `val 1` and `val 0`) | TESTED (`Instances.NoTransportLoss`)
 | A-8 | `globalGradeRespectsStateEq` is false for occupancy: projection-equivalent states with peaks 3 and 5 — `StateEq` must be finer than swap-equivalence for HWM, as predicted | TESTED (`Instances.GradeNotStateInvariant`)
 |===
@@ -131,10 +137,10 @@ Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→
 [cols="1,3,1",options="header"]
 |===
 | ID | Reading | Status
-| W-1 | Loss (1,2,5): broker's restricted grade `fin 8`; at the cut before the server answers, `fin 3` | TESTED
-| W-2 | MaxPlus (1,2,5): broker `val 8` | TESTED
-| W-3 | HWM peaks (1,2,5), nothing held: broker's peak `5`, at the cut `2` — an occupancy reading is not a cost reading, inside one protocol | TESTED
-| W-4 | `Projectable 1 G` and `Consistent 1 c₁` are inhabited (by `refl` at the merge) and K-1 instantiates to `broker-cut` | PROVEN
+| P-1 | Loss (1,2,5): broker's restricted grade `fin 8`; at the cut before the server answers, `fin 3` | TESTED (`loss-broker`, `loss-broker-cut`)
+| P-2 | MaxPlus (1,2,5): broker `val 8` | TESTED (`maxplus-broker`)
+| P-3 | HWM peaks (1,2,5), nothing held: broker's peak `5`, at the cut `2` — an occupancy reading is not a cost reading, inside one protocol | TESTED (`hwm-broker`, `hwm-broker-cut`)
+| P-4 | `Projectable 1 G` and `Consistent 1 c₁` are inhabited (by `refl` at the merge) and K-1 instantiates to `broker-cut` | PROVEN (`Worked.projectable-1`, `consistent-1`, `broker-cut`)
 |===
 
 == Open (honest — NOT proved)

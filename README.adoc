@@ -188,7 +188,7 @@ preserved in link:docs/pre-registration.adoc[the pre-registration record].
 | The proof gate, as run by `.github/workflows/proofs.yml`
 
 | `PROOF-STATUS.adoc`
-| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN and the module that discharges it
+| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN and the module that discharges it; every cited name is bound to its definition, and the definition's comment back to the row, by the integrity check
 
 | `applications/`
 | Application notes and explicitly postulated Agda targets (not proofs)

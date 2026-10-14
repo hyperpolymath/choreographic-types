@@ -47,6 +47,7 @@ proj-cut-choice (sender _)     g L₁ L₂ c₁ c₂ = refl
 proj-cut-choice (receiver _ _) g L₁ L₂ c₁ c₂ = refl
 proj-cut-choice (outside _ _)  g L₁ L₂ c₁ c₂ = refl
 
+-- Ledger K-2.
 proj-cut : ∀ p G (c : Cut G) → proj p (G ↾ c) ≡ proj p G ↾ₗ cutproj p c
 proj-cut p G stop = refl
 proj-cut p (msg s r g G) (cont-msg c) =
@@ -76,6 +77,7 @@ grade-proj-choice {p = p} (outside _ _) g {x₁} {x₂} {G₁} {G₂} e₁ e₂ 
   (trans (cong (lgrade (proj p G₁) ⊕_) (cong lgrade (sym m)))
          (IsAltMonoid.idem alt (lgrade (proj p G₁)))))
 
+-- Ledger K-3.
 grade-proj : ∀ p G → Projectable p G → grade↾ p G ≡ lgrade (proj p G)
 grade-proj p end                  end                 = refl
 grade-proj p (msg s r g G)        (msg pr)            =
@@ -85,6 +87,7 @@ grade-proj p (choice s r g G₁ G₂) (choice pr₁ pr₂ m)  =
 
 ----------------------------------------------------------------------
 -- (C) A consistent cut yields a projectable global type.
+-- Ledger K-5.
 cut-projectable : ∀ p G (c : Cut G) → Consistent p c → Projectable p (G ↾ c)
 cut-projectable p G                  stop                 stop                   = end
 cut-projectable p (msg s r g G)      (cont-msg c)         (cont-msg k)           =
@@ -94,6 +97,7 @@ cut-projectable p (choice s r g G₁ G₂) (cont-choice c₁ c₂) (cont-choice 
 
 ----------------------------------------------------------------------
 -- K-CUT-LOSS.
+-- Ledger K-1.
 kcut-loss : ∀ p G (c : Cut G) → Consistent p c
           → grade↾ p (G ↾ c) ≡ lgrade (proj p G ↾ₗ cutproj p c)
 kcut-loss p G c k =

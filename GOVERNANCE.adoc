@@ -116,6 +116,33 @@ the Verified badge on GitHub; or the public API, where
   configured re-signs each one and keeps the bot as author. Never grant a
   ruleset bypass to a bot instead.
 
+=== Documentation convention
+
+Prose that nothing checks is not documentation this repository relies on.
+What counts, by language:
+
+* *Agda.* The type signature is the specification; `PROOF-STATUS.adoc` is
+  the documentation. Every name a PROVEN or TESTED row cites must be a
+  definition, and the comment block directly above it (no blank line
+  between) must carry the line `-- Ledger <ID>.` naming that row; a cited
+  file carries the line in its header. `scripts/check-repository.mjs`
+  enforces both directions, rejects a duplicate row ID, and rejects any
+  comment or document naming a row the ledger does not have. Beyond the
+  ledger line, a comment says only what the type cannot: the proof idea,
+  which laws it uses, and what is deliberately not claimed. Lemmas the
+  ledger does not cite need no comment.
+* *Shell.* Each function has a header comment stating its inputs, side
+  effects and exit codes. Nothing checks it; keep it short enough to stay
+  true.
+* *JavaScript.* JSDoc is prose and is not type-checked: checking it would
+  need TypeScript and the Node typings fetched at run time, and the
+  documentation guard is kept free of dependencies on purpose. Keep
+  `@param` and `@returns` truthful or leave them out.
+
+CodeRabbit is told this convention through `.coderabbit.yaml`
+(`path_instructions`), so it reviews against it rather than asking for
+docstrings.
+
 === Code of Conduct
 
 All participants are expected to follow our Code of Conduct. Violations

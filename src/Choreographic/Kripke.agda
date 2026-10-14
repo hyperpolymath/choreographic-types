@@ -34,6 +34,7 @@ open ResourceAlgebra R
 view : (p : Party) (G : Global) → Cut G → Local
 view p G c = proj p G ↾ₗ cutproj p c
 
+-- Ledger W-1.
 module Frame (G : Global) where
 
   -- A world is a frontier consistent for every party: a global state.
@@ -76,12 +77,14 @@ module Frame (G : Global) where
 
   -- Package the warrant with a map from knowledge evidence to truth at w.
   -- The caller must supply an evidence token to obtain a proof of φ w.
+  -- Ledger W-2.
   sound-warrant : (p : Party) (w : World) (φ : World → Set) → SoundWarrant Party p (φ w)
   sound-warrant p w φ = soundWarrant (warrant p w φ) (knows-factive p w φ)
 
   ----------------------------------------------------------------------
   -- LOSS ⇒ WARRANT.  K-CUT-LOSS says p's restricted global grade is a
   -- function of p's view; hence p knows it at every world.
+  -- Ledger W-3.
   knows-own-grade : ∀ p w → Knows p w (λ w' → grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w))
   knows-own-grade p (c , k) (c' , k') e =
     trans (kcut-loss p G c' (k' p))
@@ -90,5 +93,6 @@ module Frame (G : Global) where
 
   -- Construct the sound warrant for equality with the grade at w;
   -- knows-own-grade supplies its knowledge evidence separately.
+  -- Ledger W-3.
   own-grade-warrant : ∀ p w → SoundWarrant Party p (grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w))
   own-grade-warrant p w = sound-warrant p w (λ w' → grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w))

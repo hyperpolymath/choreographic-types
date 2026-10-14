@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { checkRepository } from '../scripts/check-repository.mjs';
 import { payloadFrom, samePolicy } from '../scripts/actions-policy.mjs';
 
@@ -20,7 +20,9 @@ function fixture(t, files = {}) {
   const root = mkdtempSync(join(tmpdir(), 'choreo-check-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const [name, text] of Object.entries({ 'README.adoc': status, 'PROOF-STATUS.adoc': ledger, ...files })) {
-    if (text !== null) writeFileSync(join(root, name), text);
+    if (text === null) continue;
+    mkdirSync(dirname(join(root, name)), { recursive: true });
+    writeFileSync(join(root, name), text);
   }
   return root;
 }
@@ -33,13 +35,30 @@ test('existing cited Agda and script paths pass', t => {
   const root = fixture(t, {
     'README.adoc': status + 'Check with `bash scripts/check.sh`; the keystone is `src/K.agda`.\n',
     'PROOF-STATUS.adoc': '| K-1 | claim | PROVEN (`src/K.agda`) |\n',
+    'scripts/check.sh': '',
+    'src/K.agda': '-- Ledger K-1.\nmodule K where\n',
   });
-  for (const [dir, name] of [['scripts', 'check.sh'], ['src', 'K.agda']]) {
-    mkdirSync(join(root, dir));
-    writeFileSync(join(root, dir, name), '');
-  }
   assert.deepEqual(checkRepository(root), []);
 });
+
+// The ledger binds claims to code: a cited name must be defined, and the
+// comment above it (or the header of a cited file) must name the row.
+const bound = {
+  'PROOF-STATUS.adoc': '== Keystone (K.agda)\n| K-1 | claim | PROVEN (`K.thm`, `lemma`)\n| K-2 | claim | TESTED (`tests/reject/Bad`)\n| K-3 | claim | OPEN\n',
+  'src/K.agda': 'module K where\n-- The theorem, and a lemma inside a nested module.\n-- Ledger K-1.\nthm : Set\nthm = Set\nmodule Inner where\n  -- Ledger K-1.\n  lemma = thm\n',
+  'tests/reject/Bad.agda': '{-# OPTIONS --safe #-}\n-- Ledger K-2.\nmodule Bad where\n',
+};
+test('ledger rows bound to commented definitions pass', t => assert.deepEqual(checkRepository(fixture(t, bound)), []));
+for (const [name, files, expected] of [
+  ['ledger cites an undefined name', { 'PROOF-STATUS.adoc': bound['PROOF-STATUS.adoc'].replace('`K.thm`', '`K.missing`') }, /K-1 cites K\.missing, which is not defined/],
+  ['ledger cites a missing file', { 'PROOF-STATUS.adoc': bound['PROOF-STATUS.adoc'].replace('tests/reject/Bad', 'tests/reject/Gone') }, /K-2 cites tests\/reject\/Gone, which does not exist/],
+  ['cited definition does not name its row', { 'src/K.agda': bound['src/K.agda'].replace('-- Ledger K-1.\nthm', 'thm') }, /K-1: the comment above thm in src\/K\.agda does not name the row/],
+  ['a blank line breaks the comment block', { 'src/K.agda': bound['src/K.agda'].replace('-- Ledger K-1.\nthm', '-- Ledger K-1.\n\nthm') }, /comment above thm .* does not name the row/],
+  ['cited file header does not name its row', { 'tests/reject/Bad.agda': 'module Bad where\n-- Ledger K-2.\n' }, /K-2: the header of tests\/reject\/Bad\.agda does not name the row/],
+  ['duplicate ledger ID', { 'PROOF-STATUS.adoc': bound['PROOF-STATUS.adoc'].replace('| K-2 |', '| K-1 |') }, /Duplicate ledger ID K-1/],
+  ['stale ledger reference in a comment', { 'src/K.agda': bound['src/K.agda'].replace('-- Ledger K-1.\nthm', '-- Ledger K-1, K-9.\nthm') }, /Stale ledger reference K-9 in src\/K\.agda/],
+  ['stale ledger reference in a document', { 'note.adoc': 'See K-7.' }, /Stale ledger reference K-7 in note\.adoc/],
+]) test(`regression: ${name}`, t => assert.match(checkRepository(fixture(t, { ...bound, ...files })).join('\n'), expected));
 for (const [name, files, expected] of [
   ['broken link', { 'note.adoc': 'link:absent.agda[]' }, /Broken local link/],
   ['retired state', { 'STATE.a2ml': 'stale' }, /Retired state format/],

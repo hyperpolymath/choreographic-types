@@ -35,7 +35,9 @@ the siblings it imports, and the gate that checks it.
 
 | `scripts/`
 | The gate (`fetch-siblings.sh`, `check.sh`, `minimal-laws.sh`) and the
-  documentation integrity check (`check-repository.mjs`).
+  documentation integrity check (`check-repository.mjs`), which also binds
+  every name the ledger cites to its definition and the definition's comment
+  back to the row.
 
 | `applications/`
 | Application notes and a postulated RapidNJ target; not part of the gate

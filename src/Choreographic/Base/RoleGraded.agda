@@ -45,6 +45,7 @@ embed forget  = inf
 open ResourceAlgebra Loss using (_≼_)
 
 -- Coarsening in echo is moving DOWN the Loss absorption order.
+-- Ledger B-1.
 ≤g→≼ : ∀ {a b} → a ≤g b → embed b ≼ embed a
 ≤g→≼ keep≤keep       = refl
 ≤g→≼ keep≤residue    = refl
@@ -54,6 +55,7 @@ open ResourceAlgebra Loss using (_≼_)
 ≤g→≼ forget≤forget   = refl
 
 -- ... and nothing else is: the embedding reflects the order too.
+-- Ledger B-1.
 ≼→≤g : ∀ a b → embed b ≼ embed a → a ≤g b
 ≼→≤g keep    keep    _  = keep≤keep
 ≼→≤g keep    residue _  = keep≤residue
@@ -66,6 +68,7 @@ open ResourceAlgebra Loss using (_≼_)
 ≼→≤g forget  forget  _  = forget≤forget
 
 -- Closed under alternatives: the join of two base grades is a base grade.
+-- Ledger B-2.
 alt-closed : ∀ a b → Σ EGrade (λ c → embed a ⊓g embed b ≡ embed c)
 alt-closed keep    b       = keep , alt-keep b
   where
@@ -80,6 +83,7 @@ alt-closed forget  b       = b       , refl
 
 -- Not closed under sequence: a residue followed by a residue leaves the
 -- base lattice.  This is the fact that confined RoleGraded to one edge.
+-- Ledger B-3.
 seq-escapes : ∀ c → embed residue +g embed residue ≢ embed c
 seq-escapes keep    ()
 seq-escapes residue ()

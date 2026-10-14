@@ -58,6 +58,7 @@ at-≼ (sender _)     {g} _ = ≼-refl g
 at-≼ (receiver _ _) {g} _ = ≼-refl g
 at-≼ (outside _ _)      u = u
 
+-- Ledger W-4.
 grade↾-≼ : ∀ p {G} → Each (𝟙 ≼_) G → grade↾ p G ≼ grade G
 grade↾-≼ p end                                        = ≼-refl 𝟙
 grade↾-≼ p {msg s r g G}        (msg u e)             =
@@ -72,6 +73,7 @@ grade↾-≼ p {choice s r g G₁ G₂} (choice u e₁ e₂)      =
 ≼-at (receiver _ _) {g} _ = ≼-refl g
 ≼-at (outside _ _)      u = u
 
+-- Ledger W-4.
 grade-≼↾ : ∀ p {G} → Each (_≼ 𝟙) G → grade G ≼ grade↾ p G
 grade-≼↾ p end                                        = ≼-refl 𝟙
 grade-≼↾ p {msg s r g G}        (msg u e)             =
@@ -87,6 +89,7 @@ module _ (G : Global) (p : Party) where
 
   -- The restricted grade at w is a lower bound at every world p cannot
   -- distinguish from w, provided every interaction grade is above 𝟙.
+  -- Ledger W-5.
   knows-lower-bound : Each (𝟙 ≼_) G → ∀ w
                     → Knows p w (λ w' → grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w'))
   knows-lower-bound e w w' s =
@@ -94,6 +97,7 @@ module _ (G : Global) (p : Party) where
 
   -- The restricted grade at w is an upper bound at every world p cannot
   -- distinguish from w, provided every interaction grade is below 𝟙.
+  -- Ledger W-5.
   knows-upper-bound : Each (_≼ 𝟙) G → ∀ w
                     → Knows p w (λ w' → grade (G ↾ cut w') ≼ grade↾ p (G ↾ cut w))
   knows-upper-bound e w w' s =
@@ -101,6 +105,7 @@ module _ (G : Global) (p : Party) where
 
   -- Construct a sound warrant whose evidence type is knowledge of the
   -- lower bound.  knows-lower-bound supplies an evidence token separately.
+  -- Ledger W-5.
   lower-bound-warrant : Each (𝟙 ≼_) G → ∀ w
                       → SoundWarrant Party p (grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w))
   lower-bound-warrant e w = sound-warrant p w (λ w' → grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w'))

@@ -1,6 +1,7 @@
 {-# OPTIONS --safe --without-K #-}
 -- SPDX-License-Identifier: MPL-2.0
 -- SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell
+-- Ledger T-5.
 module AccessWrongWay where
 open import ResourceAlgebra.Prelude
 open import ResourceAlgebra.Instances.MaxPlus
