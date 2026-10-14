@@ -111,7 +111,8 @@ function ledgerRows(ledger, modules, errors) {
   let sectionModules = [];
   for (const line of ledger.split('\n')) {
     if (line.startsWith('==')) {
-      sectionModules = [...line.matchAll(/([\w/]+)\.agda/g)].flatMap(m => modules.get(basename(m[1])) ?? []);
+      sectionModules = line.split(/[\s(),]+/).filter(word => word.endsWith('.agda'))
+        .flatMap(word => modules.get(basename(word, '.agda')) ?? []);
       continue;
     }
     if (!line.startsWith('|')) continue;
