@@ -10,6 +10,10 @@
 ---
 reviews:
   profile: assertive
+  # The dashboard reviewed draft pull requests; a file without this line
+  # turns that off (seen on #28).
+  auto_review:
+    drafts: true
   finishing_touches:
     docstrings:
       enabled: false
