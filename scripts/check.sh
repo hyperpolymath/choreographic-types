@@ -10,6 +10,7 @@
 # (the kernel re-verifies every term) and -W error (a warning is a failure;
 # UnsupportedIndexedMatch is silenced because agda-stdlib emits it under
 # --without-K and its .agda-lib flags are not read under --no-libraries).
+# Ledger E-4.
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 export LC_ALL="${LC_ALL:-C.UTF-8}"

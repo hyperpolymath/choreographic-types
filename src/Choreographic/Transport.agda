@@ -70,6 +70,7 @@ branch-inj₂ : ∀ {q g L₁ L₂ L₁' L₂'} → branch q g L₁ L₂ ≡ bra
 branch-inj₂ = cong right
 
 -- Equal truncations of the same local type imply equal cuts.
+-- Ledger T-1.
 ↾ₗ-injective : ∀ L (c c' : LCut L) → L ↾ₗ c ≡ L ↾ₗ c' → c ≡ c'
 ↾ₗ-injective L                  stop                 stop                   e = refl
 ↾ₗ-injective (send q g L)       stop                 (cont-send c')         ()
@@ -95,17 +96,20 @@ module Over (G : Global) where
   ----------------------------------------------------------------------
   -- (T2b) The local frontier is known at every world, and p-accessibility
   -- is exactly sameness of the local frontier.
+  -- Ledger T-2, T-3.
   knows-local-cut : ∀ p w → Knows p w (λ w' → cutproj p (cut w') ≡ cutproj p (cut w))
   knows-local-cut p w w' e =
     ↾ₗ-injective (proj p G) (cutproj p (cut w')) (cutproj p (cut w)) (sym e)
 
   -- Any fact about p's own frontier is known: receiving is knowing it was
   -- received (and, synchronously, sending is knowing it was sent).
+  -- Ledger T-2.
   knows-local : ∀ p w (P : LCut (proj p G) → Set)
               → P (cutproj p (cut w)) → Knows p w (λ w' → P (cutproj p (cut w')))
   knows-local p w P h w' e = subst P (sym (knows-local-cut p w w' e)) h
 
   -- Equal projected cuts make the worlds indistinguishable to p.
+  -- Ledger T-3.
   local-cut-determines : ∀ p {w w'} → cutproj p (cut w) ≡ cutproj p (cut w') → w ~[ p ] w'
   local-cut-determines p e = cong (proj p G ↾ₗ_) e
 
@@ -123,10 +127,12 @@ module Over (G : Global) where
 
   -- Transport knowledge from p to q at the same world when q sees at
   -- least what p sees.
+  -- Ledger T-4.
   knows-mono : ∀ {p q} w {φ} → p ⊑ q → Knows p w φ → Knows q w φ
   knows-mono w pq k w' a = k w' (pq w w' a)
 
   -- epistemic-types' Preorder, instantiated on parties.
+  -- Ledger T-4.
   party-access : Preorder Party
   party-access = record { _≤κ_ = _⊑_ ; refl≤ = λ {p} → ⊑-refl p ; trans≤ = ⊑-trans }
 
@@ -146,6 +152,7 @@ module Over (G : Global) where
                      → increase q w (increase p w x) ≡ increase (trans≤ p q) w x
 
   -- Knowledge in the choreographic frame is such a modality, lawfully, by refl.
+  -- Ledger T-6.
   knowledge : IndexedAccessible Party World
   knowledge = record
     { E = λ κ φ w → Knows κ w φ

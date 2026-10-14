@@ -19,8 +19,11 @@ module KM = Choreographic.KCut MaxPlus
 module KH = Choreographic.KCut HWM
 
 -- The three discharges, by name.
+-- Ledger K-6.
 kcut-loss-Loss    = KL.kcut-loss
+-- Ledger K-6.
 kcut-loss-MaxPlus = KM.kcut-loss
+-- Ledger K-6.
 kcut-loss-HWM     = KH.kcut-loss
 
 ----------------------------------------------------------------------
@@ -38,6 +41,7 @@ module Worked (R : ResourceAlgebra) (a b c : ResourceAlgebra.Grade R) where
   G : Global
   G = msg 0 1 a (msg 1 2 b (choice 0 2 𝟙 (msg 2 1 c end) (msg 2 1 c end)))
 
+  -- Ledger P-4.
   projectable-1 : Projectable 1 G
   projectable-1 = msg (msg (choice (msg end) (msg end) refl))
 
@@ -45,10 +49,12 @@ module Worked (R : ResourceAlgebra) (a b c : ResourceAlgebra.Grade R) where
   c₁ : Cut G
   c₁ = cont-msg (cont-msg (cont-choice stop stop))
 
+  -- Ledger P-4.
   consistent-1 : Consistent 1 c₁
   consistent-1 = cont-msg (cont-msg (cont-choice stop stop refl))
 
   -- The keystone at this cut, for the broker.
+  -- Ledger P-4.
   broker-cut : grade↾ 1 (G ↾ c₁) ≡ lgrade (proj 1 G ↾ₗ cutproj 1 c₁)
   broker-cut = kcut-loss 1 G c₁ consistent-1
 
@@ -58,9 +64,11 @@ module _ where
   open import Choreographic.Global Loss
   private module W = Worked Loss (fin 1) (fin 2) (fin 5)
 
+  -- Ledger P-1.
   loss-broker : grade↾ 1 W.G ≡ fin 8
   loss-broker = refl
 
+  -- Ledger P-1.
   loss-broker-cut : grade↾ 1 (W.G ↾ W.c₁) ≡ fin 3
   loss-broker-cut = refl
 
@@ -68,6 +76,7 @@ module _ where
   open import Choreographic.Global MaxPlus
   private module W = Worked MaxPlus (val 1) (val 2) (val 5)
 
+  -- Ledger P-2.
   maxplus-broker : grade↾ 1 W.G ≡ val 8
   maxplus-broker = refl
 
@@ -77,9 +86,11 @@ module _ where
   open import ResourceAlgebra.Instances.HWM using (peak)
   private module W = Worked HWM (hwm 1 0 z≤n) (hwm 2 0 z≤n) (hwm 5 0 z≤n)
 
+  -- Ledger P-3.
   hwm-broker : peak (grade↾ 1 W.G) ≡ 5
   hwm-broker = refl
 
+  -- Ledger P-3.
   hwm-broker-cut : peak (grade↾ 1 (W.G ↾ W.c₁)) ≡ 2
   hwm-broker-cut = refl
 
@@ -96,6 +107,7 @@ module BM = Choreographic.Bound MaxPlus MaxPlus-ordered
 
 -- HWM: the sequence unit is the least grade, so every type qualifies and
 -- the restricted (occupancy) grade is a known lower bound on the global one.
+-- Ledger W-6.
 kcut-warrant-HWM = λ G p w → BH.knows-lower-bound G p (BH.each-of (ResourceAlgebra.𝟘-least HWM) G) w
 
 -- Loss: the sequence unit fin 0 is the GREATEST grade in the absorption
@@ -106,6 +118,7 @@ loss-unit-greatest : ∀ g → ResourceAlgebra._≼_ Loss g (fin 0)
 loss-unit-greatest (fin m) = cong fin (min-zeroʳ m)
 loss-unit-greatest inf     = refl
 
+-- Ledger W-6.
 kcut-warrant-Loss = λ G p w → BL.knows-upper-bound G p (BL.each-of loss-unit-greatest G) w
 
 -- MaxPlus: val 0 is below every val n, but not below bot (−∞, the absent
@@ -113,12 +126,14 @@ kcut-warrant-Loss = λ G p w → BL.knows-upper-bound G p (BL.each-of loss-unit-
 maxplus-val-least : ∀ n → ResourceAlgebra._≼_ MaxPlus (val 0) (val n)
 maxplus-val-least n = refl
 
+-- Ledger W-6.
 kcut-warrant-MaxPlus = λ G p (botfree : BM.Each (ResourceAlgebra._≼_ MaxPlus (val 0)) G) w →
   BM.knows-lower-bound G p botfree w
 
 ----------------------------------------------------------------------
 -- The type cannot determine the global grade: two worlds party 2 cannot
 -- tell apart with different global grades.  (TESTED by evaluation.)
+-- Ledger W-7.
 module Witness where
   open import Choreographic.Global     MaxPlus
   open import Choreographic.Projection MaxPlus
@@ -164,21 +179,25 @@ module TransportWitness where
   end-cut : ∀ (c : LCut end) → end ↾ₗ c ≡ end
   end-cut stop = refl
 
+  -- Ledger T-5.
   silent-⊑ : ∀ q → 2 ⊑ q
   silent-⊑ q w w' _ = trans (end-cut (cutproj 2 (cut w))) (sym (end-cut (cutproj 2 (cut w'))))
 
   -- Receiving is knowing it was received: at w₂ party 1 knows both messages
   -- have reached it ...
+  -- Ledger T-2.
   receiver-knows : Knows 1 w₂ (λ w' → cutproj 1 (cut w') ≡ cont-recv (cont-recv stop))
   receiver-knows = knows-local-cut 1 w₂
 
   -- ... and, synchronously, the sender knows both were sent.  Asynchrony
   -- (send without receipt) is exactly where this symmetry would break.
+  -- Ledger T-2.
   sender-knows : Knows 0 w₂ (λ w' → cutproj 0 (cut w') ≡ cont-send (cont-send stop))
   sender-knows = knows-local-cut 0 w₂
 
   -- What the silent party inherits by monotonicity is only what it could
   -- already know: knowledge flows UP the preorder, never down.
+  -- Ledger T-5.
   inherited : Knows 1 w₂ (λ w' → cutproj 2 (cut w') ≡ cutproj 2 (cut w₂))
   inherited = knows-mono w₂ (silent-⊑ 1) (knows-local-cut 2 w₂)
 
@@ -195,15 +214,18 @@ module Diamond where
   a = hwm 2 0 z≤n           -- allocate 2, release it
   b = hwm 3 3 (s≤s (s≤s (s≤s z≤n)))   -- allocate 3, hold it
 
+  -- Ledger A-3.
   hwm-order-sensitive : peak (a ⊗h b) ≢ peak (b ⊗h a)
   hwm-order-sensitive ()
 
+  -- Ledger A-2.
   loss-commutes : ∀ g g' → ResourceAlgebra._⊗_ Loss g g' ≡ ResourceAlgebra._⊗_ Loss g' g
   loss-commutes (fin m) (fin n) = cong fin (+-comm m n)
   loss-commutes (fin _) inf     = refl
   loss-commutes inf     (fin _) = refl
   loss-commutes inf     inf     = refl
 
+  -- Ledger A-2.
   maxplus-commutes : ∀ g g' → ResourceAlgebra._⊗_ MaxPlus g g' ≡ ResourceAlgebra._⊗_ MaxPlus g' g
   maxplus-commutes (val m) (val n) = cong val (+-comm m n)
   maxplus-commutes (val _) bot     = refl
@@ -213,6 +235,7 @@ module Diamond where
 ----------------------------------------------------------------------
 -- Two declarations of applications/rapidnj-two-thread.agda that cannot be
 -- discharged as typed, shown unsatisfiable rather than reshaped.
+-- Ledger A-7.
 module NoTransportLoss where
   open import Choreographic.Global     MaxPlus
   open import Choreographic.Local      MaxPlus
@@ -234,6 +257,7 @@ module NoTransportLoss where
     absurd : lgrade (proj 0 s) ≡ lgrade (proj 0 t) → ⊥
     absurd ()
 
+-- Ledger A-8.
 module GradeNotStateInvariant where
   open import Choreographic.Global      HWM
   open import Choreographic.Projection  HWM

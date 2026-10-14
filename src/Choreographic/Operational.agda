@@ -59,6 +59,7 @@ StateEq s t = ∀ p → proj p s ≡ proj p t
 ----------------------------------------------------------------------
 -- A global step is a local step at every endpoint: the state before is
 -- the local event prepended to the state after (identity for outsiders).
+-- Ledger A-4.
 step-proj : ∀ {e s t} → Step e s t → ∀ p
           → proj p s ≡ proj-msg (role p (src e) (dst e)) (wt e) (proj p t)
 step-proj fire       p = refl
@@ -67,6 +68,7 @@ step-proj {e} (pass {s' = s'} {r'} {g'} {G} {G'} d st) p =
         (swap-msg (role p s' r') (role p (src e) (dst e)) (disjoint-sym d) g' (wt e) (proj p G'))
 
 -- ... and likewise for the restricted grade.
+-- Ledger A-4.
 step-grade↾ : ∀ {e s t} → Step e s t → ∀ p
             → grade↾ p s ≡ at (role p (src e) (dst e)) (wt e) ⊗ grade↾ p t
 step-grade↾ fire       p = refl
@@ -84,6 +86,7 @@ proj-msg-inj (outside _ _)  g e = e
 -- twoThreadDiamond, as a theorem: given executions of two independent
 -- events in both orders from the same state, their final states are
 -- projection-equivalent.  Existence of both executions is a premise.
+-- Ledger A-5.
 two-thread-diamond : ∀ {e₁ e₂ s s₁ s₂ t t'} → Antichain2 e₁ e₂
                    → Step e₁ s s₁ → Step e₂ s₁ t
                    → Step e₂ s s₂ → Step e₁ s₂ t'
@@ -106,6 +109,7 @@ two-thread-diamond {e₁} {e₂} {s} {t = t} {t' = t'} d a₁ a₂ b₁ b₂ p =
 -- twoThreadKCutLoss, with transportLoss re-typed to take the state: after
 -- any two steps (independent or not), the local grade at a projectable
 -- state is the global accumulation restricted to the endpoint.
+-- Ledger A-6.
 two-thread-kcut-loss : ∀ {e₁ e₂ s s₁ t} → Step e₁ s s₁ → Step e₂ s₁ t
                      → ∀ p → Projectable p t → lgrade (proj p t) ≡ grade↾ p t
 two-thread-kcut-loss _ _ p pr = sym (grade-proj p _ pr)
