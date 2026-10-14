@@ -26,9 +26,7 @@ permissions:
 jobs:
   scorecard:
     name: OSSF Scorecard Check
-    # Pinned by SHA, as the estate's reusable-workflow callers are; actions.lock
-    # records it. Bump deliberately: it is the standards main of 2026-10-14.
-    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@192389bf1b40b70c594464937db7fdbf39a9a964
+    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@main
     permissions:
       actions: read
       contents: read

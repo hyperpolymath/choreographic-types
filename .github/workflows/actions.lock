@@ -14,10 +14,8 @@ workflows:
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
     '.github/workflows/push-email-notify.yml':
         - 'hyperpolymath/smtp-notify-action@v0.2.0'
-    '.github/workflows/scorecard.yml':
-        - 'hyperpolymath/standards@192389bf1b40b70c594464937db7fdbf39a9a964'
-    '.github/workflows/secret-scanner.yml':
-        - 'hyperpolymath/standards@571cc734cd69fb846032ec77a662aa8ee4fc32cd'
+    '.github/workflows/scorecard.yml': []
+    '.github/workflows/secret-scanner.yml': []
 dependencies:
     'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1':
         ref: 'v7.0.1'
@@ -34,13 +32,3 @@ dependencies:
         commit: 'sha1-ede1191ef6ff3ac02c4f4d9efdf837ee517e11d7'
         owner_id: 6759885
         repo_id: 1352485172
-    'hyperpolymath/standards@192389bf1b40b70c594464937db7fdbf39a9a964':
-        ref: '192389bf1b40b70c594464937db7fdbf39a9a964'
-        commit: 'sha1-192389bf1b40b70c594464937db7fdbf39a9a964'
-        owner_id: 6759885
-        repo_id: 1116521501
-    'hyperpolymath/standards@571cc734cd69fb846032ec77a662aa8ee4fc32cd':
-        ref: '571cc734cd69fb846032ec77a662aa8ee4fc32cd'
-        commit: 'sha1-571cc734cd69fb846032ec77a662aa8ee4fc32cd'
-        owner_id: 6759885
-        repo_id: 1116521501
