@@ -14,7 +14,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# The reusable workflow's job requests actions: read (Scorecard's Packaging
+# check lists workflow runs). A called job may not ask for more than its
+# caller grants, so without it every run ends in startup_failure, no jobs.
 permissions:
+  actions: read
   contents: read
   security-events: write
   id-token: write
@@ -24,6 +28,7 @@ jobs:
     name: OSSF Scorecard Check
     uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@main
     permissions:
+      actions: read
       contents: read
       security-events: write
       id-token: write
