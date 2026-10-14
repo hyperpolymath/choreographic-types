@@ -110,17 +110,17 @@ function ledgerRows(ledger, modules, errors) {
   const seen = new Set();
   let sectionModules = [];
   for (const line of ledger.split('\n')) {
-    const section = /^==+\s+(.*)/.exec(line);
-    if (section) {
-      sectionModules = [...section[1].matchAll(/([\w/]+)\.agda/g)].flatMap(m => modules.get(basename(m[1])) ?? []);
+    if (line.startsWith('==')) {
+      sectionModules = [...line.matchAll(/([\w/]+)\.agda/g)].flatMap(m => modules.get(basename(m[1])) ?? []);
       continue;
     }
-    const row = /^\|\s*([A-Z]-\d+)\s*\|(.*)$/.exec(line);
-    if (!row) continue;
-    const cells = row[2].trimEnd().replace(/\|$/, '').split(/\s\|\s/);
-    if (seen.has(row[1])) errors.push(`Duplicate ledger ID ${row[1]} in PROOF-STATUS.adoc`);
-    seen.add(row[1]);
-    rows.push({ id: row[1], status: cells[cells.length - 1].trim(), sectionModules });
+    if (!line.startsWith('|')) continue;
+    const cells = line.slice(1).trimEnd().replace(/\|$/, '').split(' | ').map(cell => cell.trim());
+    const id = cells[0];
+    if (!/^[A-Z]-\d+$/.test(id)) continue;
+    if (seen.has(id)) errors.push(`Duplicate ledger ID ${id} in PROOF-STATUS.adoc`);
+    seen.add(id);
+    rows.push({ id, status: cells.at(-1), sectionModules });
   }
   return rows;
 }
@@ -210,24 +210,35 @@ function checkLedgerBinding(root, errors) {
   const ledger = readFileSync(ledgerPath, 'utf8');
   const index = sourceIndex(root);
   const rows = ledgerRows(ledger, index.modules, errors);
-  for (const { id, status, sectionModules } of rows) {
-    if (/^OPEN\b/.test(status) || !/\b(PROVEN|TESTED)\b/.test(status)) continue;
+  for (const row of rows) {
+    if (/^OPEN\b/.test(row.status) || !/\b(PROVEN|TESTED)\b/.test(row.status)) continue;
     const rowModules = [];
-    for (const [, name] of status.matchAll(/`([^`\s]+)`/g)) {
-      let finding;
-      if (name.includes('/') || name.endsWith('.agda')) {
-        finding = checkFileCitation(root, index, id, name);
-      } else {
-        const dot = name.lastIndexOf('.');
-        const qualified = dot > 0 && index.modules.has(name.slice(0, dot));
-        const candidates = qualified ? index.modules.get(name.slice(0, dot)) : [...rowModules, ...sectionModules, ...index.agda];
-        if (qualified) rowModules.push(...candidates);
-        finding = checkDefinitionCitation(index.sources, id, name, qualified ? name.slice(dot + 1) : name, candidates);
-      }
+    for (const [, name] of row.status.matchAll(/`([^`\s]+)`/g)) {
+      const finding = checkCitation(root, index, row, rowModules, name);
       if (finding) errors.push(finding);
     }
   }
   checkStaleReferences(root, index.sources, ledger, new Set(rows.map(row => row.id)), errors);
+}
+
+/**
+ * Checks one citation of a ledger row, a file or a definition, and records
+ * the files of a qualified module in `rowModules` so the row's later bare
+ * names are looked up there first.
+ * @param {string} root - Repository root.
+ * @param {{ sources: Map<string, string[]>, agda: string[], modules: Map<string, string[]> }} index - From sourceIndex.
+ * @param {{ id: string, sectionModules: string[] }} row - The citing row.
+ * @param {string[]} rowModules - Files of the modules the row has qualified so far.
+ * @param {string} name - The cited name as written.
+ * @returns {string | null} A finding, or null when the citation is bound.
+ */
+function checkCitation(root, index, row, rowModules, name) {
+  if (name.includes('/') || name.endsWith('.agda')) return checkFileCitation(root, index, row.id, name);
+  const dot = name.lastIndexOf('.');
+  const qualified = dot > 0 && index.modules.has(name.slice(0, dot));
+  const candidates = qualified ? index.modules.get(name.slice(0, dot)) : [...rowModules, ...row.sectionModules, ...index.agda];
+  if (qualified) rowModules.push(...candidates);
+  return checkDefinitionCitation(index.sources, row.id, name, qualified ? name.slice(dot + 1) : name, candidates);
 }
 
 /**
