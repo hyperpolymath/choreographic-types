@@ -1,15 +1,30 @@
 # SPDX-License-Identifier: MPL-2.0
-# This workflow is managed by gh actions-lock.
+name: Central Estate CI/CD Audit
 
-name: "🔴 GATE: Central Estate CI/CD Audit"
+# Thin caller of the estate audit, which lives in hyperpolymath/cicd-suite as
+# a reusable workflow and reports five component checks: governance,
+# hygiene, manifests, languages, advisory. This is cicd-suite's
+# templates/estate-audit-caller.yml.
+#
+# The pin is a full SHA on cicd-suite main, so upstream changes reach this
+# repository only through a PR that moves it; that PR's own run of this audit
+# is the check. cicd-suite's templates/track-estate-audit.yml can open those
+# PRs weekly; it needs an AUTOMATION_TOKEN secret.
+#
+# actions.lock lists this file as [], like secret-scanner.yml. A
+# cross-repository reusable-workflow call recorded in the lock startup-fails
+# with zero jobs under sha_pinning_required (see the header of cicd-suite's
+# main-estate-audit.yml).
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
-  call-estate-audit:
-    uses: hyperpolymath/cicd-suite/.github/workflows/main-estate-audit.yml@main
+  estate:
+    uses: hyperpolymath/cicd-suite/.github/workflows/main-estate-audit.yml@376898bbe872226866ccbc7648d43123b8bb21b9 # cicd-suite main, #50
