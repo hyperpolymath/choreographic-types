@@ -7,7 +7,7 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/codeql.yml':
-        - 'actions/checkout@v7.0.1'
+        - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'github/codeql-action@b96794f015dfd88f77b49b1c93e0fa7110f94c63'
     '.github/workflows/documentation-integrity.yml': []
     '.github/workflows/label-triage.yml': []
@@ -15,7 +15,7 @@ workflows:
     '.github/workflows/main-estate-audit.yml':
         - 'hyperpolymath/cicd-suite@376898bbe872226866ccbc7648d43123b8bb21b9'
     '.github/workflows/proofs.yml':
-        - 'actions/checkout@v7.0.1'
+        - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
     '.github/workflows/push-email-notify.yml':
         - 'hyperpolymath/smtp-notify-action@v0.2.0'
     '.github/workflows/scorecard.yml':
@@ -23,8 +23,8 @@ workflows:
     '.github/workflows/secret-scanner.yml':
         - 'hyperpolymath/standards@94572e612a7bf11f8e6343d19adadf17ef2a3de3'
 dependencies:
-    'actions/checkout@v7.0.1':
-        ref: 'v7.0.1'
+    'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1':
+        ref: '3d3c42e5aac5ba805825da76410c181273ba90b1'
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
