@@ -11,10 +11,9 @@ name: Central Estate CI/CD Audit
 # is the check. cicd-suite's templates/track-estate-audit.yml can open those
 # PRs weekly; it needs an AUTOMATION_TOKEN secret.
 #
-# actions.lock lists this file as [], like secret-scanner.yml. A
-# cross-repository reusable-workflow call recorded in the lock startup-fails
-# with zero jobs under sha_pinning_required (see the header of cicd-suite's
-# main-estate-audit.yml).
+# actions.lock records this call at the pinned SHA. An untagged pin keeps the
+# SHA as `ref`, which job setup accepts; move the lock record together with
+# the pin, or the edge dangles and the run startup-fails with zero jobs.
 
 on:
   push:
@@ -27,4 +26,4 @@ permissions:
 
 jobs:
   estate:
-    uses: hyperpolymath/cicd-suite/.github/workflows/main-estate-audit.yml@376898bbe872226866ccbc7648d43123b8bb21b9 # cicd-suite main, #50
+    uses: hyperpolymath/cicd-suite/.github/workflows/main-estate-audit.yml@b17ec1af1bbf097d77a58ac3363c4cf5db4d7f4a # cicd-suite main, #55
