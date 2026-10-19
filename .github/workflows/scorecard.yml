@@ -26,7 +26,11 @@ permissions:
 jobs:
   scorecard:
     name: OSSF Scorecard Check
-    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@main
+    # Pinned by SHA, and locked in actions.lock with the four actions the
+    # reusable workflow uses. Locked at @main with no such list, every
+    # scheduled run died at job setup ("lockfile verification did not
+    # produce a result" for upload-sarif), 2026-10-16 to 2026-10-19.
+    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@75bd5994470661a099df562d6d5ad2fe744dbd66
     permissions:
       actions: read
       contents: read

@@ -2,8 +2,9 @@
 # Do not edit by hand; run `gh actions-lock` to update.
 # Docs: https://gh.io/actions-lockfile
 #
-# Regenerated 2026-10-15 to close every dangling edge (the startup_failure cause)
-# and onboard all 36 workflows. Verified with scripts/check-lock-sync.sh locally.
+# Regenerated 2026-10-15 to close every dangling edge (the startup_failure cause).
+# A reusable workflow called on a schedule needs its nested actions listed
+# under its record (`uses:`), as for hyperpolymath/standards@75bd5994 below.
 version: 'v0.0.3'
 workflows:
     '.github/workflows/codeql.yml':
@@ -19,7 +20,7 @@ workflows:
     '.github/workflows/push-email-notify.yml':
         - 'hyperpolymath/smtp-notify-action@v0.2.0'
     '.github/workflows/scorecard.yml':
-        - 'hyperpolymath/standards@main'
+        - 'hyperpolymath/standards@75bd5994470661a099df562d6d5ad2fe744dbd66'
     '.github/workflows/secret-scanner.yml':
         - 'hyperpolymath/standards@94572e612a7bf11f8e6343d19adadf17ef2a3de3'
 dependencies:
@@ -28,6 +29,11 @@ dependencies:
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
+    'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9':
+        ref: 'v7.0.2'
+        commit: 'sha1-cf430e030ddbb5b0abf93d22962f4752f3646cd9'
+        owner_id: 44036562
+        repo_id: 192625955
     'github/codeql-action@b96794f015dfd88f77b49b1c93e0fa7110f94c63':
         ref: 'b96794f015dfd88f77b49b1c93e0fa7110f94c63'
         commit: 'sha1-b96794f015dfd88f77b49b1c93e0fa7110f94c63'
@@ -43,13 +49,23 @@ dependencies:
         commit: 'sha1-ede1191ef6ff3ac02c4f4d9efdf837ee517e11d7'
         owner_id: 6759885
         repo_id: 1352485172
+    'hyperpolymath/standards@75bd5994470661a099df562d6d5ad2fe744dbd66':
+        ref: '75bd5994470661a099df562d6d5ad2fe744dbd66'
+        commit: 'sha1-75bd5994470661a099df562d6d5ad2fe744dbd66'
+        owner_id: 6759885
+        repo_id: 1116521501
+        uses:
+            - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
+            - 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
+            - 'github/codeql-action@b96794f015dfd88f77b49b1c93e0fa7110f94c63'
+            - 'ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc'
     'hyperpolymath/standards@94572e612a7bf11f8e6343d19adadf17ef2a3de3':
         ref: '94572e612a7bf11f8e6343d19adadf17ef2a3de3'
         commit: 'sha1-94572e612a7bf11f8e6343d19adadf17ef2a3de3'
         owner_id: 6759885
         repo_id: 1116521501
-    'hyperpolymath/standards@main':
-        ref: 'main'
-        commit: 'sha1-68242e650c0bd83bbf280f3b578fa949c0ab4c16'
-        owner_id: 6759885
-        repo_id: 1116521501
+    'ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc':
+        ref: 'v2.4.4'
+        commit: 'sha1-2d1146689b8cda280b9bc96326124645441f03bc'
+        owner_id: 67707773
+        repo_id: 421101922
