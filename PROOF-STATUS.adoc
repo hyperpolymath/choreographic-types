@@ -72,7 +72,7 @@ epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
 | T-3 | p-accessibility is exactly sameness of p's projected cut (both directions) | PROVEN (`knows-local-cut`, `local-cut-determines`)
 | T-4 | Party access `p ⊑ q` ("q sees at least what p sees") is a preorder — epistemic-types' `Preorder` record, instantiated — and knowledge is monotone along it | PROVEN (`party-access`, `knows-mono`)
 | T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`); TESTED (`tests/reject/AccessWrongWay`)
-| T-6 | epistemic-types' `AccessibleModality` cannot be instantiated as stated: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` — field for field otherwise identical (`IndexedAccessible`) — the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); the mismatch is a finding for epistemic-types
+| T-6 | epistemic-types' `AccessibleModality` cannot be instantiated as stated: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` — field for field otherwise identical (`IndexedAccessible`) — the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); epistemic-types has since added the same world-indexed records (its Kripke/Indexed module), so the mismatch is resolved upstream; this repository still carries its own copy of the indexed record rather than importing theirs
 |===
 
 == Asynchrony (Async.agda, AsyncKnowledge.agda, AsyncBound.agda)

@@ -1,4 +1,11 @@
 // Issue text for hyperpolymath/epistemic-types.
+// SUPERSEDED 2026-10-19. This text was never filed. epistemic-types'
+// own 2026-10-12 Kripke work (kripke-2026-10-12, #40) already did asks 2
+// and 3: `Kripke/Indexed.agda` has IndexedModality / IndexedFactive /
+// IndexedAccessible, and Warrant, Base and Access are builtins-only. Ask 1 is
+// the external-verification row of their docs/kripke-status-2026-10-12.adoc;
+// hyperpolymath/epistemic-types#41 records the external revision and CI run
+// it was waiting for. Kept as the record of what was found.
 = An external model discharges "global soundness of warrants" for type-determined warrants
 
 README lists *global soundness of warrants* and *Kripke semantics* as
