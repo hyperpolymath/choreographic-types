@@ -3,8 +3,9 @@
 # Docs: https://gh.io/actions-lockfile
 #
 # Regenerated 2026-10-15 to close every dangling edge (the startup_failure cause).
-# A reusable workflow called on a schedule needs its nested actions listed
-# under its record (`uses:`), as for hyperpolymath/standards@75bd5994 below.
+# A reusable workflow's record lists the actions it uses (`uses:`), as the
+# standards lock does; without the list, its nested actions are refused at
+# job setup (Scorecard since 2026-10-16, the Secret Scanner since 2026-10-19).
 # An action pinned by SHA at a release records the release tag as `ref`, as
 # the standards lock does. With the SHA repeated as `ref`, job setup has
 # refused the checkout and codeql-action records since 2026-10-16 ("invalid
@@ -68,6 +69,8 @@ dependencies:
         commit: 'sha1-94572e612a7bf11f8e6343d19adadf17ef2a3de3'
         owner_id: 6759885
         repo_id: 1116521501
+        uses:
+            - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
     'ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc':
         ref: 'v2.4.4'
         commit: 'sha1-2d1146689b8cda280b9bc96326124645441f03bc'
