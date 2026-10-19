@@ -19,7 +19,8 @@ Order matters: nothing below is citable until step 6 is green.
   applications file; `CHANGELOG-entry.adoc` into CHANGELOG.
 . Cross-repo: nextgen-typing decision record and TYPE-CONNECTIONS rows;
   absolute-zero T1 exception record (and a ruling on T7); the
-  epistemic-types issue (`cross-repo/`). occupancy-types: an issue linking
+  epistemic-types issue (`cross-repo/`, superseded: upstream did the indexed
+  records itself and its external-verification row is recorded in hyperpolymath/epistemic-types#41). occupancy-types: an issue linking
   H-2 (its R2–R3 algebra will supersede `Instances/HWM.agda`) and A-3.
 . CI: both `proofs.yml` files are DESIGNED until their first green run on
   the Debian `agda-bin=2.6.4.3-1+b2` pin. If the pin fails to install, that
