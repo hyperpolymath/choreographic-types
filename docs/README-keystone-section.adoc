@@ -31,10 +31,13 @@ K-CUT-WARRANT::
   and knowledge is monotone along it — a lawful world-indexed
   `AccessibleModality`. Asynchronously (`src/Choreographic/AsyncKnowledge.agda`,
   `src/Choreographic/AsyncBound.agda`) the bound survives against the
-  sent-so-far grade and the receiver of a message knows it was sent, but its
-  sender does not know it was received until a reply arrives: the
-  pre-registered falsifier, confirmed. OPEN beyond the fragment: recursion,
-  full merge, data-dependent warrants. See link:../PROOF-STATUS.adoc[].
+  sent-so-far grade and the receiver of a protocol's first message knows it
+  was sent, but its sender does not know it was received while the receiver
+  has done nothing since: the pre-registered falsifier, confirmed. A reply
+  restores that knowledge, proved only for the two-message protocol
+  `0 → 1 : a . 1 → 0 : b`. OPEN beyond the fragment: the position-indexed
+  form of these two, the general reply chain, recursion, full merge,
+  data-dependent warrants. See link:../PROOF-STATUS.adoc[].
 
 [NOTE]
 ====

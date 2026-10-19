@@ -73,9 +73,11 @@ Caveat::
 choreography determines; for anything about payloads it stays an
 assumption. Asynchronously the transport result is directional, as
 pre-registered (`docs/pre-registration-addendum-2026-10-19.adoc`): the
-receiver of a message knows it was sent, its sender does not know it was
-received until a reply arrives (`src/Choreographic/AsyncKnowledge.agda`),
-and the bound survives against the sent-so-far grade
+receiver of a protocol's first message knows it was sent, and its sender
+does not know it was received while the receiver has done nothing since
+(`src/Choreographic/AsyncKnowledge.agda`); a reply restores that knowledge
+in the two-message protocol only (`Instances.Acknowledgement`), the
+position-indexed and general-chain forms being open. The bound survives against the sent-so-far grade
 (`src/Choreographic/AsyncBound.agda`).
 
 === The resource algebra is imported, the tropical bridge is named

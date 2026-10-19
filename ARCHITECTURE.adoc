@@ -71,8 +71,9 @@ the siblings it imports, and the gate that checks it.
   `SoundWarrant` and `Access.Preorder` rather than imitating them.
 . *Asynchrony* — `Async` adds cuts whose messages and selections are
   delivered or in flight, and proves K-CUT-LOSS for them; `AsyncKnowledge`
-  is the Kripke frame over them (the receiver of a message knows it was
-  sent, its sender does not know it was received); `AsyncBound` is the
+  is the Kripke frame over them (the receiver of a protocol's first message
+  knows it was sent, its sender does not know it was received while the
+  receiver has done nothing since); `AsyncBound` is the
   bound against the sent-so-far grade.
 . *Instances and applications* — `Instances` discharges the keystone at
   the three estate algebras and computes a worked protocol; `Swap` and
