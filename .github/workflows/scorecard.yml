@@ -26,7 +26,9 @@ permissions:
 jobs:
   scorecard:
     name: OSSF Scorecard Check
-    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@main
+    # Pinned by SHA at a standards commit whose own lock records release
+    # tags as refs; see the actions.lock header.
+    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@75bd5994470661a099df562d6d5ad2fe744dbd66
     permissions:
       actions: read
       contents: read
