@@ -69,6 +69,11 @@ the siblings it imports, and the gate that checks it.
   `Bound` and `Transport` prove K-CUT-WARRANT in bound form and its
   transport component, instantiating `epistemic-types`' `Warrant`,
   `SoundWarrant` and `Access.Preorder` rather than imitating them.
+. *Asynchrony* — `Async` adds cuts whose messages and selections are
+  delivered or in flight, and proves K-CUT-LOSS for them; `AsyncKnowledge`
+  is the Kripke frame over them (the receiver of a message knows it was
+  sent, its sender does not know it was received); `AsyncBound` is the
+  bound against the sent-so-far grade.
 . *Instances and applications* — `Instances` discharges the keystone at
   the three estate algebras and computes a worked protocol; `Swap` and
   `Operational` read the RapidNJ two-thread diamond at the type level;

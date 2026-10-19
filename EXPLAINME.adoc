@@ -28,9 +28,10 @@ is the local side, `src/Choreographic/Projection.agda` endpoint projection
 with plain merge, cut projection and `Consistent`.
 
 Caveat::
-The fragment is finite, binary-choice, plain-merge and synchronous. There is
-no recursion, no full merge, no delegation, no asynchrony. Warrants are what
-the type determines (`src/Choreographic/Kripke.agda`); data-dependent
+The fragment is finite, binary-choice and plain-merge. There is no
+recursion, no full merge, no delegation. Asynchrony is a layer over the same
+fragment (`src/Choreographic/Async.agda`): messages and selections in
+flight, not queues as data. Warrants are what the type determines (`src/Choreographic/Kripke.agda`); data-dependent
 warrants are outside the model.
 
 === K-CUT-LOSS holds as equality
@@ -47,9 +48,11 @@ How this is implemented::
 proof uses only ⊕-idempotence and ⊗-left-unit.
 
 Caveat::
-**Proved for the fragment only.** Beyond it (recursion, full merge,
-asynchrony) K-CUT-LOSS is open and pre-registered with its falsifiers
-(`docs/pre-registration-addendum-2026-10-12.adoc`).
+**Proved for the fragment only**, synchronously and, with the sender paying
+at send and the receiver at receipt, asynchronously (`akcut-loss` in
+`src/Choreographic/Async.agda`, from the same two laws). Beyond it
+(recursion, full merge) K-CUT-LOSS is open and pre-registered with its
+falsifiers (`docs/pre-registration-addendum-2026-10-12.adoc`).
 
 === K-CUT-WARRANT holds as a bound, with its transport component
 
@@ -68,8 +71,12 @@ access as epistemic-types' `Preorder`; a world-indexed `AccessibleModality`).
 Caveat::
 **Same fragment.** `SoundWarrant` is discharged only for warrants the
 choreography determines; for anything about payloads it stays an
-assumption. Asynchrony is expected to break the sender half of the transport
-result and is the pre-registered falsifier.
+assumption. Asynchronously the transport result is directional, as
+pre-registered (`docs/pre-registration-addendum-2026-10-19.adoc`): the
+receiver of a message knows it was sent, its sender does not know it was
+received until a reply arrives (`src/Choreographic/AsyncKnowledge.agda`),
+and the bound survives against the sent-so-far grade
+(`src/Choreographic/AsyncBound.agda`).
 
 === The resource algebra is imported, the tropical bridge is named
 
@@ -123,8 +130,10 @@ structural and is never evidence that anything is proved.
 
 [CAUTION]
 ====
-**K-CUT is open beyond the fragment.** Recursion, full merge, asynchrony and
-data-dependent warrants are pre-registered, not proved.
+**K-CUT is open beyond the fragment.** Recursion, full merge and
+data-dependent warrants are pre-registered, not proved. Asynchrony is in
+for messages in flight; its knowledge results are stated for a protocol's
+first message (PROOF-STATUS, "Asynchrony").
 ====
 
 [CAUTION]

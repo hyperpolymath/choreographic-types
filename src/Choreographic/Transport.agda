@@ -13,7 +13,8 @@
 --      every world p knows exactly how far its own timeline has run, and
 --      therefore every fact about its own frontier — receiving is knowing
 --      it was received.  In this synchronous fragment the sender knows the
---      same of its sends; asynchrony is where that symmetry breaks.
+--      same of its sends; asynchrony is where that symmetry breaks
+--      (AsyncKnowledge.agda, Y-5 and Y-6).
 -- (T3) Why AccessibleModality itself cannot be instantiated: its carrier is
 --      E : K → Set → Set, but Kripke knowledge is indexed by worlds,
 --      E : K → (World → Set) → (World → Set).  IndexedAccessible below is
