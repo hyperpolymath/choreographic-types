@@ -9,4 +9,7 @@ import Choreographic.Party
 import Choreographic.Instances          -- instantiates Global/Local/Projection/KCut/Kripke/Bound/Transport
 import Choreographic.Swap               -- (parametric; instantiated in Instances.Diamond)
 import Choreographic.Operational        -- (parametric; instantiated in Instances.GradeNotStateInvariant)
+import Choreographic.Async              -- (parametric; instantiated in Instances, with AsyncKnowledge
+import Choreographic.AsyncKnowledge     --  and AsyncBound)
+import Choreographic.AsyncBound
 import Choreographic.Base.RoleGraded

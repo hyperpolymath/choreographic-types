@@ -45,8 +45,10 @@ K-CUT-LOSS::
   parametric in any `ResourceAlgebra`
   (`src/Choreographic/KCut.agda`, `kcut-loss`), discharged at the Loss,
   MaxPlus and HWM instances. Uses only ⊕-idempotence and ⊗-left-unit
-  (certified by `scripts/minimal-laws.sh`). Recursion, full merge and
-  asynchrony remain OPEN. See link:PROOF-STATUS.adoc[].
+  (certified by `scripts/minimal-laws.sh`). It holds asynchronously too,
+  with messages in flight, the sender paying at send and the receiver at
+  receipt, from the same two laws (`src/Choreographic/Async.agda`,
+  `akcut-loss`). Recursion and full merge remain OPEN. See link:PROOF-STATUS.adoc[].
 K-CUT-WARRANT::
   Warrant transport commutes with projection only as a *bound*, and only under
   a `SoundWarrant` side-condition.
@@ -60,8 +62,15 @@ K-CUT-WARRANT::
   at every world (receiving is knowing it was received), party access "q
   sees at least what p sees" is epistemic-types' `Preorder` instantiated,
   and knowledge is monotone along it — a lawful world-indexed
-  `AccessibleModality`. OPEN beyond the fragment: recursion, full merge,
-  asynchrony, data-dependent warrants. See link:PROOF-STATUS.adoc[].
+  `AccessibleModality`. Asynchronously (`src/Choreographic/AsyncKnowledge.agda`,
+  `src/Choreographic/AsyncBound.agda`) the bound survives against the
+  sent-so-far grade and the receiver of a protocol's first message knows it
+  was sent, but its sender does not know it was received while the receiver
+  has done nothing since: the pre-registered falsifier, confirmed. A reply
+  restores that knowledge, proved only for the two-message protocol
+  `0 → 1 : a . 1 → 0 : b`. OPEN beyond the fragment: the position-indexed
+  form of these two, the general reply chain, recursion, full merge,
+  data-dependent warrants. See link:PROOF-STATUS.adoc[].
 
 [NOTE]
 ====

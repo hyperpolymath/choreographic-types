@@ -190,7 +190,8 @@ module TransportWitness where
   receiver-knows = knows-local-cut 1 w₂
 
   -- ... and, synchronously, the sender knows both were sent.  Asynchrony
-  -- (send without receipt) is exactly where this symmetry would break.
+  -- (send without receipt) is where this symmetry breaks: AsyncWitness
+  -- below, Y-6.
   -- Ledger T-2.
   sender-knows : Knows 0 w₂ (λ w' → cutproj 0 (cut w') ≡ cont-send (cont-send stop))
   sender-knows = knows-local-cut 0 w₂
@@ -278,3 +279,110 @@ module GradeNotStateInvariant where
   equivalent p = swap-proj (disjoint (λ ()) (λ ()) (λ ()) (λ ())) p a b end
   grades-differ : peak (grade s) ≢ peak (grade t)
   grades-differ ()
+
+----------------------------------------------------------------------
+-- Asynchrony (Async.agda, AsyncKnowledge.agda, AsyncBound.agda).
+import Choreographic.Async
+import Choreographic.AsyncBound
+module AL = Choreographic.Async Loss
+module AM = Choreographic.Async MaxPlus
+module AH = Choreographic.Async HWM
+
+-- Ledger Y-2.
+akcut-loss-Loss    = AL.akcut-loss
+-- Ledger Y-2.
+akcut-loss-MaxPlus = AM.akcut-loss
+-- Ledger Y-2.
+akcut-loss-HWM     = AH.akcut-loss
+
+module YH = Choreographic.AsyncBound HWM     HWM-ordered
+module YL = Choreographic.AsyncBound Loss    Loss-ordered
+module YM = Choreographic.AsyncBound MaxPlus MaxPlus-ordered
+
+-- The bound against the sent-so-far grade, discharged as W-6 is: HWM and
+-- MaxPlus (bot-free) from below, Loss from above.
+-- Ledger Y-7.
+async-warrant-HWM = λ G p w → YH.aknows-lower-bound G p (BH.each-of (ResourceAlgebra.𝟘-least HWM) G) w
+
+-- Ledger Y-7.
+async-warrant-Loss = λ G p w → YL.aknows-upper-bound G p (BL.each-of loss-unit-greatest G) w
+
+-- Ledger Y-7.
+async-warrant-MaxPlus = λ G p (botfree : BM.Each (ResourceAlgebra._≼_ MaxPlus (val 0)) G) w →
+  YM.aknows-lower-bound G p botfree w
+
+-- The first message of the witness protocol (0 → 1 twice), delivered and
+-- still in flight.  (TESTED by evaluation.)
+module AsyncWitness where
+  open import Choreographic.Global         MaxPlus
+  open import Choreographic.Async          MaxPlus
+  open import Choreographic.AsyncKnowledge MaxPlus
+  open Witness using (G)
+  open AFrame G
+
+  delivered in-flight : AWorld
+  delivered = world (dlv-msg stop) (dlv-msg stop)      (λ _ → dlv-msg stop)
+  in-flight = world (flt-msg stop) (flt-msg stop refl) (λ _ → flt-msg stop)
+
+  -- The sender sees no difference ...
+  -- Ledger Y-6.
+  sender-blind : delivered ~[ 0 ] in-flight
+  sender-blind = refl
+
+  -- ... the receiver does.
+  -- Ledger Y-6.
+  receiver-sees : ¬ (delivered ~[ 1 ] in-flight)
+  receiver-sees ()
+
+  -- So the sender does not know its first message arrived.
+  -- Ledger Y-6.
+  sender-cannot-know : ¬ AKnows 0 delivered (λ w' → Delivered (acut w'))
+  sender-cannot-know =
+    Head.sender-cannot-know-receipt 0 1 (val 1) (msg 0 1 (val 1) end) (λ ()) stop stop refl (λ _ → stop)
+
+-- A reply restores the knowledge: 0 → 1 : a, then 1 → 0 : b.  Once the
+-- reply has been received, 0 knows its message was delivered: a reply could
+-- only have been sent by a receiver that had acted.  A reply still in flight
+-- is not enough.
+-- Ledger Y-8.
+module Acknowledgement (R : ResourceAlgebra) (a b : ResourceAlgebra.Grade R) where
+  open import Choreographic.Global         R
+  open import Choreographic.Local          R
+  open import Choreographic.Async          R
+  open import Choreographic.AsyncKnowledge R
+  open import Choreographic.Transport      R using (send-inj)
+
+  G : Global
+  G = msg 0 1 a (msg 1 0 b end)
+
+  open AFrame G
+
+  acknowledged replied unreceived : AWorld
+  -- Both messages delivered.
+  acknowledged = world (dlv-msg (dlv-msg stop)) (dlv-msg (dlv-msg stop))      (λ _ → dlv-msg (dlv-msg stop))
+  -- The first delivered, the reply in flight.
+  replied      = world (dlv-msg (flt-msg stop)) (dlv-msg (flt-msg stop refl)) (λ _ → dlv-msg (flt-msg stop))
+  -- The first still in flight.
+  unreceived   = world (flt-msg stop)           (flt-msg stop refl)           (λ _ → flt-msg stop)
+
+  private
+    recv≢end : ∀ {q g L} → recv q g L ≢ end
+    recv≢end ()
+
+    -- Every world 0 cannot tell from `acknowledged` has the first message
+    -- delivered.  A world where it is in flight but the reply was sent
+    -- breaks causality: the reply's sender, 1, is not quiet.
+    ack : (κ : ACut G) → Causal κ → aview 0 G (acut acknowledged) ≡ aview 0 G κ → Delivered κ
+    ack (dlv-msg _)           _              _ = tt
+    ack stop                  _              ()
+    ack (flt-msg stop)        _              e = recv≢end (send-inj e)
+    ack (flt-msg (flt-msg _)) _              e = recv≢end (send-inj e)
+    ack (flt-msg (dlv-msg _)) (flt-msg _ ()) _
+
+  -- Ledger Y-8.
+  reply-gives-knowledge : AKnows 0 acknowledged (λ w' → Delivered (acut w'))
+  reply-gives-knowledge w' e = ack (acut w') (causal w') e
+
+  -- Ledger Y-8.
+  reply-in-flight-is-not-enough : ¬ AKnows 0 replied (λ w' → Delivered (acut w'))
+  reply-in-flight-is-not-enough K = K unreceived refl

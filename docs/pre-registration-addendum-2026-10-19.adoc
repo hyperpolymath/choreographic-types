@@ -1,0 +1,110 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Pre-registration addendum — 2026-10-19 (ladder increment I3a: asynchrony)
+:revdate: 2026-10-19
+
+This addendum fixes the model, the accounting and the claims of the first
+I3 increment before any of it is proved. It is committed ahead of the
+proofs. Whatever the proofs then show, including any claim that fails, is
+recorded against these statements in PROOF-STATUS.adoc, section
+"Asynchrony".
+
+== The model, fixed before proving
+
+* *Asynchronous cut.* As before, a cut is a prefix of the global type's
+  tree. Now each message, and each choice's selection, inside the prefix is
+  either *delivered* or *in flight*: sent, not yet received.
+* *Causality.* The receiver of a message in flight does nothing later in
+  the prefix. Its own timeline is blocked at the pending receive, and it
+  cannot send what it has not yet been told. Nothing else is constrained:
+  the sender, and every other party, carries on.
+* *Projection.* The sender's local cut includes the send. The receiver's
+  local cut stops before the receive. An outsider's is unchanged. Plain
+  merge at choices a party is outside of is stated on the parties' views,
+  as `Consistent` is for synchronous cuts.
+* *Worlds* are causal asynchronous cuts that are consistent for every
+  party. As before, two worlds are indistinguishable to a party when its
+  view is the same.
+
+== The accounting, fixed before proving
+
+With messages in flight, "the global grade up to the cut" splits into a
+sent-so-far grade and a received-so-far grade, and the bound theorems (W-4,
+W-5) have to say which they mean. Fixed here:
+
+* *A party's restricted grade.* The sender pays an interaction's grade
+  when it sends, and the receiver when it receives. A message in flight has
+  been paid for by its sender only.
+* *The global grade in the bounds* is the *sent-so-far* grade: the grade of
+  the synchronous cut obtained by delivering everything in flight (the
+  *completion*). A received-so-far grade would have to drop messages from
+  the middle of the prefix, and a dropped middle message leaves no prefix of
+  the global type. It is not defined in this increment.
+
+== The falsifier's reading, fixed before proving
+
+The 2026-10-12 addendum said asynchrony should break `sender-knows` and keep
+`receiver-knows`. Both T-2 fixtures are instances of "a party knows its own
+frontier", and that cannot break: a party's view is its own frontier. The
+symmetric statement synchronous K-CUT actually makes is about the *other*
+end of a message, and it is read as follows:
+
+* *receiver-knows:* the receiver of a message knows it was sent. Predicted
+  to hold asynchronously.
+* *sender-knows:* the sender of a message knows it was received. This holds
+  synchronously, where a message is one event for both ends. Predicted to
+  fail asynchronously at every world where the receiver has done nothing
+  since the message, because no reply has come back.
+
+== Claims, each with its falsifier
+
+Y-1:: *Conservativity.* Synchronous cuts are exactly the asynchronous cuts
+with nothing in flight. Projection, consistency and the restricted grade
+agree with their synchronous counterparts there, and they are causal.
+_Falsifier:_ an embedded synchronous cut whose asynchronous projection,
+consistency or grade differs.
+Y-2:: *Asynchronous K-CUT-LOSS.* For every causal cut consistent for p,
+p's restricted grade under the split accounting equals the grade of p's
+local view. It is parametric in the resource algebra and uses the same two
+laws as K-1 (⊗ left unit, ⊕ idempotence). _Falsifier:_ such a cut where the
+two differ, or a proof that needs a third law.
+Y-3:: *In-flight invisibility.* Delivering a message in flight changes no
+party's view except its receiver's. _Falsifier:_ any other party whose view
+changes.
+Y-4:: *The asynchronous frame.* "Loss implies warrant" survives (p knows
+its own restricted grade), and so does knowledge of the own frontier
+(T-2). _Falsifier:_ a world where p's own grade or frontier differs between
+two worlds p cannot tell apart.
+Y-5:: *Receiver knows sent.* At every world where the first message of a
+protocol has been delivered, its receiver knows it was delivered, and so
+that it was sent. _Falsifier:_ a receiver-indistinguishable world where it
+was not sent.
+Y-6:: *Sender does not know receipt.* At every world where the first
+message has been delivered but its receiver has done nothing since, the
+sender does not know it was received. The same proposition is a theorem in
+the synchronous frame. _Falsifier:_ asynchronous knowledge of receipt
+without a reply. If that were provable, asynchrony would not separate the
+two ends of a message, and the prediction would be refuted.
+Y-7:: *Bounds survive with sent-so-far accounting, in both directions.*
+If every grade is ≽ 𝟙, p's restricted grade is a known lower bound on the
+sent-so-far grade. If every grade is ≼ 𝟙, it is a known upper bound. These
+are the W-4 and W-5 analogues; a receiver that lags behind its messages is
+the case to watch. _Falsifier:_ a lagging receiver for which the bound
+fails.
+Y-8:: *A reply restores the knowledge.* In a protocol where the receiver
+answers, the sender knows its message was received once the answer has
+arrived. _Falsifier:_ a world consistent with the sender's view in which the
+answer arrived but the first message was not delivered.
+
+== Scope
+
+* Asynchronous cuts cover the whole fragment, choices included: a
+  selection can be in flight. Y-1 to Y-4 and Y-7 are stated for all of it.
+* Y-5 and Y-6 are stated for the first message of an arbitrary protocol.
+  Deeper messages reduce to that case through delivered prefixes, but the
+  general position-indexed statement is not attempted here.
+* Y-8 is a single protocol, checked exhaustively over its worlds. The
+  general statement, that knowledge of receipt needs a chain of messages
+  back, is not attempted here.
+* Unchanged: no recursion, no full merge, no delegation. Queues are not
+  data: an asynchronous cut records what is in flight, not how it is
+  buffered.

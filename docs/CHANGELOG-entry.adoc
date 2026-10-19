@@ -1,3 +1,30 @@
+== 2026-10-19 — asynchrony (ladder increment I3a)
+
+* `docs/pre-registration-addendum-2026-10-19.adoc`, committed before the
+  proofs: the asynchronous model, the accounting (the sender pays at send,
+  the receiver at receipt; bounds use the sent-so-far grade), the reading of
+  the 2026-10-12 falsifier, and claims Y-1 to Y-8 with their falsifiers.
+* `src/Choreographic/Async.agda`: cuts whose messages and selections are
+  delivered or in flight, with causality; conservativity over synchronous
+  cuts; asynchronous K-CUT-LOSS from the same two laws, which
+  `scripts/minimal-laws.sh` now also certifies; in-flight invisibility.
+* `src/Choreographic/AsyncKnowledge.agda`: the frame over asynchronous
+  worlds. The receiver of a protocol's first message knows it was sent; its
+  sender does not know it was received while the receiver has done nothing
+  since,
+  although the same proposition is a theorem synchronously. This is the
+  pre-registered falsifier, confirmed.
+* `src/Choreographic/AsyncBound.agda`: both bounds against the sent-so-far
+  grade.
+* `src/Choreographic/Instances.agda`: discharges at Loss, MaxPlus and HWM; a
+  concrete witness; in the two-message protocol a reply restores the
+  sender's knowledge and a reply still in flight does not (the general chain
+  is open).
+* `tests/reject/SenderKnowsReceipt.agda`: the sender's knowledge of receipt
+  is refused.
+* PROOF-STATUS: section "Asynchrony", rows Y-1 to Y-8, and "What Y-6 says
+  about the keystone".
+
 == 2026-10-14 — the ledger is bound to the code
 
 * `scripts/check-repository.mjs`: every name a PROVEN or TESTED row of

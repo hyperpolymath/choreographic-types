@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
-= choreographic-types — Proof Status (K-CUT development, 2026-10-13)
-:revdate: 2026-10-13
+= choreographic-types — Proof Status (K-CUT development, 2026-10-19)
+:revdate: 2026-10-19
 
 Statuses: PROVEN / TESTED / ASSUMED / DESIGNED / OPEN. Every PROVEN line
 names the module that discharges it under
@@ -25,10 +25,11 @@ projection with *plain merge* (a non-participant's two branches must
 project identically); cuts as frontiers (`stop` / `cont-*`); consistent
 cuts = plain merge still holds on the truncated branches. Grades are drawn
 from any `ResourceAlgebra`. *Not* in the fragment: recursion (μ-types),
-full merge, delegation, asynchrony/queues, n-ary choice (a fold of binary),
-delegation, and data-dependent warrants (the frame carries only what the
-type determines). Both components of K-CUT-WARRANT — bound and transport
-— are in, for this fragment.
+full merge, delegation, n-ary choice (a fold of binary), queues as data,
+and data-dependent warrants (the frame carries only what the type
+determines). Both components of K-CUT-WARRANT — bound and transport — are
+in, for this fragment. Asynchrony, with messages and selections in flight,
+is a layer over the same fragment (section "Asynchrony" below).
 
 == Keystone
 
@@ -73,6 +74,37 @@ epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
 | T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`); TESTED (`tests/reject/AccessWrongWay`)
 | T-6 | epistemic-types' `AccessibleModality` cannot be instantiated as stated: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` — field for field otherwise identical (`IndexedAccessible`) — the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); the mismatch is a finding for epistemic-types
 |===
+
+== Asynchrony (Async.agda, AsyncKnowledge.agda, AsyncBound.agda)
+
+Ladder increment I3a, pre-registered before any proof in
+link:docs/pre-registration-addendum-2026-10-19.adoc[]. A cut is still a
+prefix of the global type's tree, but each message and each selection in it
+is delivered or in flight, and the receiver of anything in flight does
+nothing later in the prefix (`Causal`). The sender pays an interaction's
+grade at send, the receiver at receipt (`grade↾ₐ`). Worlds are causal cuts
+consistent for every party; accessibility is sameness of view, as in W-1.
+All eight claims came out as pre-registered.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| Y-1 | Conservativity: synchronous cuts are exactly the asynchronous cuts with nothing in flight (`Settled`). Embedding lands in them, and on them completion (deliver everything in flight) is its inverse. Embedding preserves projection, consistency, causality and the restricted grade | PROVEN (`Async.embed-settled`, `complete-embed`, `embed-complete`, `acutproj-embed`, `embed-consistent`, `embed-causal`, `grade↾ₐ-embed`)
+| Y-2 | *Asynchronous K-CUT-LOSS*: for every causal cut κ consistent for p, `grade↾ₐ p G κ ≡ lgrade (aview p G κ)`, parametric in the resource algebra and discharged at the three instances. It uses the same two laws as K-1: a receiver still waiting is quiet, so its continuation contributes 𝟙 | PROVEN (`Async.akcut-loss`; `Instances.akcut-loss-Loss`, `akcut-loss-MaxPlus`, `akcut-loss-HWM`); TESTED (`scripts/minimal-laws.sh` checks Async.agda against the two-law Core)
+| Y-3 | In-flight invisibility: delivering a message or selection in flight changes no party's local cut but its receiver's | PROVEN (`Async.flight-invisible`, `flight-invisible-choice`)
+| Y-4 | The asynchronous frame. LOSS ⇒ WARRANT survives: p knows its own restricted grade and holds a sound warrant for it in epistemic-types' interface. p also knows its own frontier (T-2) | PROVEN (`AsyncKnowledge.AFrame`, `aknows-own-grade`, `asound-warrant`, `aknows-local-cut`)
+| Y-5 | *Receiver knows sent*: at every world where a protocol's first message s → r (s ≢ r) is delivered, its receiver knows it was delivered, and so that it was sent | PROVEN (`AsyncKnowledge.receiver-knows-delivered`, `receiver-knows-sent`)
+| Y-6 | *Sender does not know receipt*, the pre-registered falsifier, confirmed. At every world where the first message is delivered and its receiver has done nothing since, the world where it is still in flight looks the same to every party but the receiver, so the sender does not know it was received. In the synchronous frame the same proposition is a theorem | PROVEN (`AsyncKnowledge.only-receiver-sees`, `sender-cannot-know-receipt`, `sync-sender-knows-receipt`); TESTED (`Instances.sender-blind`, `receiver-sees`, `sender-cannot-know`; `tests/reject/SenderKnowsReceipt`)
+| Y-7 | Both bounds survive against the sent-so-far grade `gradeₛ` (the completion's): if every grade is ≽ 𝟙, p's restricted grade is a known lower bound; if every grade is ≼ 𝟙, a known upper bound. A receiver that lags has paid 𝟙 where the completion pays g, which is on the side each bound needs. Discharged as W-6 | PROVEN (`AsyncBound.grade↾ₐ-≼`, `≼-grade↾ₐ`, `grade↾ₐ-≼ₛ`, `gradeₛ-≼↾ₐ`, `aknows-lower-bound`, `aknows-upper-bound`; `Instances.async-warrant-HWM`, `async-warrant-Loss`, `async-warrant-MaxPlus`)
+| Y-8 | *A reply restores the knowledge.* In `0 → 1 : a . 1 → 0 : b`, for every resource algebra and grades a, b: once the reply has been received, 0 knows its message was delivered, because a reply can only come from a receiver that has acted. A reply still in flight is not enough | PROVEN (`Instances.reply-gives-knowledge`, `reply-in-flight-is-not-enough`)
+|===
+
+Not claimed: a statement for messages other than a protocol's first (they
+reduce to it through delivered prefixes, but the position-indexed theorem is
+not written), the general form of Y-8 (knowledge of receipt exactly when a
+chain of messages leads back from it), and a received-so-far global grade,
+which would drop messages from the middle of the prefix and so is not a
+prefix of the global type.
 
 == Applications: the two-thread diamond (Swap.agda)
 
@@ -148,10 +180,11 @@ Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→
 * *Data-dependent warrants.* The frame carries only what the type
   determines; warrants about payloads are outside it, and there
   `SoundWarrant` stays an assumption — with a precise scope (W-2, T-2).
-* *Asynchrony.* With queues, T-2's sender half (`sender-knows`) is expected
-  to fail: a send without receipt is a world the sender cannot distinguish
-  from one with receipt. Pre-registered as the falsifier that separates
-  synchronous from asynchronous K-CUT.
+* *Asynchrony beyond I3a.* Messages in flight are in (Y-1 to Y-8), and the
+  pre-registered falsifier came out as predicted (Y-6). Still open: the
+  position-indexed form of Y-5 and Y-6, the general form of Y-8 (knowledge
+  of receipt needs a chain of messages back), queues as data, and
+  asynchrony combined with recursion.
 * *Recursion.* μ-types change `Cut` (a frontier through an unfolding) and need
   a coinductive or fuel-indexed grade. Not attempted.
 * *Full merge.* Only plain merge. Full merge (branches may differ in labels
@@ -182,6 +215,18 @@ resource-algebra (opposite-running orders) surfacing in the keystone. In HWM
 and MaxPlus p's view is a *lower* bound on the global grade; in Loss it is
 an *upper* bound in ≼, i.e. numerically p's view accounts for no more loss
 than the global total. Any K-CUT-WARRANT statement must say which.
+
+== What Y-6 says about the keystone
+
+Synchronously, a message is one event for both of its ends, and T-2's two
+halves (receiving is knowing it was received; sending is knowing it was
+sent) say the same thing twice. Asynchronously they come apart. The
+receiver's knowledge that the message was sent survives (Y-5), because a
+receive is causally after its send. The sender's knowledge that it was
+received does not (Y-6), and comes back only when something the receiver
+did after the receipt reaches the sender (Y-8). The transport component of
+K-CUT-WARRANT is therefore directional, and synchrony was what hid the
+direction. The loss component is not: Y-2 needs no new law.
 
 == What K-4 says about the keystone
 
