@@ -15,3 +15,4 @@ import Choreographic.AsyncBound
 import Choreographic.Base.RoleGraded
 import Choreographic.Base.EchoProjection
 import Choreographic.WarrantClaim
+import Choreographic.GradingSemantics
