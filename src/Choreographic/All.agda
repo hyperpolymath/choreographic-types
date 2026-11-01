@@ -13,3 +13,5 @@ import Choreographic.Async              -- (parametric; instantiated in Instance
 import Choreographic.AsyncKnowledge     --  and AsyncBound)
 import Choreographic.AsyncBound
 import Choreographic.Base.RoleGraded
+import Choreographic.Base.EchoProjection
+import Choreographic.WarrantClaim

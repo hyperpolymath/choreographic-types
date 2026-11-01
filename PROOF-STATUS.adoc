@@ -162,6 +162,79 @@ Not claimed: that echo-types' `Grade.agda` is checked by echo-types' own CI
 (at `da140cc2` no root there imports it; this gate is its only check), and
 nothing about the direction resource-algebra chooses for its L-2 import.
 
+== Echo-graded projection commuting square (Base/EchoProjection.agda)
+
+The choreographic analog of echo-types' `choreo-grade-commute`.  echo-types'
+`RoleGEcho` is a 2D family indexed by Role and Grade: at keep grade it
+carries `RoleEcho r true` (a type that genuinely varies with the role); at
+residue and forget grades it collapses to `⊤`.  `choreo-grade-commute` says
+role transport and grade degradation commute — 18 cases, all `refl`, with
+one non-trivial case (`c⊑s, keep≤keep`) where both sides compute to
+`client-to-server e`, a function between different types.
+
+The choreographic analog defines two 2D families indexed by Party and
+EGrade: one carrying the restricted grade (grade-indexed), the other the
+projected local type (local-indexed), both collapsing to `⊤` at residue
+and forget grades.  The party transport requires the restricted grades
+(grade version) or projections (local version) to agree.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| EP-1 | `echo-grade-commute`: grade degradation and party transport commute on the grade-indexed 2D family `CGEchoGrade`, for any parties with the same restricted grade.  Closes by `refl` in all six cases | PROVEN (`EchoProjection.echo-grade-commute`)
+| EP-2 | `echo-local-commute`: grade degradation and party transport commute on the local-type-indexed 2D family `CGEchoLocal`, for any parties with the same projection.  Closes by `refl` in all six cases | PROVEN (`EchoProjection.echo-local-commute`)
+| EP-3 | Two-event case (`msg 0 1 g₁ (msg 2 3 g₂ end)`): the grade transport exists between sender and receiver of the same message (`same-grade-01`, `same-grade-23`, both `refl`); the local transport exists only between outside parties (`same-proj-45`, `refl`); sender and receiver do NOT have the same projection (`proj-0≢proj-1`).  The square is trivial in ALL cases because the transport is the identity on equal values — there is no choreographic analog of `client-to-server` between different projections | PROVEN (`TwoEvent`); the trivialisation is the result
+|===
+
+What EP-3 says about the keystone: echo-types' commuting square has a
+non-trivial case because `RoleEcho Client true` and `RoleEcho Server true`
+are different types, and `client-to-server` is a genuine function between
+them.  The choreographic projection `proj p G` is a value of the fixed type
+`Local`, and `grade↾ p G` is a value of the fixed type `Grade`; their
+singleton wrappers are contractible, so the only transport between equal
+values is the identity.  The B-5 open item (role transport) cannot be
+closed by this route: the echo-grade commuting square trivialises before
+it reaches the transport/warrant structure.
+
+== K-CUT-WARRANT precise statement (WarrantClaim.agda)
+
+The warrant component of the keystone, stated as a reviewed theorem
+statement with every hypothesis and side condition explicit.  Three
+components: grade equality (C1, proven from K-CUT-LOSS and frame
+factivity), grade bound (C2, proven with a grade-ordering hypothesis
+H4), and data warrant (C3, conditional on a receiver-local side
+condition H5).  The gap between type-determined and data-dependent
+warrants is documented precisely: the type provides the warrant
+structure and type-determined evidence (Kripke knowledge) but not
+data-dependent evidence or soundness.
+
+epistemic-types' `SoundWarrant` (pinned commit `495db9cc`) is imported,
+not re-declared: `Warrant` carries an `Evidence` type; `SoundWarrant`
+adds `sound : Evidence → A`.  The receiver-local side condition is
+exactly the provision of `Evidence` and `sound` for data-dependent
+claims.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| WC-1 | Grade equality warrant: at every world w, p holds a `SoundWarrant` for `grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w)`, with evidence token `knows-own-grade p w`. Hypotheses: H1–H3 only | PROVEN (`Claim.grade-equality-warrant`, `grade-equality-evidence`)
+| WC-2 | Grade bound warrant (lower): if `Each (𝟙 ≼_) G`, p holds a `SoundWarrant` for `grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w)`, with evidence token `knows-lower-bound G p e w`. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-lower`, `grade-bound-evidence-lower`)
+| WC-3 | Grade bound warrant (upper): if `Each (_≼ 𝟙) G`, p holds a `SoundWarrant` for `grade (G ↾ cut w) ≼ grade↾ p (G ↾ cut w)`, with evidence token `knows-upper-bound G p e w`. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-upper`, `grade-bound-evidence-upper`)
+| WC-4 | Data warrant: for data-dependent φ, p holds a `SoundWarrant` for φ w IF p provides `ReceiverLocalSideCondition p φ w` (Evidence + sound). This is the receiver-local side condition; NOT type-determined | PROVEN as a conditional (`Claim.data-warrant`); the side condition is an external assumption
+| WC-5 | Complete K-CUT-WARRANT record: packages C1 and C3; C2 stated separately (direction depends on algebra). `mkComplete` populates from the side condition | PROVEN (`Claim.KCutWarrantComplete`, `mkComplete`)
+|===
+
+What WC-4 says about the keystone: the pre-registration's "SoundWarrant
+at the receiver (ASSUMED local soundness, not type-determined)" applies
+to data-dependent claims only (C3).  The grade claims (C1, C2) are fully
+type-determined: evidence is Kripke knowledge, soundness is frame
+factivity, and no external assumption is needed.  The gap is precisely
+the boundary between what the choreographic type determines (grades,
+projections, bounds) and what it does not (payload properties,
+authenticity, cryptographic evidence).  epistemic-types'
+`ProofTransport.CertificateCheck` provides the vocabulary for the
+receiver-local side condition but does not derive it from the type.
+
 == Worked protocol (Instances.agda, computed)
 
 Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→1:c}`.
