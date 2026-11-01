@@ -266,6 +266,32 @@ the unrestricted measure is order-sensitive while the restricted measure
 is not (for disjoint interactions).  This is the precise sense in which
 "an occupancy reading is not a cost reading" (P-3).
 
+== Independent₂ and the two-event experiment (Independent2.agda)
+
+Makes Independent₂ explicit for the two-event K-CUT-LOSS experiment:
+disjoint footprints (I1), phase safety (I2), cross-stepping (I3).
+Deterministic tie-breaking (I4) is a scheduler concern, not a type
+concern, and is not included.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| I2-1 | Commuting square under Independent₂: two disjoint events fired in either order reach projection-equivalent states. Restatement of A-5 with explicit conditions | PROVEN (`commuting-square`, via `two-thread-diamond`)
+| I2-2 | K-CUT-LOSS across the diamond: after two steps, the local grade at a projectable state is the restricted global grade. Restatement of A-6 | PROVEN (`kcut-loss-across-diamond`, via `two-thread-kcut-loss`)
+| I2-3 | A party outside an event sees no change in projection (`outside-invisible`). Structural lemma: under disjoint footprints, each party is outside at least one event, so the commuting square is vacuous from every party's viewpoint | PROVEN (`outside-invisible`)
+| I2-4 | Second projection pattern: shared sender (`msg 0 1 g₁ (msg 0 2 g₂ end)` vs swapped) and shared receiver (`msg 0 2 g₁ (msg 1 2 g₂ end)` vs swapped) both fail projection-equivalence. `proj 0 G ≢ proj 0 G'` and `proj 2 G ≢ proj 2 G'` by constructor inequality | PROVEN (`SharedSender.proj-0-G≢proj-0-G'`, `SharedReceiver.proj-2-G≢proj-2-G'`)
+|===
+
+What I2-3 and I2-4 say about the keystone: the disjointness condition
+(I1) is NECESSARY for the two-event commuting square.  Under I1, each
+party participates in at most one event, so the commuting is vacuous
+from every party's viewpoint (I2-3).  Dropping I1 breaks the result:
+shared parties create ordering dependencies in the local type that
+break projection-equivalence (I2-4).  The degeneracy is ESSENTIAL,
+not incidental.  This narrows the two-event K-CUT-LOSS claim to
+disjoint events.  The general K-CUT claim (arbitrary events, arbitrary
+cuts, non-disjoint interactions) remains OPEN.
+
 == Worked protocol (Instances.agda, computed)
 
 Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→1:c}`.
