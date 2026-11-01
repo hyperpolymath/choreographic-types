@@ -4,7 +4,7 @@
 
 Statuses: PROVEN / TESTED / ASSUMED / DESIGNED / OPEN. Every PROVEN line
 names the module that discharges it under
-`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error`
+`--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check -W error`
 on Agda 2.6.4.3 (Debian `agda-bin=2.6.4.3-1+b2`), with resource-algebra and
 epistemic-types on the include path (same kernel; pinned by
 `scripts/fetch-siblings.sh`) and, for the one module that needs it,
@@ -379,7 +379,7 @@ application target, which `.cicd-hygiene-allow` sanctions; the core root
 with no library path; the echo-additive root with echo-types and the standard library;
 every `tests/reject/*.agda` must fail at its `invalid` declaration with a
 type mismatch) and `scripts/minimal-laws.sh`. Flags on every check:
-`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error
+`--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check -W error
 -W noUnsupportedIndexedMatch` (the last because the standard library emits
 that warning under `--without-K` and its `.agda-lib` flags are not read under
 `--no-libraries`). Committed `.agdai` files were removed in the same change:

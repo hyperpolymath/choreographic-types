@@ -58,7 +58,7 @@ if [ "$blocks" != 1 ]; then
 fi
 echo 'PASS: trusted base (no postulates under src/ or tests/; one block in the application target)'
 
-flags=(--safe --without-K --no-libraries --ignore-interfaces --double-check
+flags=(--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check
        -W error -W noUnsupportedIndexedMatch
        -i src -i "$ra" -i "$et")
 

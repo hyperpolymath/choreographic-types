@@ -13,7 +13,7 @@ tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/ResourceAlgebra"
 cp "$ra/ResourceAlgebra/Prelude.agda" "$tmp/ResourceAlgebra/"
 cp tests/minimal-laws/ResourceAlgebra/Core.agda "$tmp/ResourceAlgebra/"
-"$prover" --safe --without-K --no-libraries --ignore-interfaces --double-check -i src -i "$tmp" src/Choreographic/KCut.agda
+"$prover" --safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check -i src -i "$tmp" src/Choreographic/KCut.agda
 echo "PASS: K-CUT-LOSS typechecks with only ⊕-idempotence and ⊗-left-unit"
-"$prover" --safe --without-K --no-libraries --ignore-interfaces --double-check -i src -i "$tmp" src/Choreographic/Async.agda
+"$prover" --safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check -i src -i "$tmp" src/Choreographic/Async.agda
 echo "PASS: asynchronous K-CUT-LOSS typechecks with only ⊕-idempotence and ⊗-left-unit"
