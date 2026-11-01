@@ -186,11 +186,12 @@ kcut-loss-across-diamond = two-thread-kcut-loss
 outside-invisible : ∀ {e s t} → Step e s t → ∀ p
   → p ≢ src e → p ≢ dst e
   → proj p s ≡ proj p t
-outside-invisible fire p ps pr with role p _ _
+outside-invisible (fire {s = s'} {r = r'}) p ps pr
+  with role p s' r'
 ... | sender e     = ⊥-elim (ps e)
 ... | receiver _ e = ⊥-elim (pr e)
 ... | outside _ _  = refl
-outside-invisible (pass {s' = s'} {r'} {g'} d st) p ps pr =
+outside-invisible (pass {s' = s'} {r' = r'} {g' = g'} d st) p ps pr =
   cong (proj-msg (role p s' r') g') (outside-invisible st p ps pr)
 
 -- For disjoint events, every party is outside at least one event.

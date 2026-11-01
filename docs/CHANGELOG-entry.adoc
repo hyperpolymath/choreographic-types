@@ -1,3 +1,42 @@
+== 2026-11-01 — four research tasks (echo projection, warrant claim, grading semantics, Independent₂)
+
+* `src/Choreographic/Base/EchoProjection.agda`: the choreographic analog
+  of echo-types' `choreo-grade-commute`.  Two 2D families indexed by Party
+  and EGrade (grade-indexed and local-type-indexed), with grade degradation
+  and party transport.  The commuting square holds by `refl` in every case
+  (EP-1, EP-2), but the party transport requires identical restricted grades
+  or identical projections as a hypothesis.  In the two-event case (EP-3),
+  the transport exists only between parties with equal values, making it
+  the identity; the square is trivial in ALL cases.  The echo-types square
+  has a non-trivial case because `client-to-server` maps between different
+  types; the choreographic analog has no such map.  This is recorded as the
+  result: the B-5 open item (role transport) cannot be closed by this route.
+* `src/Choreographic/WarrantClaim.agda`: precise K-CUT-WARRANT theorem
+  statement with every hypothesis and side condition explicit (WC-1 to
+  WC-5).  Three components: grade equality warrant (C1, proven from
+  K-CUT-LOSS and frame factivity), grade bound warrant (C2, proven with
+  grade-ordering hypothesis H4), data warrant (C3, conditional on
+  receiver-local side condition H5).  The gap between type-determined
+  and data-dependent warrants is documented precisely.  epistemic-types'
+  `SoundWarrant` interface is used as-is; no assumed warrant is turned
+  into a proved fact.
+* `src/Choreographic/GradingSemantics.agda`: grading semantics for bounds
+  under interaction, using tropical-types (Lean 4, read-only provenance)
+  for the algebraic vocabulary.  Keeps grade, measure, and index distinct.
+  Derives one-step bound propagation (GS-1, GS-2), two-step composition
+  and projection theorem (GS-3).  Negative result (GS-4): unrestricted
+  measure is NOT compositional under reordering for non-commutative ⊗;
+  recorded as consequence of A-1 and A-3.  No postulates; no cross-prover
+  bridge claimed.
+* `src/Choreographic/Independent2.agda`: makes Independent₂ explicit for
+  the two-event K-CUT-LOSS experiment (I2-1 to I2-4).  Disjoint footprints
+  (I1), phase safety (I2), cross-stepping (I3).  Second projection pattern
+  (shared sender, shared receiver) shows commuting square fails without
+  disjointness.  Conclusion: degeneracy is essential, not incidental.
+  General K-CUT claims remain OPEN.
+* `src/Choreographic/All.agda`: imports all four new modules.
+* PROOF-STATUS: sections for EP, WC, GS, and I2 rows.
+
 == 2026-10-19 — asynchrony (ladder increment I3a)
 
 * `docs/pre-registration-addendum-2026-10-19.adoc`, committed before the
