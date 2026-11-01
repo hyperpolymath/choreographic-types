@@ -163,6 +163,8 @@ restricted-measure p = grade↾ p
 local-measure : Local → Grade
 local-measure = lgrade
 
+-- Ledger GS-1.
+
 ----------------------------------------------------------------------
 -- One-step bound propagation: messages (GS-1).
 --
@@ -190,6 +192,7 @@ bound-step-msg-outsider p ps pr b = bound-step-msg p b
 --
 -- Uses ⊗-monotonicity and ⊕-monotonicity (every resource algebra).
 
+-- Ledger GS-2.
 bound-step-choice : ∀ {s r g G₁ G₂ x₁ x₂} (p : Party)
   → grade↾ p G₁ ≼ x₁ → grade↾ p G₂ ≼ x₂
   → grade↾ p (choice s r g G₁ G₂) ≼ at (role p s r) g ⊗ (x₁ ⊕ x₂)
@@ -200,6 +203,7 @@ bound-step-choice p b₁ b₂ = ⊗-mono (≼-refl (at (role p _ _) _)) (⊕-mon
 --
 -- Composition of two one-step propagations along a message sequence.
 
+-- Ledger GS-3.
 bound-two-step : ∀ {s₁ r₁ g₁ s₂ r₂ g₂ G x} (p : Party)
   → grade↾ p G ≼ x
   → grade↾ p (msg s₁ r₁ g₁ (msg s₂ r₂ g₂ G))
@@ -213,6 +217,7 @@ bound-two-step p b = bound-step-msg p (bound-step-msg p b)
 -- for projectable types.  This is K-3 (grade-proj) restated in the
 -- grading semantics vocabulary: the measure commutes with projection.
 
+-- Ledger GS-3.
 projection-theorem : ∀ p G → Projectable p G
   → restricted-measure p G ≡ local-measure (proj p G)
 projection-theorem p G pr = grade-proj p G pr
@@ -240,6 +245,8 @@ bound-projection-upper {p} {G} pr b =
 ----------------------------------------------------------------------
 -- Negative result (GS-4): the unrestricted measure is NOT
 -- compositional under reordering for non-commutative ⊗.
+--
+-- Ledger GS-4.
 --
 -- This is NOT a new proof: it is a documented consequence of two
 -- existing results in choreographic-types:
