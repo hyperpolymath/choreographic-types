@@ -17,8 +17,10 @@ Every cited definition or file in a PROVEN or TESTED status cell is bound to the
 comment directly above that definition (or the file's header) must name the
 row, as `-- Ledger K-1.`  A row cannot outlive its proof, and a proof cannot
 be claimed by a row that does not point at it. This includes the EP, WC, GS
-and I2 families; the checker also rejects stale references in AsciiDoc and
-Markdown documents. This structural check does not typecheck a proof.
+and I2 families. The checker also rejects stale references in AsciiDoc and
+Markdown documents for families present in the current ledger; it cannot
+detect stale references to a family whose rows have all been removed.
+This structural check does not typecheck a proof.
 
 == Fragment formalised (scope, stated before the claims)
 

@@ -34,8 +34,8 @@
 --
 --   (C3) DATA WARRANT  [CONDITIONAL]
 --        For a data-dependent proposition φ : World → Set:
---          p holds a SoundWarrant for φ w
---        IF p provides:
+--          a SoundWarrant indexed by p for φ w can be constructed
+--        IF the application supplies:
 --          Evidence : Set
 --          sound    : Evidence → φ w
 --          evidence : Evidence
@@ -60,20 +60,21 @@
 --        This determines the direction of the bound.
 --
 --   (H5) For C3: ReceiverLocalSideCondition p φ w
---        The receiver provides Evidence, a soundness proof, and a token.
---        NOT type-determined: external assumption.
+--        Evidence, a soundness proof, and a token are supplied externally.
+--        Receiver ownership of the token is also an external assumption.
 --
 -- ====================================================================
 -- RECEIVER-LOCAL SIDE CONDITION
 -- ====================================================================
 --
--- For data-dependent claims (C3), the receiver r of a message must
--- provide:
+-- For data-dependent claims (C3), the application must supply:
 --
 --   Evidence : Set         — the type of evidence tokens
 --   sound    : Evidence → φ w  — proof that evidence entails the claim
---   evidence : Evidence    — an actual token held by the receiver
+--   evidence : Evidence    — an actual token
 --
+-- Receiver ownership of that token is an external assumption: neither
+-- this type nor its party parameter p establishes such a relationship.
 -- These are NOT derivable from the global type.  The choreographic
 -- frame provides the warrant STRUCTURE (Warrant, SoundWarrant from
 -- epistemic-types) and the type-determined evidence (Kripke knowledge
@@ -81,8 +82,8 @@
 -- external.  Merely giving an empty Evidence type and a vacuous sound
 -- function does not meet the side condition.
 --
--- In epistemic-types' ProofTransport vocabulary, this corresponds to
--- the receiver holding a CertificateCheck with:
+-- In epistemic-types' ProofTransport vocabulary, a corresponding
+-- externally supplied CertificateCheck has:
 --   check : Payload → Bool
 --   sound : (p : Payload) → check p ≡ true → Meaning r artifact claim
 -- The checker is an external assumption, not a consequence of the type.
@@ -201,17 +202,19 @@ module Claim (G : Global) where
   -- COMPONENT 3: Data warrant.  CONDITIONAL on receiver-local side
   -- condition (H5).
   --
-  -- For a data-dependent proposition φ : World → Set, p holds a
-  -- SoundWarrant for φ w IF p provides an evidence type, a soundness
-  -- proof, and an actual evidence token.
+  -- For a data-dependent proposition φ : World → Set, a SoundWarrant
+  -- indexed by p for φ w can be constructed IF an evidence type, a
+  -- soundness proof, and an actual evidence token are supplied.
   --
   -- The receiver-local side condition:
   --   Evidence : Set
   --   sound    : Evidence → φ w
   --   evidence : Evidence
   --
-  -- These are NOT type-determined.  The global type provides the
-  -- warrant structure but not the evidence or soundness.
+  -- These are NOT type-determined.  Neither this record nor p encodes
+  -- ownership of the token by the receiver; that is an external assumption.
+  -- The global type provides the warrant structure but not the evidence
+  -- or soundness.
   --
   -- Hypotheses: H1–H3, plus H5 (receiver-local side condition).
 
@@ -225,7 +228,7 @@ module Claim (G : Global) where
       evidence : Evidence
 
   -- Construct a SoundWarrant from the receiver-local side condition.
-  -- This is a packaging step: the receiver's Evidence and soundness
+  -- This is a packaging step: the supplied Evidence and soundness
   -- proof are wrapped in epistemic-types' SoundWarrant record.  That
   -- imported record does not store the token; the side condition does.
   --
@@ -268,7 +271,11 @@ module Claim (G : Global) where
 
       -- Component 3: data warrant and its inhabited side condition (H5).
       data-side-condition : ReceiverLocalSideCondition p φ w
-      data-warrant-proof  : SoundWarrant Party p (φ w)
+
+    -- The warrant is determined by the side condition, including its
+    -- evidence type and soundness function.
+    data-warrant-proof : SoundWarrant Party p (φ w)
+    data-warrant-proof = data-warrant p w φ data-side-condition
 
   -- Populate a complete K-CUT-WARRANT from the receiver-local side
   -- condition.  The grade equality is proven; the data warrant is
@@ -281,7 +288,6 @@ module Claim (G : Global) where
   mkComplete p w φ sc = kcutWarrantComplete
     (grade-equality-warrant p w)
     sc
-    (data-warrant p w φ sc)
 
 ----------------------------------------------------------------------
 -- What cannot be proven here (the gap, stated precisely).

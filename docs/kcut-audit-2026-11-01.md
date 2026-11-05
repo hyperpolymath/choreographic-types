@@ -53,8 +53,8 @@ The earlier audit assigned party access to T-1 and knowledge monotonicity to T-3
 | Y-2 | Asynchronous K-CUT-LOSS for causal cuts consistent for the selected party. |
 | Y-3 | In-flight invisibility: delivery changes no party's local cut except the receiver's. |
 | Y-4 | The asynchronous frame preserves knowledge of the restricted grade and local frontier. |
-| Y-5 | Once a protocol's first message is delivered, the receiver knows it was delivered and sent. |
-| Y-6 | The sender does not know receipt while the receiver has done nothing since; the synchronous analogue does hold. |
+| Y-5 | For a protocol's first message with distinct sender and receiver, once it is delivered, the receiver knows it was delivered and sent. |
+| Y-6 | For a protocol's first message with distinct sender and receiver, the sender does not know receipt while the receiver has done nothing since; the synchronous analogue does hold. |
 | Y-7 | Both bound directions survive against the sent-so-far grade under the stated grade-order hypotheses. |
 | Y-8 | In the concrete two-message protocol, a delivered reply restores knowledge of receipt; a reply still in flight does not. |
 

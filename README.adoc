@@ -197,7 +197,7 @@ preserved in link:docs/pre-registration.adoc[the pre-registration record].
 | The proof gate, as run by `.github/workflows/proofs.yml`
 
 | `PROOF-STATUS.adoc`
-| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN and the module that discharges it; every definition or file cited by a PROVEN or TESTED row is bound to its source and the source comment back to the row by the integrity check, including the EP, WC, GS and I2 families
+| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN and the module that discharges it; every definition or file cited in a PROVEN or TESTED status cell is bound to its source and the source comment back to the row by the integrity check, including the EP, WC, GS and I2 families. Citations in claim cells are not bound by this check
 
 | `applications/`
 | Application notes and explicitly postulated Agda targets (not proofs)

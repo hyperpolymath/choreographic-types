@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { checkRepository } from '../scripts/check-repository.mjs';
@@ -97,6 +97,20 @@ test('ledger families use their whole prefix, not just its first letter', t => {
     'note.adoc': 'External identifiers I2-9 and GS-9 do not belong to the I or G ledger families.\n',
   });
   assert.deepEqual(checkRepository(root), []);
+});
+
+test('I2-4 status citations are checked against their definitions', t => {
+  const ledgerText = readFileSync(new URL('../PROOF-STATUS.adoc', import.meta.url), 'utf8');
+  const row = ledgerText.split('\n').find(line => line.startsWith('| I2-4 |'));
+  assert.ok(row, 'I2-4 row exists');
+  const source = readFileSync(new URL('../src/Choreographic/Independent2.agda', import.meta.url), 'utf8');
+  const files = {
+    'PROOF-STATUS.adoc': ['| I2-1 | claim | OPEN', '| I2-2 | claim | OPEN', '| I2-3 | claim | OPEN', row].join('\n'),
+    'src/Choreographic/Independent2.agda': source,
+  };
+  assert.deepEqual(checkRepository(fixture(t, files)), []);
+  files['src/Choreographic/Independent2.agda'] = source.replaceAll('swap-preserves', 'renamed-swap');
+  assert.ok(checkRepository(fixture(t, files)).includes('Ledger I2-4 cites SameEvent.swap-preserves, which is not defined under src/, tests/ or applications/'));
 });
 
 for (const [name, files, expected] of [

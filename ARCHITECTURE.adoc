@@ -40,8 +40,9 @@ the siblings it imports, and the gate that checks it.
 | `scripts/`
 | The gate (`fetch-siblings.sh`, `check.sh`, `minimal-laws.sh`) and the
   documentation integrity check (`check-repository.mjs`), which also binds
-  every definition or file cited by a PROVEN or TESTED ledger row to its
+  every definition or file cited in a PROVEN or TESTED status cell to its
   source and the source comment back to the row, including EP, WC, GS and I2.
+  It does not bind citations in claim cells.
 
 | `applications/`
 | Application notes and a postulated RapidNJ target; not part of the gate
