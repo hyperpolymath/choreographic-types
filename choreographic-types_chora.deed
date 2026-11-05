@@ -1,0 +1,45 @@
+;; SPDX-License-Identifier: MPL-2.0
+;
+; The repo deed of choreographic-types (one deed per repo, standards D312;
+; grammar 1-formats/deed/spec/abnf/deed.abnf). Deliberately minimal: who the
+; repo is, what it is and is not (taken from README.adoc), and its egress
+; attestation. The clade, lineage, status and maturity clauses are not
+; written yet. They are the owner's to choose (rsr-template-repo
+; build/templates/identity.deed.in), and an unchosen value must never look
+; like a chosen one.
+(repo-deed
+  :schema-version "1.0.0"
+  :canonical-name "choreographic-types"
+  :beholding-chora #u5"estate/chora"
+  :repo-uuid #u5"github.com/hyperpolymath/choreographic-types"
+  (identity
+    :primary-forge github
+    :owner "hyperpolymath")
+  (forges
+    :github "hyperpolymath/choreographic-types")
+  (ecosystem
+    :project "choreographic-types"
+    :ecosystem "hyperpolymath"
+    :purpose "A pre-registration and research notebook for a graded multiparty-session and choreographic type theory, combining echo loss-grades and epistemic standpoint-warrants. Agda checks the finite, binary-choice, plain-merge, synchronous fragment; the keystone is K-CUT, that grading and transport commute with projection across a consistent frontier."
+    :not ("Gentzen cut-elimination: a cut here is a consistent frontier (antichain) of a causal order, not a proof-theoretic cut"
+          "a kernel or engine: implementation belongs to typell"
+          "a subdirectory of echo-types or epistemic-types: it is a standalone repository registered in nextgen-typing"
+          "a claim about an upstream RapidNJ parallel implementation"))
+  ; Egress attestation (standards ADR-009; grammar
+  ; 1-formats/deed/spec/abnf/clauses/egress.abnf). Every job that reads a real
+  ; secret (anything but GITHUB_TOKEN) is listed with exactly the secrets it
+  ; reads, the endpoints outside GitHub it reaches, and what holds it to them.
+  ; Hypatia RE001 accepts an entry here in place of
+  ; step-security/harden-runner and reports drift between an entry and its
+  ; workflow: when you add secrets.* to a job, or delete a workflow listed
+  ; here, change this clause in the same commit.
+  (egress
+    :policy "standards ADR-009"
+    (job
+      :workflow ".github/workflows/push-email-notify.yml"
+      :job "notify"
+      :secrets ("SMTP_HOST" "SMTP_PORT" "SMTP_USER" "SMTP_PASS")
+      :endpoints ("secret:SMTP_HOST")
+      :enforcement none
+      :reason "Sends the push notification by SMTP to the org mail host, whose name is itself a secret. Synced from rsr-template-repo, which declares the same entry."))
+)
