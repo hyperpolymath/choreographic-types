@@ -1,3 +1,24 @@
+== 2026-11-05 — review corrections for the four research tasks
+
+* Receiver-local data warrants now require an actual evidence token as
+  well as an evidence type and soundness proof. The empty-evidence exploit
+  is an expected rejection (WC-4, WC-5).
+* Two HWM witnesses distinguish a concrete failure of unrestricted
+  reordering from a continuation that erases the same grades' difference
+  (GS-4); no universal converse is claimed.
+* The Independent₂ result covers both projectable diamond endpoints and
+  derives each party's outside-event witness from disjointness. Shared-party
+  examples distinguish static swaps from reachable operational steps;
+  disjointness is a sufficient guarantee, not a universal necessity.
+* Echo projection supplies grade-equality witnesses across events and
+  between a unit-grade participant and an outsider. These equality-based
+  maps do not establish the open role-transport result.
+* The ledger checker now validates multi-letter and alphanumeric families
+  (EP, WC, GS, I2), with regressions for missing definitions, missing tags,
+  duplicate IDs and stale references in source and documentation.
+* The upstream indexed interface's full commit is verified; updating the
+  sibling pin and adapting the local instance remain separate, pending work.
+
 == 2026-11-01 — four research tasks (echo projection, warrant claim, grading semantics, Independent₂)
 
 * `src/Choreographic/Base/EchoProjection.agda`: the choreographic analog
@@ -6,10 +27,10 @@
   and party transport.  The commuting square holds by `refl` in every case
   (EP-1, EP-2), but the party transport requires identical restricted grades
   or identical projections as a hypothesis.  In the two-event case (EP-3),
-  the transport exists only between parties with equal values, making it
-  the identity; the square is trivial in ALL cases.  The echo-types square
+  the implemented transport preserves an equal grade or projection value;
+  its square commutes by reduction. The echo-types square
   has a non-trivial case because `client-to-server` maps between different
-  types; the choreographic analog has no such map.  This is recorded as the
+  types; the choreographic analog does not construct such a map. This is the
   result: the B-5 open item (role transport) cannot be closed by this route.
 * `src/Choreographic/WarrantClaim.agda`: precise K-CUT-WARRANT theorem
   statement with every hypothesis and side condition explicit (WC-1 to
@@ -24,15 +45,17 @@
   under interaction, using tropical-types (Lean 4, read-only provenance)
   for the algebraic vocabulary.  Keeps grade, measure, and index distinct.
   Derives one-step bound propagation (GS-1, GS-2), two-step composition
-  and projection theorem (GS-3).  Negative result (GS-4): unrestricted
-  measure is NOT compositional under reordering for non-commutative ⊗;
-  recorded as consequence of A-1 and A-3.  No postulates; no cross-prover
+  and projection theorem (GS-3). Negative result (GS-4): the concrete HWM
+  witness shows that a general unrestricted reordering law is unavailable;
+  restricted measures remain invariant for disjoint events (A-1, A-3).
+  No postulates; no cross-prover
   bridge claimed.
 * `src/Choreographic/Independent2.agda`: makes Independent₂ explicit for
   the two-event K-CUT-LOSS experiment (I2-1 to I2-4).  Disjoint footprints
   (I1), phase safety (I2), cross-stepping (I3).  Second projection pattern
-  (shared sender, shared receiver) shows commuting square fails without
-  disjointness.  Conclusion: degeneracy is essential, not incidental.
+  (shared sender, shared receiver) shows that static swaps can change
+  projections without disjointness; this does not prove that disjointness
+  is necessary for every projection-preserving swap.
   General K-CUT claims remain OPEN.
 * `src/Choreographic/All.agda`: imports all four new modules.
 * PROOF-STATUS: sections for EP, WC, GS, and I2 rows.

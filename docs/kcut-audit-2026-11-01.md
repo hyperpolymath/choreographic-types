@@ -1,258 +1,120 @@
-# K-CUT Theorem Family Audit (2026-11-01)
+# K-CUT Theorem Family Audit (2026-11-01, reviewed 2026-11-05)
 
-**Context:** epistemic-types@5422cd5 supplies world-indexed Kripke records, factive/non-factive models, and explicit SoundWarrant interfaces. It does not prove unrestricted K-CUT.
+This audit checks the claims against the definitions and ledger, including the corrections from PR #38 review. Documentation integrity is a structural check; the pinned Agda gate remains the evidence that the proofs typecheck.
 
-**Scope of this audit:** Verify that every headline claim in choreographic-types carries the fragment scope, check whether the repository can import upstream Kripke/Indexed interface, and confirm the general theorem remains openly unresolved.
+## 1. Fragment and proof boundary
 
----
+The checked development concerns finite graded global types with messages and binary choice, endpoint projection with plain merge, and consistent cuts. A non-participant's choice branches must project identically. Grades come from a `ResourceAlgebra`; the asynchronous layer adds causal cuts and messages or selections in flight over this same finite fragment.
 
-## 1. Fragment Scope Declaration
+The fragment is declared before the claims in [PROOF-STATUS.adoc](../PROOF-STATUS.adoc) and in [README.adoc](../README.adoc). Recursion, full merge, delegation, queues as data and type-derived warrants about payload properties remain outside it. An application may supply data evidence and a soundness proof, but the choreography does not generate those assumptions.
 
-**Current status:** ✅ Clearly stated
+## 2. K-CUT-LOSS
 
-The fragment scope is declared at the top of PROOF-STATUS.adoc (line 22):
+| Ledger row | What the statement actually requires or establishes |
+|---|---|
+| K-1 | K-CUT-LOSS for a cut consistent for the selected party, parametric in the resource algebra. |
+| K-2 | Projection commutes with cutting, without additional side conditions or algebra laws. |
+| K-3 | Restricted grade equals projected local grade for a projectable global type. |
+| K-4 | The minimal-laws gate checks that the equality proof uses only alternative idempotence and the sequence left unit. |
+| K-5 | Cut consistency supplies projectability of the cut prefix; projectability of the whole uncut protocol is not required. |
+| K-6 | The theorem is instantiated at Loss, MaxPlus and HWM. |
+| K-7 | Expected rejections show the role of projectability and cut consistency. |
 
-> Finite graded global types with message and *binary* choice; endpoint projection with *plain merge* (a non-participant's two branches must project identically); cuts as frontiers (`stop` / `cont-*`); consistent cuts = plain merge still holds on the truncated branches. Grades are drawn from any `ResourceAlgebra`. *Not* in the fragment: recursion (μ-types), full merge, delegation, n-ary choice (a fold of binary), queues as data, and data-dependent warrants (the frame carries only what the type determines).
+These statements do not require disjoint events. The disjointness hypothesis in the separate two-event operational diamond must not be transferred to K-CUT-LOSS itself.
 
-README.adoc carries the scope in the preamble (lines 10-14):
+## 3. Warrants and transport
 
-> Agda is the prover: the finite, binary-choice, plain-merge, synchronous fragment is checked under a pinned `--safe --without-K` gate (see Validation), and PROOF-STATUS ledgers what is and is not proved. The central artefact is the keystone K-CUT — proved for that fragment and open beyond it
+### Bound form and receiver-local evidence
 
-**Finding:** The fragment scope is clearly stated in both PROOF-STATUS and README before any claims are made.
+W-1 through W-5 use the Kripke frame over consistent cuts. The bound direction depends on whether each grade is above or below the sequence unit, as recorded in W-4 and W-5.
 
----
+WC-1 through WC-3 package type-determined grade knowledge and bounds. WC-4 is conditional: `ReceiverLocalSideCondition` supplies an evidence type, a soundness function and an actual inhabitant of that evidence type. `data-claim` applies the function to the token to establish the claim. A bare `SoundWarrant` can have empty evidence and does not by itself establish the proposition.
 
-## 2. K-CUT-LOSS Claims
+WC-5 retains the inhabited side condition in the complete record. `tests/reject/EmptyDataWarrant.agda` exercises the formerly vacuous construction and must be rejected at its `invalid` declaration. Payload properties, authenticity and cryptographic evidence remain external assumptions.
 
-### 2.1 Keystone table (PROOF-STATUS K-1 through K-7)
+### Correct transport ledger mapping
 
-| ID | Claim | Scope qualifier | Status |
-|----|-------|-----------------|--------|
-| K-1 | K-CUT-LOSS equality | ✅ "parametric in the resource algebra" (fragment implied by module) | OK |
-| K-2 | proj-cut | ✅ "no side-conditions and no algebra laws" | OK |
-| K-3 | grade-proj | ✅ "on a projectable G" | OK |
-| K-4 | Minimal laws | ✅ "K-CUT-LOSS uses exactly two laws" | OK |
-| K-5 | cut-projectable | ✅ "equality is local to the cut prefix" | OK |
-| K-6 | Instance discharge | ✅ Names the three instances | OK |
-| K-7 | Side-conditions load-bearing | ✅ "without Projectable... without Consistent..." | OK |
+| Ledger row | Claim |
+|---|---|
+| T-1 | Local truncation is injective in the cut. |
+| T-2 | A party knows its own local frontier, including the synchronous sender/receiver facts. |
+| T-3 | Accessibility is exactly equality of the projected cut. |
+| T-4 | Party access is a preorder and knowledge is monotone along it. |
+| T-5 | Silent-party access and the rejected wrong-way transport. |
+| T-6 | The local world-indexed accessible modality is lawful; importing the newer upstream interface remains pending. |
 
-**Finding:** All K-1 through K-7 claims are properly scoped. The fragment is implied by the module (KCut.agda operates on the finite binary-choice plain-merge Global type).
+The earlier audit assigned party access to T-1 and knowledge monotonicity to T-3. The table above follows the actual ledger.
 
-### 2.2 KCut.agda header
+## 4. Asynchronous layer
 
-```
--- K-CUT-LOSS, parametric in the resource algebra.
---
---   kcut-loss : grade↾ p (G ↾ c) ≡ lgrade (proj p G ↾ₗ cutproj p c)
-```
+| Ledger row | Claim and scope |
+|---|---|
+| Y-1 | Synchronous cuts embed as settled asynchronous cuts; completion is inverse on settled cuts and preserves the stated structure. |
+| Y-2 | Asynchronous K-CUT-LOSS for causal cuts consistent for the selected party. |
+| Y-3 | In-flight invisibility: delivery changes no party's local cut except the receiver's. |
+| Y-4 | The asynchronous frame preserves knowledge of the restricted grade and local frontier. |
+| Y-5 | Once a protocol's first message is delivered, the receiver knows it was delivered and sent. |
+| Y-6 | The sender does not know receipt while the receiver has done nothing since; the synchronous analogue does hold. |
+| Y-7 | Both bound directions survive against the sent-so-far grade under the stated grade-order hypotheses. |
+| Y-8 | In the concrete two-message protocol, a delivered reply restores knowledge of receipt; a reply still in flight does not. |
 
-**Finding:** ✅ Header states "parametric in the resource algebra" and the type signature operates on the fragment's Global type.
+Y-3 is an invisibility theorem, not a receiver-knowledge theorem. The general position-indexed and message-chain knowledge results remain open, as the ledger states.
 
----
+## 5. New module claims after review
 
-## 3. K-CUT-WARRANT Claims
+### Grading semantics (GS-1 through GS-4)
 
-### 3.1 Bound form (PROOF-STATUS W-1 through W-5)
+GS-1 and GS-2 propagate bounds through one message or choice. GS-3 composes the message bound and transfers bounds through projectable endpoint projection.
 
-| ID | Claim | Scope qualifier | Status |
-|----|-------|-----------------|--------|
-| W-1 | Frame definition | ✅ "worlds are cuts consistent for every party" | OK |
-| W-2 | SoundWarrant instantiation | ✅ "epistemic-types' interface, instantiated" | OK |
-| W-3 | LOSS ⇒ WARRANT | ✅ "by K-CUT-LOSS" (fragment scope inherited) | OK |
-| W-4 | Bound direction | ✅ "if every grade in G is ≽ 𝟙... if every grade is ≼ 𝟙" | OK |
-| W-5 | K-CUT-WARRANT (bound form) | ✅ "at every world p considers possible" | OK |
+GS-4 has two concrete HWM witnesses. `HWMReordering.terminal-order-sensitive` shows unequal unrestricted measures for the chosen two disjoint interactions ending at `end`. `continuation-erases-order` shows equal unrestricted measures for the same interactions with a peak-10, drift-0 continuation. Thus the base algebra does not give a general unrestricted reordering law, and noncommuting grades need not remain distinguishable after every continuation.
 
-**Finding:** All W-1 through W-5 claims are properly scoped.
+`IsSeqMonoid` already includes the right-unit law. It handles the terminal continuation; it does not permit cancellation of an arbitrary continuation. Commuting grades suffice for equality after swapping, while the unrestricted converse needs additional hypotheses. Restricted grades remain invariant for disjoint interactions by A-1. The tropical-types Lean sources are provenance, not imported proofs; bridge obligation M-2 remains open.
 
-### 3.2 Transport component (PROOF-STATUS T-1 through T-3)
+### Independent₂ (I2-1 through I2-4)
 
-| ID | Claim | Scope qualifier | Status |
-|----|-------|-----------------|--------|
-| T-1 | Party access preorder | ✅ "p ⊑ q when every distinction p's view makes, q's makes" | OK |
-| T-2 | Local frontier known | ✅ "In this synchronous fragment" | OK |
-| T-3 | Knowledge monotone | ✅ "AccessibleModality instance" | OK |
+`Independent₂` packages disjoint footprints and all four steps of the two-event diamond. I2-1 proves the endpoint projections agree. I2-2 consumes that record and projectability at both endpoints; it gives both endpoint grade equalities and agreement of the restricted grades across the diamond. Each individual endpoint law holds for any projectable state in the fragment.
 
-**Finding:** T-2 explicitly states "In this synchronous fragment". All transport claims are properly scoped.
+I2-3 derives an outside-at-least-one-event witness from `Antichain2`, then uses it to establish the selected event's invisibility in both orders. This is stronger than merely accepting caller-provided outside proofs for a single event.
 
-### 3.3 WarrantClaim.agda (WC-1 through WC-5)
+I2-4 distinguishes three facts:
 
-**Header states:**
+- The shared-sender and shared-receiver static swaps can change endpoint projections.
+- Their nested event cannot fire first under `Step`, so these examples do not form failed reachable operational diamonds.
+- Swapping identical shared events preserves projection even though their footprints are not disjoint.
 
-> K-CUT-WARRANT: precise statement, hypotheses, and side conditions.
->
-> This module states the K-CUT-WARRANT claim as a reviewed theorem statement. It separates proven components from conditional ones, makes every hypothesis explicit, and documents the gap between type-determined and data-dependent warrants.
+Disjointness is a sufficient guarantee for this diamond, not a universally necessary condition for any projection-preserving swap. These examples neither narrow K-CUT-LOSS to disjoint events nor prove a general result outside the stated fragment.
 
-**Gap documented (lines 86-99):**
+### Echo projection (EP-1 through EP-3)
 
-> TYPE-DETERMINED: grades, projections, cuts, restricted grades, bounds. Evidence is Kripke knowledge; soundness is frame factivity. PROVEN (C1, C2).
->
-> NOT TYPE-DETERMINED: payload properties, authenticity, timing beyond the type, cryptographic evidence. Evidence and soundness are EXTERNAL. CONDITIONAL (C3).
+EP-1 and EP-2 check commuting squares for the implemented equality-based transports, which preserve the underlying grade or projection value. They do not produce role-specific conversions between different projections.
 
-**Finding:** ✅ WarrantClaim.agda properly documents the gap and does not broaden the theorem beyond the fragment.
+EP-3 records concrete two-event witnesses. Sender and receiver of each message have equal restricted grades. Parties from different events can also have equal restricted grades when the event grades agree; a unit-grade participant can agree with an outsider. The local projection witnesses establish equality for outsiders 4 and 5, and inequality for sender 0 and receiver 1. They are not an exhaustive classification of possible transport.
 
----
+The squares commute by reduction. This fact does not exclude other functions between the singleton families and does not close B-5, the role-transport obligation.
 
-## 4. Asynchronous Layer
+## 6. Upstream indexed interface: available, not yet imported
 
-### 4.1 PROOF-STATUS Y-1 through Y-6
+The two revisions have different capabilities:
 
-| ID | Claim | Scope qualifier | Status |
-|----|-------|-----------------|--------|
-| Y-1 | Async cuts defined | ✅ "ladder increment I3a" | OK |
-| Y-2 | Async K-CUT-LOSS | ✅ "for every causal cut κ consistent for p" | OK |
-| Y-3 | Async warrant | ✅ "receiver of a delivered message knows it was delivered" | OK |
-| Y-4 | What survives | ✅ "p knows its own restricted grade" | OK |
-| Y-5 | Receiver knows sent | ✅ "receiver of a delivered message knows it was delivered" | OK |
-| Y-6 | Sender does not know received | ✅ "Its sender does not know it was received" | OK |
+| Revision | Evidence | Consequence |
+|---|---|---|
+| Current pin `495db9cca003e12066a3cb9c9f2d7afa1a953aec` | Its [source tree](https://github.com/hyperpolymath/epistemic-types/tree/495db9cca003e12066a3cb9c9f2d7afa1a953aec/src/EpistemicTypes) contains `Warrant.agda` and `Access.agda`, but no `Kripke/Indexed.agda`. | The gate cannot import the newer indexed interface at this pin. |
+| Verified upstream `5422cd5bf1418c44321bf0f77e894737a451d8f5` | [`EpistemicTypes.Kripke.Indexed`](https://github.com/hyperpolymath/epistemic-types/blob/5422cd5bf1418c44321bf0f77e894737a451d8f5/src/EpistemicTypes/Kripke/Indexed.agda) defines `IndexedModality`, `IndexedFactive` and `IndexedAccessible`. | An upstream interface is available; adopting it requires a pin update and adaptation of the local instance. |
 
-**Finding:** All async claims are properly scoped to the fragment with async cuts layered on top.
+The full upstream revision is verified by the [commit record](https://github.com/hyperpolymath/epistemic-types/commit/5422cd5bf1418c44321bf0f77e894737a451d8f5). The earlier audit's conclusion that no upstream interface exists was incorrect: it silently treated the old gate pin as the state of upstream.
 
-### 4.2 Async module headers
+The choreography-specific worlds, accessibility relation and knowledge proofs remain local. The pending integration concerns the generic indexed record in `Transport.agda`, not replacing those model definitions. Upstream places `E` and `map` inside its `modality` field, so changing the import alone is insufficient; `knowledge` must construct that nested record.
 
-**Async.agda:** "Asynchronous cuts (ladder increment I3a; pre-registered in docs/pre-registration-addendum-2026-10-19.adoc)."
+The [integration plan](toolchain-and-prompts-2026-11-01.md) keeps the pin update, local-record replacement, adaptation and pinned proof-gate validation open.
 
-**AsyncKnowledge.agda:** "Knowledge over asynchronous cuts (ladder increment I3a)."
+## 7. Ledger integrity and remaining work
 
-**AsyncBound.agda:** "K-CUT-WARRANT's bound over asynchronous cuts (ladder increment I3a)."
+The checker now recognizes single-letter, multi-letter and alphanumeric ledger families, including EP, WC, GS and I2. Every definition or file cited by a PROVEN or TESTED status cell must exist and have the correct directly adjacent ledger comment or file header. Regression tests exercise missing definitions, missing tags, duplicate IDs and stale references in source, AsciiDoc and Markdown for each new family.
 
-**Finding:** ✅ All async modules state they are "ladder increment I3a" and operate on the fragment.
+This repairs the structural audit; it does not replace `scripts/check.sh` or `scripts/minimal-laws.sh`. Those gates must accept the final revision before the new rows are relied upon as checked proofs.
 
----
+Remaining research and integration work is explicit:
 
-## 5. New Modules (Tasks 1-3)
-
-### 5.1 GradingSemantics.agda (GS-1 through GS-4)
-
-**Header states:**
-
-> Grading semantics for bounds under interaction.
->
-> This module defines the grading semantics using the algebraic vocabulary of tropical-types (Resource/Algebra/Interface.lean, read-only provenance reference), keeping grade, measure, and index distinct. It derives one-step bound propagation theorems and the projection theorem from the declared semantics, and records a checked negative result for non-commutative ⊗.
-
-**GS-4 negative result documented:**
-
-> The unrestricted measure is NOT compositional under reordering for non-commutative ⊗. This is NOT a new proof: it is a documented consequence of two existing results in choreographic-types: A-1 (Swap.swap-grade↾) and A-3 (Instances.Diamond.hwm-order-sensitive).
-
-**Finding:** ✅ GradingSemantics.agda properly documents its scope and the negative result. Does not broaden the theorem.
-
-### 5.2 Independent2.agda (I2-1 through I2-4)
-
-**Header states:**
-
-> Independent₂ for the two-event K-CUT-LOSS experiment.
->
-> This module makes Independent₂ explicit for the two-event case, including disjoint read/write footprints, phase safety, and the stepping conditions. It attempts the commuting square without weakening those conditions, tests a second non-degenerate projection pattern (shared party), and decides whether the degeneracy is essential or incidental.
-
-**Conclusion documented (PROOF-STATUS I2 section):**
-
-> What I2-3 and I2-4 say about the keystone: the disjointness condition (I1) is not incidental. Dropping I1 breaks the result: shared sender (I2-4) and shared receiver (I2-4) both break projection-equivalence. The degeneracy is ESSENTIAL, not incidental. This narrows the two-event K-CUT-LOSS claim to disjoint events. The general K-CUT claim (arbitrary events, arbitrary footprints) remains OPEN.
-
-**Finding:** ✅ Independent2.agda properly documents that degeneracy is essential and the general K-CUT remains OPEN. Does not broaden the theorem.
-
----
-
-## 6. Upstream Import Check
-
-### 6.1 Question: Can choreographic-types import upstream Kripke/Indexed interface from epistemic-types?
-
-**Answer: NO — epistemic-types does not provide a Kripke frame.**
-
-**What epistemic-types@495db9c provides:**
-
-- `Warrant` — proof-relevant, not automatically sound (Evidence type only)
-- `SoundWarrant` — warrant + soundness (Evidence → A)
-- `Modality` — bare indexed family E κ A with map
-- `LawfulModality` — functor laws (map-id, map-compose)
-- `FactiveModality` — has reflect (knowledge)
-- `BeliefModality` — no reflect (belief)
-- `ReturnModality` — has return (strong introduction)
-- `Preorder` — accessibility relation (refl, trans)
-- `AccessibleModality` — modality + preorder + monotone transport with laws (increase, increase-refl, increase-trans)
-
-**What epistemic-types does NOT provide:**
-
-- Concrete Kripke frame implementation
-- World-indexed knowledge (Knows p w φ)
-- Accessibility as "same local view" relation
-- Factivity extraction for a specific frame
-
-**What choreographic-types Kripke.agda defines:**
-
-- `Frame` module with:
-  - `World` = Σ (Cut G) AllConsistent
-  - `_~[_]_` (accessibility: same local view)
-  - `Knows` (truth at all accessible worlds)
-  - `knows-factive` (extraction from knowledge)
-  - `warrant`, `sound-warrant` (instantiating epistemic-types' Warrant/SoundWarrant)
-  - `knows-own-grade`, `own-grade-warrant` (specific theorems)
-
-**Finding:** choreographic-types Kripke.agda is NOT a copy of upstream. It is an **instantiation** of the upstream vocabulary (Warrant, SoundWarrant) for the specific case of choreographic cuts. The frame definition (World, accessibility, Knows) is local because epistemic-types provides only the abstract interface, not a concrete Kripke frame.
-
-**Recommendation:** Do NOT attempt to import an upstream Kripke interface because it does not exist. The current structure is correct: choreographic-types imports the vocabulary (Warrant, SoundWarrant, Preorder, AccessibleModality) and instantiates it for its own frame.
-
----
-
-## 7. General K-CUT Status
-
-### 7.1 What is PROVEN
-
-- **K-CUT-LOSS** for finite binary-choice plain-merge fragment (parametric in ResourceAlgebra, uses only ⊕-idempotence and ⊗-left-unit)
-- **K-CUT-WARRANT (bound form)** for the same fragment (SoundWarrant side-condition for type-determined warrants)
-- **Asynchronous layer** over the same fragment (causal cuts, messages in flight)
-
-### 7.2 What remains OPEN
-
-From PROOF-STATUS "Fragment formalised" section:
-
-> *Not* in the fragment: recursion (μ-types), full merge, delegation, n-ary choice (a fold of binary), queues as data, and data-dependent warrants (the frame carries only what the type determines).
-
-From WarrantClaim.agda gap documentation:
-
-> NOT TYPE-DETERMINED: payload properties, authenticity, timing beyond the type, cryptographic evidence. Evidence and soundness are EXTERNAL. CONDITIONAL (C3).
-
-From Independent2.agda conclusion:
-
-> The general K-CUT claim (arbitrary events, arbitrary footprints) remains OPEN.
-
-**Finding:** ✅ The general K-CUT theorem remains openly unresolved. No claims broaden the theorem beyond the fragment.
-
----
-
-## 8. Summary
-
-### 8.1 Fragment scope
-
-✅ **Every headline claim carries the fragment scope.**
-
-- PROOF-STATUS declares the fragment at the top, before any claims
-- README states the fragment in the preamble
-- Individual modules either state the fragment in their headers or operate on types that are definitionally within the fragment
-- The general K-CUT remains explicitly OPEN
-
-### 8.2 Upstream import
-
-✅ **choreographic-types cannot import upstream Kripke/Indexed interface because epistemic-types does not provide one.**
-
-- epistemic-types provides abstract vocabulary (Warrant, SoundWarrant, Modality, Preorder, AccessibleModality)
-- choreographic-types instantiates this vocabulary for its own Kripke frame (World, accessibility, Knows)
-- The current structure is correct: import vocabulary, instantiate locally
-
-### 8.3 General theorem
-
-✅ **The general K-CUT theorem remains openly unresolved.**
-
-- Fragment scope is clearly stated
-- Open items are explicitly listed (recursion, full merge, delegation, n-ary choice, queues-as-data, data-dependent warrants)
-- No claims broaden the theorem beyond the fragment
-
----
-
-## 9. Actions Required
-
-**None.** The repository is in a consistent state:
-
-1. Every headline claim carries the fragment scope
-2. The upstream import question is resolved (no upstream Kripke interface exists)
-3. The general theorem remains openly unresolved
-
-No changes are needed.
+1. Update the epistemic-types pin to a verified compatible revision, replace the local indexed record and adapt `knowledge`, then run the complete pinned gates before changing T-6 to an upstream-import claim.
+2. Keep general K-CUT extensions, role transport, the Lean–Agda bridge and the other open ledger obligations separate from the finite-fragment results.
+3. Use the actual PR checks for merge readiness; this audit is not a substitute for compiler, expected-rejection, security or review results.

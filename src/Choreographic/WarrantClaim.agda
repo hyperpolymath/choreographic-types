@@ -35,10 +35,12 @@
 --   (C3) DATA WARRANT  [CONDITIONAL]
 --        For a data-dependent proposition φ : World → Set:
 --          p holds a SoundWarrant for φ w
---        IF AND ONLY IF p provides:
+--        IF p provides:
 --          Evidence : Set
 --          sound    : Evidence → φ w
+--          evidence : Evidence
 --        This is the RECEIVER-LOCAL SIDE CONDITION.
+--        A SoundWarrant alone does not supply an evidence token.
 --
 -- ====================================================================
 -- REQUIRED HYPOTHESES
@@ -58,7 +60,7 @@
 --        This determines the direction of the bound.
 --
 --   (H5) For C3: ReceiverLocalSideCondition p φ w
---        The receiver provides Evidence and a soundness proof.
+--        The receiver provides Evidence, a soundness proof, and a token.
 --        NOT type-determined: external assumption.
 --
 -- ====================================================================
@@ -70,11 +72,14 @@
 --
 --   Evidence : Set         — the type of evidence tokens
 --   sound    : Evidence → φ w  — proof that evidence entails the claim
+--   evidence : Evidence    — an actual token held by the receiver
 --
 -- These are NOT derivable from the global type.  The choreographic
 -- frame provides the warrant STRUCTURE (Warrant, SoundWarrant from
 -- epistemic-types) and the type-determined evidence (Kripke knowledge
--- for grades), but data-dependent evidence and soundness are external.
+-- for grades), but the data-dependent evidence token and soundness are
+-- external.  Merely giving an empty Evidence type and a vacuous sound
+-- function does not meet the side condition.
 --
 -- In epistemic-types' ProofTransport vocabulary, this corresponds to
 -- the receiver holding a CertificateCheck with:
@@ -86,8 +91,8 @@
 -- GAP
 -- ====================================================================
 --
--- The current interface does not derive Evidence or sound from the
--- global type for data-dependent claims.  The gap is:
+-- The current interface does not derive Evidence, evidence, or sound
+-- from the global type for data-dependent claims.  The gap is:
 --
 --   TYPE-DETERMINED: grades, projections, cuts, restricted grades,
 --                    bounds.  Evidence is Kripke knowledge; soundness
@@ -95,7 +100,7 @@
 --
 --   NOT TYPE-DETERMINED: payload properties, authenticity, timing
 --                        beyond the type, cryptographic evidence.
---                        Evidence and soundness are EXTERNAL.
+--                        Evidence, its token, and soundness are EXTERNAL.
 --                        CONDITIONAL (C3).
 --
 -- epistemic-types' ProofTransport.agda provides the vocabulary
@@ -108,10 +113,11 @@
 -- outside the frame (Kripke.agda header, W-2 scope).
 --
 -- Ledger WC-1 through WC-5.
+open import ResourceAlgebra.Core
+
 module Choreographic.WarrantClaim (R : ResourceAlgebra) (ord : IsOrdered R) where
 
 open import ResourceAlgebra.Prelude
-open import ResourceAlgebra.Core
 open import Choreographic.Party
 open import Choreographic.Global     R
 open import Choreographic.Local      R
@@ -130,7 +136,7 @@ module Claim (G : Global) where
 
   open Frame G
 
-  ====================================================================
+  -- ====================================================================
   -- COMPONENT 1: Grade equality warrant.  PROVEN.
   --
   -- At every world w, p holds a SoundWarrant for the (reflexive)
@@ -154,7 +160,7 @@ module Claim (G : Global) where
     → Knows p w (λ w' → grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w))
   grade-equality-evidence p w = knows-own-grade p w
 
-  ====================================================================
+  -- ====================================================================
   -- COMPONENT 2: Grade bound warrant.  PROVEN, with hypothesis H4.
   --
   -- Lower bound direction: if every grade in G is ≽ 𝟙, then p's
@@ -191,16 +197,18 @@ module Claim (G : Global) where
     → Knows p w (λ w' → grade (G ↾ cut w') ≼ grade↾ p (G ↾ cut w))
   grade-bound-evidence-upper p e w = knows-upper-bound G p e w
 
-  ====================================================================
+  -- ====================================================================
   -- COMPONENT 3: Data warrant.  CONDITIONAL on receiver-local side
   -- condition (H5).
   --
   -- For a data-dependent proposition φ : World → Set, p holds a
-  -- SoundWarrant for φ w IF p provides Evidence and a soundness proof.
+  -- SoundWarrant for φ w IF p provides an evidence type, a soundness
+  -- proof, and an actual evidence token.
   --
   -- The receiver-local side condition:
   --   Evidence : Set
   --   sound    : Evidence → φ w
+  --   evidence : Evidence
   --
   -- These are NOT type-determined.  The global type provides the
   -- warrant structure but not the evidence or soundness.
@@ -214,20 +222,30 @@ module Claim (G : Global) where
     field
       Evidence : Set
       sound    : Evidence → φ w
+      evidence : Evidence
 
   -- Construct a SoundWarrant from the receiver-local side condition.
   -- This is a packaging step: the receiver's Evidence and soundness
-  -- proof are wrapped in epistemic-types' SoundWarrant record.
+  -- proof are wrapped in epistemic-types' SoundWarrant record.  That
+  -- imported record does not store the token; the side condition does.
   --
   -- Ledger WC-4.
   data-warrant : ∀ p w (φ : World → Set)
     → ReceiverLocalSideCondition p φ w
     → SoundWarrant Party p (φ w)
-  data-warrant p w φ (receiverLocal E s) =
+  data-warrant p w φ (receiverLocal E s e) =
     soundWarrant (mkWarrant E) s
 
-  ====================================================================
-  -- COMPLETE K-CUT-WARRANT: packaging the unconditional components.
+  -- Use the supplied token to substantiate the data claim.  This cannot
+  -- be obtained from a SoundWarrant whose Evidence type is empty.
+  -- Ledger WC-4.
+  data-claim : ∀ p w (φ : World → Set)
+    → ReceiverLocalSideCondition p φ w
+    → φ w
+  data-claim p w φ (receiverLocal E s e) = s e
+
+  -- ====================================================================
+  -- COMPLETE K-CUT-WARRANT: packaging the grade and conditional data parts.
   --
   -- A complete K-CUT-WARRANT for party p at world w, with a
   -- data-dependent proposition φ, packages:
@@ -248,7 +266,7 @@ module Claim (G : Global) where
       grade-eq-warrant :
         SoundWarrant Party p (grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w))
 
-      -- Component 3: data warrant (conditional on H5).
+      -- Component 3: data warrant and its inhabited side condition (H5).
       data-side-condition : ReceiverLocalSideCondition p φ w
       data-warrant-proof  : SoundWarrant Party p (φ w)
 
