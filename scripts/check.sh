@@ -58,7 +58,7 @@ if [ "$blocks" != 1 ]; then
 fi
 echo 'PASS: trusted base (no postulates under src/ or tests/; one block in the application target)'
 
-flags=(--safe --without-K --no-libraries --ignore-interfaces --double-check
+flags=(--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check
        -W error -W noUnsupportedIndexedMatch
        -i src -i "$ra" -i "$et")
 
@@ -88,14 +88,18 @@ for file in "${rejects[@]}"; do
     cat "$log"
     echo "ERROR: invalid proof accepted: $name" >&2
     exit 1
+  else
+    compiler_status=$?
   fi
-  invalid_line="$(grep -nE '^invalid ' "$file" | head -1 | cut -d: -f1)"
-  diag_line="$(grep -oE "/$name\.agda:[0-9]+,[0-9]+" "$log" | head -1 | sed -E 's/.*:([0-9]+),.*/\1/')"
+  # A missing match is diagnosed below, rather than exiting silently via
+  # set -e/pipefail (for example when the compiler was interrupted).
+  invalid_line="$(grep -nE '^invalid ' "$file" | head -1 | cut -d: -f1 || true)"
+  diag_line="$(grep -oE "/$name\.agda:[0-9]+,[0-9]+" "$log" | head -1 | sed -E 's/.*:([0-9]+),.*/\1/' || true)"
   if [ -z "$invalid_line" ] || [ -z "$diag_line" ] || [ "$diag_line" -lt "$invalid_line" ] ||
      ! grep -q 'when checking that' "$log" ||
      grep -Eq 'Not in scope|Failed to find|Unsolved|Parse error' "$log"; then
     cat "$log"
-    echo "ERROR: unexpected failure while checking $name" >&2
+    echo "ERROR: unexpected failure while checking $name (compiler exit $compiler_status)" >&2
     exit 1
   fi
   echo "PASS: rejected $name at its invalid declaration"

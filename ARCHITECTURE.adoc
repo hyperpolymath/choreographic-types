@@ -22,6 +22,10 @@ the siblings it imports, and the gate that checks it.
   two-thread diamond), `Instances` (the discharges at `Loss`, `MaxPlus`
   and `HWM`), `Base/RoleGraded` (the echo-types base case recovered) and
   `Base/EchoAdditive` (echo-types' ℕ ∪ {∞} grade as a `ResourceAlgebra`).
+  `WarrantClaim` packages inhabited receiver-local side conditions;
+  `GradingSemantics` derives bound propagation; `Independent2` makes the
+  diamond hypotheses explicit; `Base/EchoProjection` checks equality-based
+  grade/projection transport, leaving role-specific transport open.
   `All.agda` is the root that checks everything builtins-only.
 
 | `tests/reject/`
@@ -36,8 +40,9 @@ the siblings it imports, and the gate that checks it.
 | `scripts/`
 | The gate (`fetch-siblings.sh`, `check.sh`, `minimal-laws.sh`) and the
   documentation integrity check (`check-repository.mjs`), which also binds
-  every name the ledger cites to its definition and the definition's comment
-  back to the row.
+  every definition or file cited in a PROVEN or TESTED status cell to its
+  source and the source comment back to the row, including EP, WC, GS and I2.
+  It does not bind citations in claim cells.
 
 | `applications/`
 | Application notes and a postulated RapidNJ target; not part of the gate
@@ -95,7 +100,7 @@ it is checked as its own root and `All.agda` stays builtins-only.
 with the distribution's `agda-bin=2.6.4.3-1+b2` and `agda-stdlib=2.1-4`,
 asserts the prover version, fetches the siblings, and runs `scripts/check.sh`
 and `scripts/minimal-laws.sh` with
-`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error`.
+`--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check -W error`.
 The documentation integrity workflow is structural only and never evidence
 that anything is proved.
 

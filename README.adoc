@@ -8,7 +8,7 @@
 A pre-registration and research notebook for a graded multiparty-session and
 choreographic type theory, combining echo loss-grades and epistemic
 standpoint-warrants. Agda is the prover: the finite, binary-choice, plain-merge,
-synchronous fragment is checked under a pinned `--safe --without-K` gate (see
+synchronous fragment is checked under a pinned `--safe --without-K --cubical-compatible` gate (see
 Validation), and link:PROOF-STATUS.adoc[PROOF-STATUS] ledgers what is and is
 not proved. The central artefact is the keystone K-CUT — proved for that
 fragment and open beyond it — the statement that grading and transport
@@ -185,7 +185,7 @@ preserved in link:docs/pre-registration.adoc[the pre-registration record].
 | Path | Purpose
 
 | `src/Choreographic/`
-| The checked development (`--safe --without-K`, builtins only except `src/Choreographic/Base/EchoAdditive.agda`); `src/Choreographic/All.agda` checks the whole core
+| The checked development (`--safe --without-K --cubical-compatible`, builtins only except `src/Choreographic/Base/EchoAdditive.agda`); `src/Choreographic/All.agda` checks the whole core
 
 | `tests/reject/`
 | Expected rejections: each must fail at its `invalid` declaration with a type mismatch
@@ -197,7 +197,7 @@ preserved in link:docs/pre-registration.adoc[the pre-registration record].
 | The proof gate, as run by `.github/workflows/proofs.yml`
 
 | `PROOF-STATUS.adoc`
-| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN and the module that discharges it; every cited name is bound to its definition, and the definition's comment back to the row, by the integrity check
+| The ledger: every claim with PROVEN / TESTED / ASSUMED / DESIGNED / OPEN and the module that discharges it; every definition or file cited in a PROVEN or TESTED status cell is bound to its source and the source comment back to the row by the integrity check, including the EP, WC, GS and I2 families. Citations in claim cells are not bound by this check
 
 | `applications/`
 | Application notes and explicitly postulated Agda targets (not proofs)
@@ -217,7 +217,7 @@ preserved in link:docs/pre-registration.adoc[the pre-registration record].
 The proof gate is `.github/workflows/proofs.yml`: a digest-pinned Debian 13
 container with `agda-bin=2.6.4.3-1+b2` and `agda-stdlib=2.1-4` from the
 distribution, siblings fetched at pinned commits, and every module checked
-with `--safe --without-K --no-libraries --ignore-interfaces --double-check
+with `--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check
 -W error`. To run it locally with that Agda (any other version is refused;
 set `AGDA_VERSION` to check deliberately with another):
 

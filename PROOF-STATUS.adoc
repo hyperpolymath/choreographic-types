@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
-= choreographic-types — Proof Status (K-CUT development, 2026-10-19)
-:revdate: 2026-10-19
+= choreographic-types — Proof Status (K-CUT development, 2026-11-05)
+:revdate: 2026-11-05
 
 Statuses: PROVEN / TESTED / ASSUMED / DESIGNED / OPEN. Every PROVEN line
 names the module that discharges it under
-`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error`
+`--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check -W error`
 on Agda 2.6.4.3 (Debian `agda-bin=2.6.4.3-1+b2`), with resource-algebra and
 epistemic-types on the include path (same kernel; pinned by
 `scripts/fetch-siblings.sh`) and, for the one module that needs it,
@@ -12,11 +12,15 @@ echo-types with `agda-stdlib=2.1-4`. The gate is
 `.github/workflows/proofs.yml` running `scripts/check.sh` and
 `scripts/minimal-laws.sh`; see "The gate" at the end.
 
-Every name in a status cell is bound to the code by
+Every cited definition or file in a PROVEN or TESTED status cell is bound to the code by
 `scripts/check-repository.mjs`: it must be a definition (or a file), and the
 comment directly above that definition (or the file's header) must name the
 row, as `-- Ledger K-1.`  A row cannot outlive its proof, and a proof cannot
-be claimed by a row that does not point at it.
+be claimed by a row that does not point at it. This includes the EP, WC, GS
+and I2 families. The checker also rejects stale references in AsciiDoc and
+Markdown documents for families present in the current ledger; it cannot
+detect stale references to a family whose rows have all been removed.
+This structural check does not typecheck a proof.
 
 == Fragment formalised (scope, stated before the claims)
 
@@ -72,8 +76,15 @@ epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
 | T-3 | p-accessibility is exactly sameness of p's projected cut (both directions) | PROVEN (`knows-local-cut`, `local-cut-determines`)
 | T-4 | Party access `p ⊑ q` ("q sees at least what p sees") is a preorder — epistemic-types' `Preorder` record, instantiated — and knowledge is monotone along it | PROVEN (`party-access`, `knows-mono`)
 | T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`); TESTED (`tests/reject/AccessWrongWay`)
-| T-6 | epistemic-types' `AccessibleModality` cannot be instantiated as stated: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` — field for field otherwise identical (`IndexedAccessible`) — the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); epistemic-types has since added the same world-indexed records (its Kripke/Indexed module), so the mismatch is resolved upstream; this repository still carries its own copy of the indexed record rather than importing theirs
+| T-6 | epistemic-types' unindexed `AccessibleModality` cannot express this frame directly: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` in the local `IndexedAccessible` record, the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); the current sibling pin lacks the upstream Kripke/Indexed module. The newer upstream interface exists, but updating the pin and adapting this local instance remain pending
 |===
+
+The upstream indexed interface is available at epistemic-types commit
+`5422cd5bf1418c44321bf0f77e894737a451d8f5`; the gate still pins
+`495db9cca003e12066a3cb9c9f2d7afa1a953aec`. Upstream packages `E` and
+`map` in an `IndexedModality` field, so integration requires adapting
+`knowledge` as well as replacing the local record. See
+link:docs/toolchain-and-prompts-2026-11-01.md[the pending integration plan].
 
 == Asynchrony (Async.agda, AsyncKnowledge.agda, AsyncBound.agda)
 
@@ -162,6 +173,145 @@ Not claimed: that echo-types' `Grade.agda` is checked by echo-types' own CI
 (at `da140cc2` no root there imports it; this gate is its only check), and
 nothing about the direction resource-algebra chooses for its L-2 import.
 
+== Echo-graded projection commuting square (Base/EchoProjection.agda)
+
+The choreographic analog of echo-types' `choreo-grade-commute`.  echo-types'
+`RoleGEcho` is a 2D family indexed by Role and Grade: at keep grade it
+carries `RoleEcho r true` (a type that genuinely varies with the role); at
+residue and forget grades it collapses to `⊤`.  `choreo-grade-commute` says
+role transport and grade degradation commute — 18 cases, all `refl`, with
+one non-trivial case (`c⊑s, keep≤keep`) where both sides compute to
+`client-to-server e`, a function between different types.
+
+The choreographic analog defines two 2D families indexed by Party and
+EGrade: one carrying the restricted grade (grade-indexed), the other the
+projected local type (local-indexed), both collapsing to `⊤` at residue
+and forget grades.  The party transport requires the restricted grades
+(grade version) or projections (local version) to agree.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| EP-1 | `echo-grade-commute`: grade degradation and party transport commute on the grade-indexed 2D family `CGEchoGrade`, for any parties with the same restricted grade.  Closes by `refl` in all six cases | PROVEN (`EchoProjection.echo-grade-commute`)
+| EP-2 | `echo-local-commute`: grade degradation and party transport commute on the local-type-indexed 2D family `CGEchoLocal`, for any parties with the same projection.  Closes by `refl` in all six cases | PROVEN (`EchoProjection.echo-local-commute`)
+| EP-3 | Two-event witnesses for `msg 0 1 g₁ (msg 2 3 g₂ end)`: each sender/receiver pair has equal restricted grades; cross-event parties 0 and 2 also agree when `g₁ ≡ g₂`, and participant 0 agrees with outsider 4 when `g₁ ≡ 𝟙`. Outsiders 4 and 5 have equal projections; parties 0 and 1 do not. These witnesses are not an exhaustive classification of transport | PROVEN (`TwoEvent.same-grade-01`, `same-grade-23`, `same-grade-02`, `same-grade-04`, `same-proj-45`, `proj-0≢proj-1`)
+|===
+
+What EP-3 says about the keystone: echo-types' commuting square has a
+non-trivial case because `RoleEcho Client true` and `RoleEcho Server true`
+are different types, and `client-to-server` is a genuine function between
+them. The choreographic projection `proj p G` is a value of the fixed type
+`Local`, and `grade↾ p G` is a value of the fixed type `Grade`. The
+implemented transport preserves that value and changes its equality
+witness; it requires equality of the two parties' grades or projections.
+Its square commutes by reduction and does not construct a role-specific
+conversion between different projections. This does not rule out other
+maps between the singleton families. The B-5 open item (role transport)
+remains open: these equality-based squares do not establish its
+transport/warrant structure.
+
+== K-CUT-WARRANT precise statement (WarrantClaim.agda)
+
+The warrant component of the keystone, stated as a reviewed theorem
+statement with every hypothesis and side condition explicit.  Three
+components: grade equality (C1, proven from K-CUT-LOSS and frame
+factivity), grade bound (C2, proven with a grade-ordering hypothesis
+H4), and data warrant (C3, conditional on a receiver-local side
+condition H5).  The gap between type-determined and data-dependent
+warrants is documented precisely: the type provides the warrant
+structure and type-determined evidence (Kripke knowledge) but not
+data-dependent evidence or soundness.
+
+epistemic-types' `SoundWarrant` (pinned commit `495db9cc`) is imported,
+not re-declared: `Warrant` carries an `Evidence` type; `SoundWarrant`
+adds `sound : Evidence → A`. A sound warrant alone can have an empty
+evidence type. The receiver-local side condition therefore also requires
+`evidence : Evidence`, so applying `sound` to that token establishes the
+data-dependent claim. The evidence type, token and soundness proof are
+supplied by the receiver, not derived from the choreography.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| WC-1 | Grade equality warrant: at every world w, p holds a `SoundWarrant` for `grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w)`, with evidence token `knows-own-grade p w`. Hypotheses: H1–H3 only | PROVEN (`Claim.grade-equality-warrant`, `grade-equality-evidence`)
+| WC-2 | Grade bound warrant (lower): if `Each (𝟙 ≼_) G`, p holds a `SoundWarrant` for `grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w)`, with evidence token `knows-lower-bound G p e w`. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-lower`, `grade-bound-evidence-lower`)
+| WC-3 | Grade bound warrant (upper): if `Each (_≼ 𝟙) G`, p holds a `SoundWarrant` for `grade (G ↾ cut w) ≼ grade↾ p (G ↾ cut w)`, with evidence token `knows-upper-bound G p e w`. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-upper`, `grade-bound-evidence-upper`)
+| WC-4 | Data warrant: for data-dependent φ, p holds a `SoundWarrant` for φ w and can establish φ w IF p supplies `ReceiverLocalSideCondition p φ w` (Evidence + sound + an actual evidence token). This is the receiver-local side condition; NOT type-determined | PROVEN as a conditional (`Claim.ReceiverLocalSideCondition`, `data-warrant`, `data-claim`); TESTED (`tests/reject/EmptyDataWarrant` rejects a vacuous empty-evidence side condition)
+| WC-5 | Complete K-CUT-WARRANT record: packages C1 and C3 with the inhabited receiver-local side condition; C2 stated separately (direction depends on algebra). `mkComplete` requires that side condition | PROVEN (`Claim.KCutWarrantComplete`, `mkComplete`); TESTED (`tests/reject/EmptyDataWarrant`)
+|===
+
+What WC-4 says about the keystone: the pre-registration's "SoundWarrant
+at the receiver (ASSUMED local soundness, not type-determined)" applies
+to data-dependent claims only (C3).  The grade claims (C1, C2) are fully
+type-determined: evidence is Kripke knowledge, soundness is frame
+factivity, and no external assumption is needed.  The gap is precisely
+the boundary between what the choreographic type determines (grades,
+projections, bounds) and what it does not (payload properties,
+authenticity, cryptographic evidence).  epistemic-types'
+`ProofTransport.CertificateCheck` provides the vocabulary for the
+receiver-local side condition but does not derive it from the type.
+
+== Grading semantics for bounds under interaction (GradingSemantics.agda)
+
+Defines the grading semantics using the algebraic vocabulary of
+tropical-types (Resource/Algebra/Interface.lean, read-only provenance
+reference; Dioid.lean, read-only proof witnesses).  Keeps grade,
+measure, and index distinct.  Derives one-step bound propagation
+theorems and the projection theorem from the declared semantics.
+Records a checked negative result for non-commutative ⊗.
+
+tropical-types' Lean 4 proof witnesses (canonicalLe partial order,
+monotonicity of both operations, ResourceAlgebra.ofIdempotentAdd) are
+provenance, not imports.  The Agda IsOrdered record carries the local
+verification.  Bridge obligation M-2 is recorded, not discharged.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| GS-1 | One-step bound propagation for messages: if `grade↾ p G ≼ x`, then `grade↾ p (msg s r g G) ≼ at (role p s r) g ⊗ x`.  Uses ⊗-monotonicity (tropical-types Dioid.lean `canonicalLe_mul_le_mul_left`, provenance; Agda `IsOrdered.⊗-mono`, local verification) | PROVEN (`bound-step-msg`, `bound-step-msg-outsider`)
+| GS-2 | One-step bound propagation for choices: if `grade↾ p G₁ ≼ x₁` and `grade↾ p G₂ ≼ x₂`, then `grade↾ p (choice s r g G₁ G₂) ≼ at (role p s r) g ⊗ (x₁ ⊕ x₂)`.  Uses ⊗-monotonicity and ⊕-monotonicity | PROVEN (`bound-step-choice`)
+| GS-3 | Two-step bound propagation (composition of GS-1); projection theorem: `restricted-measure p G ≡ local-measure (proj p G)` for projectable types (K-3 restated); bound transfer through projection in both directions | PROVEN (`bound-two-step`, `projection-theorem`, `bound-projection-lower`, `bound-projection-upper`)
+| GS-4 | Concrete HWM counterexample: two disjoint interactions have unequal unrestricted measures when followed by end, but equal unrestricted measures when the same interactions are followed by a peak-10, drift-0 continuation. Noncommutativity does not imply that every continuation preserves the difference; a generic unrestricted reordering law also does not follow from the base algebra | PROVEN (`HWMReordering.terminal-order-sensitive`, `continuation-erases-order`)
+|===
+
+What GS-4 says about the keystone: tropical-types' Interface.lean does
+not assume `mul_comm` in the base `ResourceSemiring`; `CommResourceSemiring`
+is an optional refinement. HWM supplies a concrete counterexample to a
+uniform unrestricted reordering law. Conversely, commuting grades are
+sufficient for equal unrestricted measures under reordering, but equality
+after an arbitrary continuation need not imply that the grades commute:
+the continuation can erase their difference. `IsSeqMonoid` already has a
+right-unit law, which handles the terminal continuation; it is not a
+right-cancellation law. Restricted measures remain order-independent for
+disjoint interactions (A-1).
+
+== Independent₂ and the two-event experiment (Independent2.agda)
+
+Makes Independent₂ explicit for the two-event K-CUT-LOSS experiment:
+disjoint footprints (I1), phase safety (I2), cross-stepping (I3).
+Deterministic tie-breaking (I4) is a scheduler concern, not a type
+concern, and is not included.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| I2-1 | Commuting square under Independent₂: two disjoint events fired in either order reach projection-equivalent states. Restatement of A-5 with explicit conditions | PROVEN (`commuting-square`)
+| I2-2 | K-CUT-LOSS across the diamond: given Independent₂ and projectability for p at both endpoints, their projections and restricted grades agree, and each endpoint's local grade equals its restricted global grade. The individual endpoint laws are A-6; their agreement uses I2-1 | PROVEN (`DiamondKCutLoss`, `kcut-loss-across-diamond`)
+| I2-3 | Antichain2 makes each party outside at least one event. Applying the corresponding outside-step law makes that event invisible to the party in both orders of an Independent₂ diamond | PROVEN (`outside-one`, `outside-invisible`, `independent-outside-invisible`)
+| I2-4 | Static swaps with shared sender (`msg 0 1 g₁ (msg 0 2 g₂ end)`) or shared receiver (`msg 0 2 g₁ (msg 1 2 g₂ end)`) can change projections. Their nested events cannot fire first under Step, so these are not failed operational diamonds. Swapping identical shared events preserves projections despite non-disjoint footprints | PROVEN (`SharedSender.state-eq-fails`, `SharedSender.nested-not-ready`, `SharedReceiver.state-eq-fails`, `SharedReceiver.nested-not-ready`, `SameEvent.not-disjoint`, `SameEvent.swap-preserves`)
+|===
+
+What I2-3 and I2-4 say about the keystone: disjointness is a sufficient
+structural guarantee for this diamond, and ensures that each party sees
+at most one of the two events. The shared-party static swaps show that
+removing this hypothesis can change projections, while the identical-event
+witness shows that sharing a party does not force a change in every case.
+Neither static comparison is a counterexample to an operational diamond
+with all four stepping hypotheses. These results do not restrict K-CUT-LOSS
+itself to disjoint events: its projection law holds for any projectable
+state in the stated fragment. General extensions of the keystone beyond
+that fragment remain OPEN.
+
 == Worked protocol (Instances.agda, computed)
 
 Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→1:c}`.
@@ -249,11 +399,14 @@ application target, which `.cicd-hygiene-allow` sanctions; the core root
 with no library path; the echo-additive root with echo-types and the standard library;
 every `tests/reject/*.agda` must fail at its `invalid` declaration with a
 type mismatch) and `scripts/minimal-laws.sh`. Flags on every check:
-`--safe --without-K --no-libraries --ignore-interfaces --double-check -W error
+`--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check -W error
 -W noUnsupportedIndexedMatch` (the last because the standard library emits
 that warning under `--without-K` and its `.agda-lib` flags are not read under
 `--no-libraries`). Committed `.agdai` files were removed in the same change:
 the gate never reads an interface it did not just write.
 
-Pattern: epistemic-types `.github/workflows/agda.yml`. Not yet a required
-status check on `main` (owner action after the first green run on `main`).
+Pattern: epistemic-types `.github/workflows/agda.yml`. As checked on
+2026-11-05, the active Proof-Gate ruleset requires "Core proofs,
+echo-additive instance, expected rejections, minimal-laws certificate"
+on the default branch. Documentation integrity alone is never evidence
+that the Agda gate has passed.

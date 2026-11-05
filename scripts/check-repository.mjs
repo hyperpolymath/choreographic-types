@@ -6,6 +6,10 @@ import { basename, dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const skipDirs = new Set(['.git', 'node_modules', '.cache', '_build']);
+// Families may have several letters or digits (K, GS, WC, EP, I2). Keep
+// parsing rows and scanning references on the same ID grammar.
+const ledgerIdPattern = String.raw`[A-Z][A-Z0-9]*-\d+`;
+const ledgerId = new RegExp(`^${ledgerIdPattern}$`);
 
 /**
  * Lists the files under `dir` whose names pass `keep`, recursively, skipping
@@ -118,7 +122,7 @@ function ledgerRows(ledger, modules, errors) {
     if (!line.startsWith('|')) continue;
     const cells = line.slice(1).trimEnd().replace(/\|$/, '').split(' | ').map(cell => cell.trim());
     const id = cells[0];
-    if (!/^[A-Z]-\d+$/.test(id)) continue;
+    if (!ledgerId.test(id)) continue;
     if (seen.has(id)) errors.push(`Duplicate ledger ID ${id} in PROOF-STATUS.adoc`);
     seen.add(id);
     rows.push({ id, status: cells.at(-1), sectionModules });
@@ -167,8 +171,8 @@ function checkDefinitionCitation(sources, id, name, target, candidates) {
 
 /**
  * Reports every ledger reference, in Agda and shell comments and in every
- * document, to a row the ledger does not have.  JavaScript is tooling and may
- * quote IDs as test data, so it is not scanned.
+ * AsciiDoc or Markdown document, to an absent row in a known ledger family.
+ * JavaScript is tooling and may quote IDs as test data, so it is not scanned.
  * @param {string} root - Repository root.
  * @param {Map<string, string[]>} sources - Lines per file.
  * @param {string} ledger - PROOF-STATUS.adoc text.
@@ -177,15 +181,16 @@ function checkDefinitionCitation(sources, id, name, target, candidates) {
  * @returns {void}
  */
 function checkStaleReferences(root, sources, ledger, ids, errors) {
-  const letters = new Set([...ids].map(id => id[0]));
+  const prefixes = new Set([...ids].map(id => id.slice(0, id.lastIndexOf('-'))));
   const texts = [['PROOF-STATUS.adoc', ledger]];
   for (const [path, lines] of sources) if (!path.endsWith('.mjs')) texts.push([path, lines.join('\n')]);
-  for (const file of filesUnder(root, name => name.endsWith('.adoc'))) {
+  for (const file of filesUnder(root, name => /\.(adoc|md)$/.test(name))) {
     if (basename(file) !== 'PROOF-STATUS.adoc') texts.push([relative(root, file), readFileSync(file, 'utf8')]);
   }
   for (const [file, text] of texts) {
-    for (const [id, letter] of text.matchAll(/\b([A-Z])-\d+\b/g)) {
-      if (letters.has(letter) && !ids.has(id)) errors.push(`Stale ledger reference ${id} in ${file}: PROOF-STATUS.adoc has no such row`);
+    for (const [id] of text.matchAll(new RegExp(String.raw`\b${ledgerIdPattern}\b`, 'g'))) {
+      const prefix = id.slice(0, id.lastIndexOf('-'));
+      if (prefixes.has(prefix) && !ids.has(id)) errors.push(`Stale ledger reference ${id} in ${file}: PROOF-STATUS.adoc has no such row`);
     }
   }
 }

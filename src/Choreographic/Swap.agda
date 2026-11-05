@@ -10,10 +10,12 @@
 -- disjoint pairs of parties can be swapped without changing any endpoint's
 -- projection or restricted grade.  Only ⊗-left-unit is used.
 --
--- The *unrestricted* global grade swaps only if ⊗ commutes — true for Loss
--- and MaxPlus, FALSE for the high-water-mark algebra (Instances.agda,
--- `hwm-order-sensitive`): independent threads have an order-dependent peak
--- occupancy even though every endpoint's view is order-free.  That is the
+-- Commuting grades suffice to preserve the *unrestricted* global grade
+-- when swapping — true for all pairs in Loss and MaxPlus.  The high-water-
+-- mark algebra can have order-dependent peak occupancy (Instances.agda,
+-- `hwm-order-sensitive`) even though every endpoint's view is order-free.
+-- A continuation can also erase the difference between noncommuting grades
+-- (GradingSemantics.HWMReordering.continuation-erases-order).  That is the
 -- first application-level consequence of "an occupancy bound is not a
 -- cost bound".
 open import ResourceAlgebra.Core

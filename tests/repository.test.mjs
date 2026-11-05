@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { checkRepository } from '../scripts/check-repository.mjs';
@@ -59,6 +59,60 @@ for (const [name, files, expected] of [
   ['stale ledger reference in a comment', { 'src/K.agda': bound['src/K.agda'].replace('-- Ledger K-1.\nthm', '-- Ledger K-1, K-9.\nthm') }, /Stale ledger reference K-9 in src\/K\.agda/],
   ['stale ledger reference in a document', { 'note.adoc': 'See K-7.' }, /Stale ledger reference K-7 in note\.adoc/],
 ]) test(`regression: ${name}`, t => assert.match(checkRepository(fixture(t, { ...bound, ...files })).join('\n'), expected));
+
+// These families were silently skipped when the checker accepted only K-1
+// shaped IDs. Exercise both claim binding and stale-reference detection for
+// each family, including the Markdown audit documents added alongside them.
+for (const prefix of ['EP', 'WC', 'GS', 'I2']) {
+  const id = `${prefix}-1`;
+  const family = {
+    'PROOF-STATUS.adoc': `== Result (Result.agda)\n| ${id} | claim | PROVEN (\`Result.thm\`)\n`,
+    'src/Result.agda': `module Result where\n-- Ledger ${id}.\nthm : Set\nthm = Set\n`,
+  };
+  test(`${prefix} claim bound to its definition passes`, t => {
+    assert.deepEqual(checkRepository(fixture(t, family)), []);
+  });
+  test(`${prefix} claim with an undefined theorem fails`, t => {
+    const root = fixture(t, { ...family, 'src/Result.agda': 'module Result where\n' });
+    assert.ok(checkRepository(root).includes(`Ledger ${id} cites Result.thm, which is not defined under src/, tests/ or applications/`));
+  });
+  test(`${prefix} claim without an adjacent ledger tag fails`, t => {
+    const root = fixture(t, { ...family, 'src/Result.agda': 'module Result where\nthm : Set\nthm = Set\n' });
+    assert.ok(checkRepository(root).includes(`Ledger ${id}: the comment above thm in src/Result.agda does not name the row`));
+  });
+  test(`${prefix} duplicate row fails`, t => {
+    const root = fixture(t, { ...family, 'PROOF-STATUS.adoc': family['PROOF-STATUS.adoc'] + `| ${id} | duplicated claim | OPEN\n` });
+    assert.ok(checkRepository(root).includes(`Duplicate ledger ID ${id} in PROOF-STATUS.adoc`));
+  });
+  for (const path of ['src/Comment.agda', 'note.adoc', 'docs/audit.md']) {
+    test(`${prefix} stale reference in ${path} fails`, t => {
+      const root = fixture(t, { ...family, [path]: `-- See ${prefix}-9.\n` });
+      assert.ok(checkRepository(root).includes(`Stale ledger reference ${prefix}-9 in ${path}: PROOF-STATUS.adoc has no such row`));
+    });
+  }
+}
+test('ledger families use their whole prefix, not just its first letter', t => {
+  const root = fixture(t, {
+    'PROOF-STATUS.adoc': '| I-1 | claim | OPEN\n| G-1 | claim | OPEN\n',
+    'note.adoc': 'External identifiers I2-9 and GS-9 do not belong to the I or G ledger families.\n',
+  });
+  assert.deepEqual(checkRepository(root), []);
+});
+
+test('I2-4 status citations are checked against their definitions', t => {
+  const ledgerText = readFileSync(new URL('../PROOF-STATUS.adoc', import.meta.url), 'utf8');
+  const row = ledgerText.split('\n').find(line => line.startsWith('| I2-4 |'));
+  assert.ok(row, 'I2-4 row exists');
+  const source = readFileSync(new URL('../src/Choreographic/Independent2.agda', import.meta.url), 'utf8');
+  const files = {
+    'PROOF-STATUS.adoc': ['| I2-1 | claim | OPEN', '| I2-2 | claim | OPEN', '| I2-3 | claim | OPEN', row].join('\n'),
+    'src/Choreographic/Independent2.agda': source,
+  };
+  assert.deepEqual(checkRepository(fixture(t, files)), []);
+  files['src/Choreographic/Independent2.agda'] = source.replaceAll('swap-preserves', 'renamed-swap');
+  assert.ok(checkRepository(fixture(t, files)).includes('Ledger I2-4 cites SameEvent.swap-preserves, which is not defined under src/, tests/ or applications/'));
+});
+
 for (const [name, files, expected] of [
   ['broken link', { 'note.adoc': 'link:absent.agda[]' }, /Broken local link/],
   ['retired state', { 'STATE.a2ml': 'stale' }, /Retired state format/],
