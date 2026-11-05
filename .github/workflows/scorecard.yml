@@ -27,7 +27,8 @@ jobs:
   scorecard:
     name: OSSF Scorecard Check
     # Pinned by SHA at a standards commit whose own lock records release
-    # tags as refs; see the actions.lock header.
+    # tags as refs. gh-actions-lock v0.4.1 does not lock external reusable
+    # calls, so this full SHA pin remains the caller's dependency control.
     # The repository moved owners; retain the already-reviewed commit.
     uses: metadatastician/standards/.github/workflows/scorecard-reusable.yml@75bd5994470661a099df562d6d5ad2fe744dbd66
     permissions:

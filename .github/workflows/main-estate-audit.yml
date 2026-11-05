@@ -11,9 +11,8 @@ name: Central Estate CI/CD Audit
 # is the check. cicd-suite's templates/track-estate-audit.yml can open those
 # PRs weekly; it needs an AUTOMATION_TOKEN secret.
 #
-# actions.lock records this call at the pinned SHA. An untagged pin keeps the
-# SHA as `ref`, which job setup accepts; move the lock record together with
-# the pin, or the edge dangles and the run startup-fails with zero jobs.
+# gh-actions-lock v0.4.1 does not lock external reusable workflow calls.
+# Keep this full SHA pin and verify the called jobs in CI when moving it.
 
 on:
   push:
