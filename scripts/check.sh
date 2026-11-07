@@ -60,11 +60,13 @@ echo 'PASS: trusted base (no postulates under src/ or tests/; one block in the a
 
 flags=(--safe --without-K --cubical-compatible --no-libraries --ignore-interfaces --double-check
        -W error -W noUnsupportedIndexedMatch
-       -i src -i "$ra" -i "$et")
+         -i src -i tests -i "$ra" -i "$et")
 
 # 1. The keystone development: builtins only, no standard library anywhere.
 "$prover" "${flags[@]}" src/Choreographic/All.agda
 echo 'PASS: core proofs (Choreographic.All, builtins only)'
+"$prover" "${flags[@]}" tests/PartialRecoveryBoundary.agda
+echo 'PASS: whole-world obstruction and residue/query boundary controls'
 
 # 2. The echo-additive instance: imports echo-types' own Grade.agda, which
 #    needs agda-stdlib, so it is a separate root rather than part of All.
