@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
-= choreographic-types — Proof Status (K-CUT development, 2026-11-05)
-:revdate: 2026-11-05
+= choreographic-types — Proof Status (K-CUT development, 2026-11-07)
+:revdate: 2026-11-07
 
 Statuses: PROVEN / TESTED / ASSUMED / DESIGNED / OPEN. Every PROVEN line
 names the module that discharges it under
@@ -155,7 +155,7 @@ and phase-safety conditions), which are RapidNJ's, not the type's.
 == Echo-additive instance (Base/EchoAdditive.agda)
 
 echo-types' `experimental/echo-additive/Grade.agda` (pinned commit
-`da140cc2`) is imported, not transcribed. This is the "echo-additive ℕ ∪ {∞}
+`ebde9ac4`) is imported, not transcribed. This is the "echo-additive ℕ ∪ {∞}
 instance" of the ladder's increment I0, and it makes resource-algebra's L-2
 ("textually identical, reviewed by eye") a checked theorem for this
 repository's use.
@@ -325,6 +325,26 @@ Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→
 | P-4 | `Projectable 1 G` and `Consistent 1 c₁` are inhabited (by `refl` at the merge) and K-1 instantiates to `broker-cut` | PROVEN (`Worked.projectable-1`, `consistent-1`, `broker-cut`)
 |===
 
+== Whole-world partial recovery (PartialRecovery.agda)
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| PR-1 | Distinct asynchronous worlds with equal party views and explicitly equal residues forbid pair-only whole-world partial recovery, even without an additional successful-output soundness law. The delivered/in-flight specialization obtains the equal sender view from the existing asynchronous theorem; residue equality remains a premise. | PROVEN (`collision-forbids-partial`, `collision-forbids-sound-partial`, `sender-collision-forbids-partial`)
+| PR-2 | Constant residue blocks whole-world recovery for a one-message example; revealing residue admits a partial decoder, and a query equal to the sender's view admits migration even under constant residue. Forged roundtrip and revealing-residue collision fixtures are rejected. | TESTED (`PartialRecoveryBoundary.agda`, `CollidingWholeWorldRecovery.agda`, `RevealingResidueCollision.agda`)
+|===
+
+The decoder consumes only a local view and residue; it receives neither the
+source nor an image witness as extra input. Its roundtrip law recovers every
+generated whole-world source. `SuccessSound` is a separate law about successful
+outputs on arbitrary pairs; PR-1 already refutes the weaker interface. The
+positive revealing-residue fixture proves roundtrip only, with no soundness
+claim on unreachable pairs. No query-relative impossibility follows: a target
+constant across a collision can still factor through the pair, as the view
+query fixture demonstrates. Certificates here are trivial and supply no
+extra information. The obstruction uses neither decidability, quotients,
+proof irrelevance nor choice.
+
 == Open (honest — NOT proved)
 
 * *Data-dependent warrants.* The frame carries only what the type
@@ -350,8 +370,8 @@ Client 0, broker 1, server 2: `0→1:a . 1→2:b . 0→2 chooses {2→1:c | 2→
   inherits that obligation: the Lean theorem is provenance, never an import.
 * *Sibling pins.* resource-algebra at
   `b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881`, epistemic-types at
-  `495db9cca003e12066a3cb9c9f2d7afa1a953aec`, echo-types at
-  `da140cc26fd174b20d5d7fcfafcb4febd3276ff3` (`scripts/fetch-siblings.sh`,
+  `6ce8c74e8a91e5021cb0c1fb4fc805bdff837178`, echo-types at
+  `ebde9ac4e1a9f115b441c642c82aced1316c5983` (`scripts/fetch-siblings.sh`,
   full SHAs verified after checkout). Correction to the 2026-10-12 entry: the
   `proofs.yml` that merged with #23 never ran on GitHub — all eight runs
   ended in `startup_failure` with no jobs, because its `actions/checkout@v6.0.3`

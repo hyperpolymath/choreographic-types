@@ -145,7 +145,8 @@ verified after checkout; the gate fails on a mismatch):
   instances. Same kernel: imported, not re-proved.
 * `epistemic-types` — `Warrant` / `SoundWarrant` and `Access.Preorder`,
   imported, not imitated (the proof home for the warrant side of
-  K-CUT-WARRANT).
+  K-CUT-WARRANT), plus `PartialRecovery.partialSeparates` for the
+  whole-world collision obstruction in `Choreographic.PartialRecovery`.
 * `echo-types` — `experimental/echo-additive/Grade.agda`, the echo-additive
   ℕ ∪ {∞} grade. `src/Choreographic/Base/EchoAdditive.agda` packages it as a
   `ResourceAlgebra` from echo-types' own lemmas and proves it agrees with

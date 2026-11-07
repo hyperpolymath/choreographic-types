@@ -12,6 +12,7 @@ import Choreographic.Operational        -- (parametric; instantiated in Instance
 import Choreographic.Async              -- (parametric; instantiated in Instances, with AsyncKnowledge
 import Choreographic.AsyncKnowledge     --  and AsyncBound)
 import Choreographic.AsyncBound
+import Choreographic.PartialRecovery
 import Choreographic.Base.RoleGraded
 import Choreographic.Base.EchoProjection
 import Choreographic.WarrantClaim
