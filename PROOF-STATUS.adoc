@@ -12,6 +12,13 @@ echo-types with `agda-stdlib=2.1-4`. The gate is
 `.github/workflows/proofs.yml` running `scripts/check.sh` and
 `scripts/minimal-laws.sh`; see "The gate" at the end.
 
+Grades (standards PROOF-POLICY §8): every theorem here is `ungraded`. The
+gate runs the §2.1 invocation, but no per-theorem PWG-3 receipt (Agda
+version, standard-library pin, flags, import cone, commit) is recorded, and
+no Rocq or Lean leg exists. A 2026-11-09 statement-level audit annotated
+rows W-2, W-3, W-5, T-5, A-2, A-7 and the WC section where the Agda states
+less than the row text did; those annotations are inline.
+
 Every cited definition or file in a PROVEN or TESTED status cell is bound to the code by
 `scripts/check-repository.mjs`: it must be a definition (or a file), and the
 comment directly above that definition (or the file's header) must name the
@@ -51,17 +58,18 @@ is a layer over the same fragment (section "Asynchrony" below).
 
 == K-CUT-WARRANT, bound form (Kripke.agda, Bound.agda)
 
-epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
-495db9c), not re-declared, so "SoundWarrant" below is their record.
+epistemic-types' `Warrant.agda` is imported (same kernel; pinned commit
+6ce8c74 since #40, previously 495db9c), not re-declared, so
+"SoundWarrant" below is their record.
 
 [cols="1,3,1",options="header"]
 |===
 | ID | Claim | Status
 | W-1 | Kripke frame for a choreography: worlds are p-consistent cuts, p's standpoint is its view (local timeline up to the projected cut), two worlds are p-accessible when the views coincide; an equivalence relation | PROVEN (`Kripke.Frame`)
-| W-2 | Knowledge is factive (reflexive frame), so every type-determined warrant is a `SoundWarrant` in epistemic-types' sense: the "global soundness of warrants" they leave unformalised, discharged for the warrants the choreography determines | PROVEN (`sound-warrant`)
-| W-3 | LOSS ⇒ WARRANT: by K-CUT-LOSS the restricted grade is a function of the view, so p knows it at every world and holds a sound warrant for it | PROVEN (`knows-own-grade`, `own-grade-warrant`)
+| W-2 | Knowledge is factive (reflexive frame), so every type-determined warrant is a `SoundWarrant` in epistemic-types' sense: the "global soundness of warrants" they leave unformalised, discharged for the warrants the choreography determines | PROVEN (`sound-warrant`). Audit 2026-11-09: `sound-warrant p w φ` is defined for *every* φ, including `λ _ → ⊥`; its evidence type (knowledge of φ at w) may be empty. The type-determined/data distinction is not visible in the types: the content is whether that knowledge type is inhabited
+| W-3 | LOSS ⇒ WARRANT: by K-CUT-LOSS the restricted grade is a function of the view, so p knows it at every world and holds a sound warrant for it | PROVEN (`knows-own-grade`, `own-grade-warrant`). Audit 2026-11-09: `own-grade-warrant` warrants the tautology `grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w)`; the content is `knows-own-grade`, a separate term
 | W-4 | Bound: if every grade in G is ≽ 𝟙 then `grade↾ p G ≼ grade G`; if every grade is ≼ 𝟙 then `grade G ≼ grade↾ p G`. Uses ⊗-monotonicity (`IsOrdered`) and ⊕-monotonicity (every resource algebra): the first use of order in the keystone | PROVEN (`Bound.grade↾-≼`, `grade-≼↾`)
-| W-5 | *K-CUT-WARRANT (bound form)*: at every world p considers possible, the global grade up to the cut is bounded by p's own known restricted grade; direction set by where 𝟙 sits in the order; a sound warrant | PROVEN (`knows-lower-bound`, `knows-upper-bound`, `lower-bound-warrant`)
+| W-5 | *K-CUT-WARRANT (bound form)*: at every world p considers possible, the global grade up to the cut is bounded by p's own known restricted grade; direction set by where 𝟙 sits in the order; a sound warrant | PROVEN (`knows-lower-bound`, `knows-upper-bound`, `lower-bound-warrant`). Audit 2026-11-09: the warrant terms do not use the grade-order hypothesis; only the evidence terms `knows-lower-bound` and `knows-upper-bound` do
 | W-6 | Discharged: HWM unconditionally (𝟙 = 𝟘 is least), Loss unconditionally in the upper form (𝟙 = fin 0 is greatest), MaxPlus for bot-free types (bot = −∞ is the one grade below 𝟙) | PROVEN (`Instances.kcut-warrant-HWM`, `kcut-warrant-Loss`, `kcut-warrant-MaxPlus`)
 | W-7 | "Cannot determine": two worlds party 2 cannot tell apart carry different global grades, and a claim to know the global grade is refused | TESTED (`Instances.Witness`; `tests/reject/GlobalGradeKnown`)
 |===
@@ -75,13 +83,15 @@ epistemic-types' `Warrant.agda` is imported (same kernel, pinned commit
 | T-2 | *The local frontier is known*: at every world p knows exactly its projected cut, hence every fact about its own frontier — receiving is knowing it was received; synchronously, sending is knowing it was sent | PROVEN (`knows-local-cut`, `knows-local`; `receiver-knows`, `sender-knows`)
 | T-3 | p-accessibility is exactly sameness of p's projected cut (both directions) | PROVEN (`knows-local-cut`, `local-cut-determines`)
 | T-4 | Party access `p ⊑ q` ("q sees at least what p sees") is a preorder — epistemic-types' `Preorder` record, instantiated — and knowledge is monotone along it | PROVEN (`party-access`, `knows-mono`)
-| T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`); TESTED (`tests/reject/AccessWrongWay`)
+| T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`); TESTED (`tests/reject/AccessWrongWay`). Audit 2026-11-09: the negative half rests only on that fixture, which fails because the view equation is stuck on abstract worlds, not because `1 ⊑ 2` is refuted; no `¬ (1 ⊑ 2)` theorem exists
 | T-6 | epistemic-types' unindexed `AccessibleModality` cannot express this frame directly: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` in the local `IndexedAccessible` record, the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); the current sibling pin lacks the upstream Kripke/Indexed module. The newer upstream interface exists, but updating the pin and adapting this local instance remain pending
 |===
 
 The upstream indexed interface is available at epistemic-types commit
-`5422cd5bf1418c44321bf0f77e894737a451d8f5`; the gate still pins
-`495db9cca003e12066a3cb9c9f2d7afa1a953aec`. Upstream packages `E` and
+`5422cd5bf1418c44321bf0f77e894737a451d8f5`. (Audit 2026-11-09: the gate
+now pins `6ce8c74e8a91e5021cb0c1fb4fc805bdff837178`, which already
+contains `Kripke/Indexed.agda`; the integration below is still not done.)
+Upstream packages `E` and
 `map` in an `IndexedModality` field, so integration requires adapting
 `knowledge` as well as replacing the local record. See
 link:docs/toolchain-and-prompts-2026-11-01.md[the pending integration plan].
@@ -127,18 +137,22 @@ type-level counterpart:
 |===
 | ID | Claim | Status
 | A-1 | Two interactions between disjoint party pairs swap without changing any endpoint's projection (`swap-proj`) or restricted grade (`swap-grade↾`); ⊗-left-unit only | PROVEN (`Swap.swap-proj`, `swap-grade↾`)
-| A-2 | The unrestricted global grade swaps iff the two grades commute under ⊗ (`swap-grade`); Loss and MaxPlus commute | PROVEN (`Diamond.loss-commutes`, `maxplus-commutes`)
+| A-2 | The unrestricted global grade swaps if the two grades commute under ⊗ (`swap-grade`); Loss and MaxPlus commute | PROVEN (`swap-grade`, `Diamond.loss-commutes`, `maxplus-commutes`). Audit 2026-11-09: this row said "iff"; only the "if" direction is proved, and the converse fails for general continuations (GS-4)
 | A-3 | The high-water mark does not commute: independent threads have an order-dependent peak (3 vs 5) invisible at every endpoint | TESTED (`Diamond.hwm-order-sensitive`)
 | A-4 | Operational reading (`Operational.agda`): `Step` fires an interaction at the head or beneath independent heads; a global step is a local step at every endpoint (`step-proj`, `step-grade↾`); `StateEq` is projection-equivalence | PROVEN (`Operational.step-proj`, `step-grade↾`)
 | A-5 | `twoThreadDiamond` as a theorem: two independent events fired in either order reach projection-equivalent states (`two-thread-diamond`) | PROVEN (`Operational.two-thread-diamond`)
 | A-6 | `twoThreadKCutLoss` as a theorem once `transportLoss` takes the state: after two steps the local grade at a projectable state is the restricted global grade (`two-thread-kcut-loss`, i.e. K-3) | PROVEN (`Operational.two-thread-kcut-loss`)
-| A-7 | `transportLoss : Role → Grade → Grade` is unsatisfiable: no function of the global grade returns the local grade (two states of global grade `val 1` give party 0 `val 1` and `val 0`) | TESTED (`Instances.NoTransportLoss`)
+| A-7 | `transportLoss : Role → Grade → Grade` is unsatisfiable: no function of the global grade returns the local grade (two states of global grade `val 1` give party 0 `val 1` and `val 0`) | TESTED (`Instances.NoTransportLoss`). Audit 2026-11-09: the refutation is of a universal spec; the postulated twoThreadKCutLoss in the application target constrains only states reached after an Independent2 pair
 | A-8 | `globalGradeRespectsStateEq` is false for occupancy: projection-equivalent states with peaks 3 and 5 — `StateEq` must be finer than swap-equivalence for HWM, as predicted | TESTED (`Instances.GradeNotStateInvariant`)
 |===
 
 What stays postulated in `applications/rapidnj-two-thread.agda` after this:
 `Independent2` and `independentToAntichain` (the implementation's read/write
 and phase-safety conditions), which are RapidNJ's, not the type's.
+Audit 2026-11-09: the file's single postulate block declares 18 names,
+including `twoThreadDiamond`, `twoThreadKCutLoss`, `transportLoss` and
+`globalGradeRespectsStateEq`, not only those two. The file is outside the
+gate and is not type-checked.
 
 == Base case correspondence (Base/RoleGraded.agda)
 
@@ -169,8 +183,10 @@ repository's use.
 | E-4 | `EchoAdditive` is not imported by `Choreographic.All`: the keystone development stays builtins-only, and the standard library enters only through this root | TESTED (`scripts/check.sh` checks `All.agda` with no stdlib path, then this module with one)
 |===
 
-Not claimed: that echo-types' `Grade.agda` is checked by echo-types' own CI
-(at `da140cc2` no root there imports it; this gate is its only check), and
+Not claimed: that echo-types' `Grade.agda` is checked by echo-types' own CI.
+(This note dates from the `da140cc2` pin. At the current pin `ebde9ac4`,
+echo-types' `experimental/echo-additive/All.agda` imports it and its CI
+checks it.) Also not claimed:
 nothing about the direction resource-algebra chooses for its L-2 import.
 
 == Echo-graded projection commuting square (Base/EchoProjection.agda)
@@ -222,13 +238,30 @@ warrants is documented precisely: the type provides the warrant
 structure and type-determined evidence (Kripke knowledge) but not
 data-dependent evidence or soundness.
 
-epistemic-types' `SoundWarrant` (pinned commit `495db9cc`) is imported,
+epistemic-types' `SoundWarrant` (now pinned at `6ce8c74e`; this paragraph was written at `495db9cc`) is imported,
 not re-declared: `Warrant` carries an `Evidence` type; `SoundWarrant`
 adds `sound : Evidence → A`. A sound warrant alone can have an empty
 evidence type. The receiver-local side condition therefore also requires
 `evidence : Evidence`, so applying `sound` to that token establishes the
 data-dependent claim. The evidence type, token and soundness proof are
 supplied by the receiver, not derived from the choreography.
+
+[NOTE]
+.Audit 2026-11-09: what WC-1 to WC-5 state
+====
+* WC-1 warrants the tautology `x ≡ x`. In `KCutWarrantComplete` the
+  `grade-eq-warrant` field can therefore be filled by any `SoundWarrant` of a
+  tautology, so C1 as packaged carries no information; `knows-own-grade`, the
+  real C1 content, is not part of the record.
+* WC-2 and WC-3: the warrant terms do not use H4; only the evidence tokens do.
+* WC-4: `ReceiverLocalSideCondition p φ w` does not mention `p` in any field,
+  so "receiver-local" is a name only, and `data-claim` amounts to
+  `φ w → φ w`. It is a packaging step, as the text above says.
+* WC-1, WC-4 and WC-5 are stated over an ordered algebra but do not use the
+  order.
+* `tests/reject/EmptyDataWarrant` is rejected for a constructor-arity
+  mismatch, not because a complete warrant for `⊥` is impossible.
+====
 
 [cols="1,3,1",options="header"]
 |===
