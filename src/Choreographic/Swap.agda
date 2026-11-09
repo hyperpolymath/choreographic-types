@@ -82,7 +82,8 @@ swap-grade↾ {s} {r} {s'} {r'} d p g g' G = swap-at (role p s r) (role p s' r')
 
 -- Commutativity of the two grades under ⊗ suffices to preserve the global
 -- grade when swapping adjacent messages; disjointness is not required.
--- Only this direction is proved.  Ledger A-2.
+-- Only this direction is proved.
+-- Ledger A-2.
 swap-grade : ∀ {s r s' r'} g g' G → g ⊗ g' ≡ g' ⊗ g
            → grade (msg s r g (msg s' r' g' G)) ≡ grade (msg s' r' g' (msg s r g G))
 swap-grade g g' G c =
