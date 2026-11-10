@@ -59,8 +59,7 @@ is a layer over the same fragment (section "Asynchrony" below).
 == K-CUT-WARRANT, bound form (Kripke.agda, Bound.agda)
 
 epistemic-types' `Warrant.agda` is imported (same kernel; pinned commit
-6ce8c74 since #40, previously 495db9c), not re-declared, so
-"SoundWarrant" below is their record.
+`6ce8c74` since #40, 2026-11-07, previously `495db9c`), not re-declared, so "SoundWarrant" below is their record.
 
 [cols="1,3,1",options="header"]
 |===
@@ -87,14 +86,17 @@ epistemic-types' `Warrant.agda` is imported (same kernel; pinned commit
 | T-6 | epistemic-types' unindexed `AccessibleModality` cannot express this frame directly: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` in the local `IndexedAccessible` record, the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); the current sibling pin (6ce8c74) already contains the upstream Kripke/Indexed module; adapting this local instance to it remains pending
 |===
 
-The upstream indexed interface is available at epistemic-types commit
-`5422cd5bf1418c44321bf0f77e894737a451d8f5`. (Audit 2026-11-09: the gate
-now pins `6ce8c74e8a91e5021cb0c1fb4fc805bdff837178`, which already
-contains `Kripke/Indexed.agda`; the integration below is still not done.)
-Upstream packages `E` and
-`map` in an `IndexedModality` field, so integration requires adapting
-`knowledge` as well as replacing the local record. See
-link:docs/toolchain-and-prompts-2026-11-01.md[the pending integration plan].
+The upstream indexed interface was first verified at epistemic-types commit
+`5422cd5bf1418c44321bf0f77e894737a451d8f5`. The pin update is complete: the
+gate pins `6ce8c74e8a91e5021cb0c1fb4fc805bdff837178` (since #40), which contains
+`EpistemicTypes.Kripke.Indexed`, but no module here imports it yet. Upstream
+packages `E` and `map` in an `IndexedModality` field, so integration requires
+adapting `knowledge` as well as replacing the local record. The historical
+link:docs/toolchain-and-prompts-2026-11-01.md[integration plan] predates the
+pin update and suggests pinning `5422cd5`; do not follow that step. `5422cd5`
+lacks `EpistemicTypes.PartialRecovery`, which `Choreographic.PartialRecovery`
+imports, so keep the pin at `6ce8c74`. Only steps 2 to 4 of that plan (the
+local integration) remain.
 
 == Asynchrony (Async.agda, AsyncKnowledge.agda, AsyncBound.agda)
 
@@ -238,7 +240,7 @@ warrants is documented precisely: the type provides the warrant
 structure and type-determined evidence (Kripke knowledge) but not
 data-dependent evidence or soundness.
 
-epistemic-types' `SoundWarrant` (now pinned at `6ce8c74e`; this paragraph was written at `495db9cc`) is imported,
+epistemic-types' `SoundWarrant` (pinned commit `6ce8c74`, previously `495db9cc`) is imported,
 not re-declared: `Warrant` carries an `Evidence` type; `SoundWarrant`
 adds `sound : Evidence → A`. A sound warrant alone can have an empty
 evidence type. The receiver-local side condition therefore also requires
