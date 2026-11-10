@@ -13,7 +13,8 @@ Order matters: nothing below is citable until step 6 is green.
   sibling — the clone's HEAD on 2026-10-12). Open a PR; CodeRabbit and the
   estate workflows run; address every finding before merge (standing rule).
 . Fill `RESOURCE_ALGEBRA_COMMIT` in `scripts/fetch-siblings.sh` with the SHA
-  from step 1; the epistemic-types pin `495db9c` is already set.
+  from step 1; the epistemic-types pin is already set (`6ce8c74` since #40;
+  `495db9c` when this guide was written).
 . Splice `docs/README-keystone-section.adoc` into README (replacing the OPEN
   keystone section) and `docs/applications-header-patch.adoc` into the
   applications file; `CHANGELOG-entry.adoc` into CHANGELOG.
