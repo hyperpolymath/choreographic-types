@@ -272,9 +272,10 @@ module Claim (G : Global) where
   --   local    : ∀ {w'} → w ~[ p ] w' → φ w → φ w'
   --
   -- These are NOT type-determined.  `local` is where p enters: it says
-  -- φ cannot change across worlds p cannot tell apart from w.  A claim
-  -- about data p never sees (another party's payload, say) cannot meet
-  -- it whenever that data differs between two such worlds.
+  -- no world p cannot tell apart from w makes φ false while φ holds at
+  -- w.  The data behind φ may still differ between such worlds; only
+  -- φ's truth may not.  A claim that depends on data p never sees can
+  -- meet it only if that data does not change φ's truth there.
   -- No field records that p holds the token; that remains an external
   -- assumption.  The global type provides the warrant structure but not
   -- the evidence or soundness.
