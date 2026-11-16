@@ -202,7 +202,7 @@ module TransportWitness where
   inherited : Knows 1 w₂ (λ w' → cutproj 2 (cut w') ≡ cutproj 2 (cut w₂))
   inherited = knows-mono w₂ (silent-⊑ 1) (knows-local-cut 2 w₂)
 
-  -- The negative half: party 1 does not see at least what party 2 sees.
+  -- The negative half: party 2 does not see at least what party 1 sees.
   -- 2 cannot tell w₁ from w₂ (it takes no part), but 1 has received one
   -- message at w₁ and two at w₂, so its views differ.
   -- Ledger T-5.
