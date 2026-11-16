@@ -16,30 +16,38 @@
 -- For a resource algebra R with order, a global type G, a party p,
 -- and a world w (a cut consistent for every party):
 --
---   (C1) GRADE EQUALITY WARRANT  [PROVEN]
---        p holds a SoundWarrant for
---          grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w)
+--   (C1) GRADE KNOWLEDGE WARRANT  [PROVEN]
+--        p holds a WitnessedWarrant (a SoundWarrant together with an
+--        evidence token) for
+--          OwnGradeKnown p w
+--            = ∀ w' → w ~[ p ] w' → grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w)
+--        that is, p's restricted grade is the same at every world p
+--        cannot tell apart from w.  This is K-CUT-LOSS read as knowledge.
 --        Evidence: Kripke knowledge in the choreographic frame.
 --        Soundness: factivity of the frame (reflexivity).
 --
 --   (C2) GRADE BOUND WARRANT  [PROVEN, with hypothesis]
 --        If EveryGrade≽𝟙 G (every interaction grade ≽ 𝟙):
---          p holds a SoundWarrant for
+--          p holds a WitnessedWarrant for
 --            grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w)
 --        If EveryGrade≼𝟙 G (every interaction grade ≼ 𝟙):
---          p holds a SoundWarrant for
+--          p holds a WitnessedWarrant for
 --            grade (G ↾ cut w) ≼ grade↾ p (G ↾ cut w)
 --        Evidence: Kripke knowledge of the bound.
 --        Soundness: factivity.
 --
 --   (C3) DATA WARRANT  [CONDITIONAL]
 --        For a data-dependent proposition φ : World → Set:
---          a SoundWarrant indexed by p for φ w can be constructed
+--          a SoundWarrant indexed by p for φ w can be constructed,
+--          and p knows φ at w,
 --        IF the application supplies:
 --          Evidence : Set
 --          sound    : Evidence → φ w
 --          evidence : Evidence
---        This is the RECEIVER-LOCAL SIDE CONDITION.
+--          local    : ∀ {w'} → w ~[ p ] w' → φ w → φ w'
+--        This is the RECEIVER-LOCAL SIDE CONDITION.  The last field
+--        makes it local to p: φ must not vary between worlds that p
+--        cannot tell apart.
 --        A SoundWarrant alone does not supply an evidence token.
 --
 -- ====================================================================
@@ -60,7 +68,8 @@
 --        This determines the direction of the bound.
 --
 --   (H5) For C3: ReceiverLocalSideCondition p φ w
---        Evidence, a soundness proof, and a token are supplied externally.
+--        Evidence, a soundness proof, a token and a proof that φ is
+--        stable along p's indistinguishability are supplied externally.
 --        Receiver ownership of the token is also an external assumption.
 --
 -- ====================================================================
@@ -72,9 +81,14 @@
 --   Evidence : Set         — the type of evidence tokens
 --   sound    : Evidence → φ w  — proof that evidence entails the claim
 --   evidence : Evidence    — an actual token
+--   local    : ∀ {w'} → w ~[ p ] w' → φ w → φ w'
+--                          — φ does not change across worlds p cannot
+--                            tell apart from w
 --
--- Receiver ownership of that token is an external assumption: neither
--- this type nor its party parameter p establishes such a relationship.
+-- The `local` field is what ties the condition to p: with it, the token
+-- gives p knowledge of φ at w (data-knowledge), not only the truth of
+-- φ w.  Receiver ownership of the token itself remains an external
+-- assumption: no field records which party holds it.
 -- These are NOT derivable from the global type.  The choreographic
 -- frame provides the warrant STRUCTURE (Warrant, SoundWarrant from
 -- epistemic-types) and the type-determined evidence (Kripke knowledge
@@ -131,6 +145,23 @@ open import EpistemicTypes.Warrant using (Warrant; mkWarrant; SoundWarrant; soun
 open ResourceAlgebra R
 
 ----------------------------------------------------------------------
+-- A sound warrant together with an evidence token for it.
+--
+-- epistemic-types' SoundWarrant stores an evidence type and a soundness
+-- map, but no token, so its Evidence may be empty.  Its Epi record
+-- stores a token but no soundness map.  A WitnessedWarrant stores both,
+-- so `claim` is derived rather than assumed.  The warranted claims in
+-- this module are packaged this way.
+record WitnessedWarrant (p : Party) (A : Set) : Set₁ where
+  constructor witnessed
+  field
+    warrant  : SoundWarrant Party p A
+    evidence : Warrant.Evidence (SoundWarrant.warrant warrant)
+
+  claim : A
+  claim = SoundWarrant.sound warrant evidence
+
+----------------------------------------------------------------------
 -- The claim, for a fixed global type.
 
 module Claim (G : Global) where
@@ -138,28 +169,41 @@ module Claim (G : Global) where
   open Frame G
 
   -- ====================================================================
-  -- COMPONENT 1: Grade equality warrant.  PROVEN.
+  -- COMPONENT 1: Grade knowledge warrant.  PROVEN.
   --
-  -- At every world w, p holds a SoundWarrant for the (reflexive)
-  -- equality of its own restricted grade.  The evidence type is
-  -- Kripke knowledge; the soundness proof is factivity.
+  -- What p is warranted in is not the equality of its grade with
+  -- itself but that the grade does not vary over the worlds p cannot
+  -- tell apart from w.  This is the LOSS ⇒ WARRANT direction: by
+  -- K-CUT-LOSS the restricted grade is a function of p's view.
   --
-  -- This is the LOSS ⇒ WARRANT direction: by K-CUT-LOSS, the
-  -- restricted grade is a function of p's view, so p knows it at
-  -- every world.
+  -- The warrant is the frame's own: evidence is p's knowledge, at w,
+  -- of OwnGradeKnown, and soundness is factivity.  The token holds
+  -- because knows-own-grade holds at every world.
   --
   -- Hypotheses: H1–H3 only.  No grade-ordering hypothesis needed.
   --
   -- Ledger WC-1.
+  OwnGradeKnown : Party → World → Set
+  OwnGradeKnown p w =
+    Knows p w (λ w' → grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w))
+
+  -- Ledger WC-1.
+  grade-knowledge-warrant : ∀ p w → WitnessedWarrant p (OwnGradeKnown p w)
+  grade-knowledge-warrant p w =
+    witnessed (sound-warrant p w (OwnGradeKnown p)) (λ w' _ → knows-own-grade p w')
+
+  -- The evidence token on its own: p knows its own restricted grade.
+  -- Ledger WC-1.
+  grade-equality-evidence : ∀ p w → OwnGradeKnown p w
+  grade-equality-evidence p w = knows-own-grade p w
+
+  -- Superseded by grade-knowledge-warrant.  This warrants the
+  -- tautology `x ≡ x`, which any SoundWarrant can do, and it carries
+  -- no token.  Kept so existing callers still type-check.
+  -- Ledger WC-1.
   grade-equality-warrant : ∀ p w
     → SoundWarrant Party p (grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w))
   grade-equality-warrant p w = own-grade-warrant p w
-
-  -- The evidence token: p knows its own restricted grade.
-  -- Ledger WC-1.
-  grade-equality-evidence : ∀ p w
-    → Knows p w (λ w' → grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w))
-  grade-equality-evidence p w = knows-own-grade p w
 
   -- ====================================================================
   -- COMPONENT 2: Grade bound warrant.  PROVEN, with hypothesis H4.
@@ -198,6 +242,21 @@ module Claim (G : Global) where
     → Knows p w (λ w' → grade (G ↾ cut w') ≼ grade↾ p (G ↾ cut w))
   grade-bound-evidence-upper p e w = knows-upper-bound G p e w
 
+  -- The bound warrants with their tokens.  The warrant terms above do
+  -- not use H4 (sound-warrant exists for any claim); the tokens do, so
+  -- these are the forms in which H4 is load-bearing.
+  -- Ledger WC-2.
+  grade-bound-witnessed-lower : ∀ p → Each (𝟙 ≼_) G → ∀ w
+    → WitnessedWarrant p (grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w))
+  grade-bound-witnessed-lower p e w =
+    witnessed (grade-bound-warrant-lower p e w) (grade-bound-evidence-lower p e w)
+
+  -- Ledger WC-3.
+  grade-bound-witnessed-upper : ∀ p → Each (_≼ 𝟙) G → ∀ w
+    → WitnessedWarrant p (grade (G ↾ cut w) ≼ grade↾ p (G ↾ cut w))
+  grade-bound-witnessed-upper p e w =
+    witnessed (grade-bound-warrant-upper p e w) (grade-bound-evidence-upper p e w)
+
   -- ====================================================================
   -- COMPONENT 3: Data warrant.  CONDITIONAL on receiver-local side
   -- condition (H5).
@@ -210,11 +269,15 @@ module Claim (G : Global) where
   --   Evidence : Set
   --   sound    : Evidence → φ w
   --   evidence : Evidence
+  --   local    : ∀ {w'} → w ~[ p ] w' → φ w → φ w'
   --
-  -- These are NOT type-determined.  Neither this record nor p encodes
-  -- ownership of the token by the receiver; that is an external assumption.
-  -- The global type provides the warrant structure but not the evidence
-  -- or soundness.
+  -- These are NOT type-determined.  `local` is where p enters: it says
+  -- φ cannot change across worlds p cannot tell apart from w.  A claim
+  -- about data p never sees (another party's payload, say) cannot meet
+  -- it whenever that data differs between two such worlds.
+  -- No field records that p holds the token; that remains an external
+  -- assumption.  The global type provides the warrant structure but not
+  -- the evidence or soundness.
   --
   -- Hypotheses: H1–H3, plus H5 (receiver-local side condition).
 
@@ -226,6 +289,7 @@ module Claim (G : Global) where
       Evidence : Set
       sound    : Evidence → φ w
       evidence : Evidence
+      local    : ∀ {w'} → w ~[ p ] w' → φ w → φ w'
 
   -- Construct a SoundWarrant from the receiver-local side condition.
   -- This is a packaging step: the supplied Evidence and soundness
@@ -236,7 +300,7 @@ module Claim (G : Global) where
   data-warrant : ∀ p w (φ : World → Set)
     → ReceiverLocalSideCondition p φ w
     → SoundWarrant Party p (φ w)
-  data-warrant p w φ (receiverLocal E s e) =
+  data-warrant p w φ (receiverLocal E s e _) =
     soundWarrant (mkWarrant E) s
 
   -- Use the supplied token to substantiate the data claim.  This cannot
@@ -245,14 +309,32 @@ module Claim (G : Global) where
   data-claim : ∀ p w (φ : World → Set)
     → ReceiverLocalSideCondition p φ w
     → φ w
-  data-claim p w φ (receiverLocal E s e) = s e
+  data-claim p w φ (receiverLocal E s e _) = s e
+
+  -- The token and p-stability together give p knowledge of φ at w.
+  -- This is the receiver-local content: data-claim alone gives only the
+  -- truth of φ w.
+  -- Ledger WC-4.
+  data-knowledge : ∀ p w (φ : World → Set)
+    → ReceiverLocalSideCondition p φ w
+    → Knows p w φ
+  data-knowledge p w φ (receiverLocal E s e loc) w' w~w' = loc w~w' (s e)
+
+  -- The data warrant with its token.
+  -- Ledger WC-4.
+  data-witnessed : ∀ p w (φ : World → Set)
+    → ReceiverLocalSideCondition p φ w
+    → WitnessedWarrant p (φ w)
+  data-witnessed p w φ sc =
+    witnessed (data-warrant p w φ sc) (ReceiverLocalSideCondition.evidence sc)
 
   -- ====================================================================
   -- COMPLETE K-CUT-WARRANT: packaging the grade and conditional data parts.
   --
   -- A complete K-CUT-WARRANT for party p at world w, with a
   -- data-dependent proposition φ, packages:
-  --   (1) the grade equality warrant (proven, no extra hypothesis)
+  --   (1) the grade knowledge warrant, with its token (proven, no
+  --       extra hypothesis)
   --   (3) the data warrant (conditional on side condition H5)
   --
   -- Component (2), the grade bound warrant, is stated separately
@@ -265,9 +347,9 @@ module Claim (G : Global) where
     (p : Party) (w : World) (φ : World → Set) : Set₁ where
     constructor kcutWarrantComplete
     field
-      -- Component 1: grade equality (proven from H1–H3 alone).
-      grade-eq-warrant :
-        SoundWarrant Party p (grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w))
+      -- Component 1: grade knowledge, with its token (proven from
+      -- H1–H3 alone).
+      grade-knowledge : WitnessedWarrant p (OwnGradeKnown p w)
 
       -- Component 3: data warrant and its inhabited side condition (H5).
       data-side-condition : ReceiverLocalSideCondition p φ w
@@ -277,8 +359,17 @@ module Claim (G : Global) where
     data-warrant-proof : SoundWarrant Party p (φ w)
     data-warrant-proof = data-warrant p w φ data-side-condition
 
+    -- What the record establishes for p at w.
+    -- Ledger WC-5.
+    grade-known : OwnGradeKnown p w
+    grade-known = WitnessedWarrant.claim grade-knowledge
+
+    -- Ledger WC-5.
+    data-known : Knows p w φ
+    data-known = data-knowledge p w φ data-side-condition
+
   -- Populate a complete K-CUT-WARRANT from the receiver-local side
-  -- condition.  The grade equality is proven; the data warrant is
+  -- condition.  The grade knowledge is proven; the data warrant is
   -- constructed from the side condition.
   --
   -- Ledger WC-5.
@@ -286,7 +377,7 @@ module Claim (G : Global) where
     → (sc : ReceiverLocalSideCondition p φ w)
     → KCutWarrantComplete p w φ
   mkComplete p w φ sc = kcutWarrantComplete
-    (grade-equality-warrant p w)
+    (grade-knowledge-warrant p w)
     sc
 
 ----------------------------------------------------------------------

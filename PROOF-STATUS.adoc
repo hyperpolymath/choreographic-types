@@ -245,7 +245,11 @@ not re-declared: `Warrant` carries an `Evidence` type; `SoundWarrant`
 adds `sound : Evidence → A`. A sound warrant alone can have an empty
 evidence type. The receiver-local side condition therefore also requires
 `evidence : Evidence`, so applying `sound` to that token establishes the
-data-dependent claim. The evidence type, token and soundness proof are
+data-dependent claim. It also requires `local : w ~[ p ] w' → φ w → φ w'`:
+φ must not change across worlds p cannot tell apart, so the token gives p
+knowledge of φ (`data-knowledge`), not only its truth. The warranted claims
+are packaged as `WitnessedWarrant`: a `SoundWarrant` together with a token
+for it, so the claim is derived from the record rather than assumed. The evidence type, token and soundness proof are
 supplied by the receiver, not derived from the choreography.
 
 [NOTE]
@@ -254,25 +258,37 @@ supplied by the receiver, not derived from the choreography.
 * WC-1 warrants the tautology `x ≡ x`. In `KCutWarrantComplete` the
   `grade-eq-warrant` field can therefore be filled by any `SoundWarrant` of a
   tautology, so C1 as packaged carries no information; `knows-own-grade`, the
-  real C1 content, is not part of the record.
+  real C1 content, is not part of the record. *Resolved:* C1 now warrants
+  `OwnGradeKnown p w` (the grade is constant over p's indistinguishable
+  worlds) as a `WitnessedWarrant` whose token is `knows-own-grade`, and the
+  record field is `grade-knowledge` of that type. `grade-equality-warrant`
+  is kept, marked superseded.
 * WC-2 and WC-3: the warrant terms do not use H4; only the evidence tokens do.
+  *Resolved:* `grade-bound-witnessed-lower` and `-upper` pair each warrant
+  with its token, so H4 is used by the packaged result. The bare warrant
+  terms still do not use it.
 * WC-4: `ReceiverLocalSideCondition p φ w` does not mention `p` in any field,
   so "receiver-local" is a name only, and `data-claim` amounts to
-  `φ w → φ w`. It is a packaging step, as the text above says.
+  `φ w → φ w`. It is a packaging step, as the text above says. *Resolved:*
+  the record now has a `local` field (φ is stable along `~[ p ]` from w), and
+  `data-knowledge` derives `Knows p w φ` from it. That the receiver holds the
+  token is still not recorded by any field.
 * WC-1, WC-4 and WC-5 are stated over an ordered algebra but do not use the
-  order.
+  order. *Open:* the order is a module parameter needed by C2 only.
 * `tests/reject/EmptyDataWarrant` is rejected for a constructor-arity
   mismatch, not because a complete warrant for `⊥` is impossible.
+  *Resolved:* the invalid case now supplies every field and fails at the
+  token: an empty `Evidence` type has none.
 ====
 
 [cols="1,3,1",options="header"]
 |===
 | ID | Claim | Status
-| WC-1 | Grade equality warrant: at every world w, p holds a `SoundWarrant` for `grade↾ p (G ↾ cut w) ≡ grade↾ p (G ↾ cut w)`, with evidence token `knows-own-grade p w`. Hypotheses: H1–H3 only | PROVEN (`Claim.grade-equality-warrant`, `grade-equality-evidence`)
-| WC-2 | Grade bound warrant (lower): if `Each (𝟙 ≼_) G`, p holds a `SoundWarrant` for `grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w)`, with evidence token `knows-lower-bound G p e w`. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-lower`, `grade-bound-evidence-lower`)
-| WC-3 | Grade bound warrant (upper): if `Each (_≼ 𝟙) G`, p holds a `SoundWarrant` for `grade (G ↾ cut w) ≼ grade↾ p (G ↾ cut w)`, with evidence token `knows-upper-bound G p e w`. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-upper`, `grade-bound-evidence-upper`)
-| WC-4 | Data warrant: for data-dependent φ, p holds a `SoundWarrant` for φ w and can establish φ w IF p supplies `ReceiverLocalSideCondition p φ w` (Evidence + sound + an actual evidence token). This is the receiver-local side condition; NOT type-determined | PROVEN as a conditional (`Claim.ReceiverLocalSideCondition`, `data-warrant`, `data-claim`); TESTED (`tests/reject/EmptyDataWarrant` rejects a vacuous empty-evidence side condition)
-| WC-5 | Complete K-CUT-WARRANT record: packages C1 and C3 with the inhabited receiver-local side condition; C2 stated separately (direction depends on algebra). `mkComplete` requires that side condition | PROVEN (`Claim.KCutWarrantComplete`, `mkComplete`); TESTED (`tests/reject/EmptyDataWarrant`)
+| WC-1 | Grade knowledge warrant: at every world w, p holds a `WitnessedWarrant` (sound warrant plus token) for `OwnGradeKnown p w`, i.e. `grade↾ p (G ↾ cut w') ≡ grade↾ p (G ↾ cut w)` at every w' with `w ~[ p ] w'`. The token is `knows-own-grade`. Hypotheses: H1–H3 only | PROVEN (`Claim.grade-knowledge-warrant`, `grade-equality-evidence`)
+| WC-2 | Grade bound warrant (lower): if `Each (𝟙 ≼_) G`, p holds a `SoundWarrant` for `grade↾ p (G ↾ cut w) ≼ grade (G ↾ cut w)`, with evidence token `knows-lower-bound G p e w`; `grade-bound-witnessed-lower` packages both. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-lower`, `grade-bound-evidence-lower`, `grade-bound-witnessed-lower`)
+| WC-3 | Grade bound warrant (upper): if `Each (_≼ 𝟙) G`, p holds a `SoundWarrant` for `grade (G ↾ cut w) ≼ grade↾ p (G ↾ cut w)`, with evidence token `knows-upper-bound G p e w`; `grade-bound-witnessed-upper` packages both. Hypotheses: H1–H4 | PROVEN (`Claim.grade-bound-warrant-upper`, `grade-bound-evidence-upper`, `grade-bound-witnessed-upper`)
+| WC-4 | Data warrant: for data-dependent φ, p holds a `SoundWarrant` for φ w, can establish φ w, and knows φ at w, IF p supplies `ReceiverLocalSideCondition p φ w` (Evidence + sound + an actual evidence token + stability of φ along `~[ p ]` from w). This is the receiver-local side condition; NOT type-determined | PROVEN as a conditional (`Claim.ReceiverLocalSideCondition`, `data-warrant`, `data-claim`, `data-knowledge`, `data-witnessed`); TESTED (`tests/reject/EmptyDataWarrant` rejects an empty-evidence side condition at its token)
+| WC-5 | Complete K-CUT-WARRANT record: packages the C1 knowledge warrant with its token and C3 with the inhabited receiver-local side condition, and derives p's knowledge of both (`grade-known`, `data-known`); C2 stated separately (direction depends on algebra). `mkComplete` requires that side condition | PROVEN (`Claim.KCutWarrantComplete`, `mkComplete`); TESTED (`tests/reject/EmptyDataWarrant`)
 |===
 
 What WC-4 says about the keystone: the pre-registration's "SoundWarrant
