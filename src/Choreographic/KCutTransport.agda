@@ -21,8 +21,10 @@
 --
 -- The 𝟘 gap.  A LaxHom need not preserve 𝟘 (only B.𝟘 ≼ h A.𝟘), so a fold
 -- with a 𝟘 leaf would break the lax bound (tests/reject/LaxZeroLeaf).
--- grade and grade↾ never reach 𝟘: end and `outside` contribute 𝟙, and choice
--- is binary.  So no side condition is needed here.
+-- grade and grade↾ never use 𝟘 as a base case: end and `outside` give 𝟙 and
+-- choice is binary, so the lax proof never needs map-𝟘.  (In an algebra where
+-- 𝟘 ≡ 𝟙, such as HWM, a grade can equal 𝟘; the bound still holds because the
+-- step uses map-𝟙, not map-𝟘.)  So no 𝟘 side condition is needed here.
 open import ResourceAlgebra.Core
 
 module Choreographic.KCutTransport (A B : ResourceAlgebra) where
