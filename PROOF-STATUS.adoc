@@ -98,6 +98,33 @@ lacks `EpistemicTypes.PartialRecovery`, which `Choreographic.PartialRecovery`
 imports, so keep the pin at `6ce8c74`. Only steps 2 to 4 of that plan (the
 local integration) remain.
 
+== K-CUT-LOSS transport along morphisms (KCutTransport.agda)
+
+Owner ruling 12a (2026-11-19). resource-algebra's `Morphism.agda` (pinned
+`7ab9840`, resource-algebra#3) gives strict maps `Hom` (preserve 𝟘, 𝟙, ⊕, ⊗)
+and lax maps `LaxHom` (preserve 𝟙 and ⊕ exactly; `h (a ⊗ b) ≼ h a ⊗ h b`).
+A grade map f carries a choreography graded in A to the same choreography
+graded in B (`gmap`), its cuts (`cmap`) and its local types (`lmap`).
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Claim | Status
+| KM-1 | Structure, for any grade map and no algebra laws: mapping commutes with cutting (`gmap (G ↾ c) ≡ gmap G ↾ cmap c`) and with projection (`proj p (gmap G) ≡ lmap (proj p G)`), and a p-consistent cut maps to a p-consistent cut | PROVEN (`KCutTransport.gmap-cut`, `proj-gmap`, `consistent-map`)
+| KM-2 | Strict: for `h : Hom A B`, `h (grade G) ≡ grade (gmap h G)` and `h (grade↾ p G) ≡ grade↾ p (gmap h G)` | PROVEN (`KCutTransport.hom-grade`, `hom-grade↾`)
+| KM-3 | *Strict transport of K-CUT-LOSS*: for `h : Hom A B` and `Consistent p c`, `h (grade↾ p (G ↾ c)) ≡ lgrade (proj p (gmap G) ↾ₗ cutproj p (cmap c))`, by K-1 in B on the transported cut; and the square closes: h of A's local grade equals B's | PROVEN (`KCutTransport.kcut-loss-hom`, `kcut-square`)
+| KM-4 | Lax: for `h : LaxHom A B` and `IsOrdered B`, `h (grade G) ≼ grade (gmap h G)` and `h (grade↾ p G) ≼ grade↾ p (gmap h G)`. Uses only map-𝟙, map-⊗ (≼), exact map-⊕, `⊕-mono` and `⊗-monoˡ`; the ⊗ factor passes through h exactly | PROVEN (`KCutTransport.lax-grade`, `lax-grade↾`)
+| KM-5 | *Lax transport of K-CUT-LOSS*: for `h : LaxHom A B`, `IsOrdered B` and `Consistent p c`, `h (grade↾ p (G ↾ c)) ≼ lgrade (proj p (gmap G) ↾ₗ cutproj p (cmap c))`, and h of A's local grade is ≼ B's. No side condition: grade and grade↾ never reach 𝟘, so LaxHom's 𝟘 gap does not arise (KM-8) | PROVEN (`KCutTransport.kcut-loss-lax`, `kcut-square-lax`)
+| KM-6 | Discharged: Loss → MaxPlus strict along both strict maps resource-algebra classifies (`support-hom`, `zero-test-hom`; its F-5); HWM → MaxPlus lax along `peak-lax` (its F-2) | PROVEN (`Instances.kcut-loss-support`, `kcut-loss-zero-test`, `kcut-loss-peak`)
+| KM-7 | The lax bound is not an equality: the worked broker's occupancy peak maps to `val 5`, the summed cost of the same protocol in MaxPlus is `val 8` | TESTED (`Instances.peak-broker-mapped`, `peak-broker-target`)
+| KM-8 | The 𝟘 gap: a LaxHom gives only `B.𝟘 ≼ h A.𝟘`, so the lax bound fails for a ⊕-fold over lists at the empty list (`peak-lax` sends HWM's 𝟘 to `val 0`, MaxPlus's 𝟘 is `bot`) | TESTED (`tests/reject/LaxZeroLeaf`, refused with `val … != bot`)
+|===
+
+Not claimed: a strict map out of HWM (resource-algebra proves none exists
+into an algebra with 𝟘 ≢ 𝟙), the SHWM maps (resource-algebra#60, unmerged
+at the pin), transport of the asynchronous K-CUT-LOSS (Y-2), and a K-4-style
+minimal-laws certificate for KCutTransport (it imports `Morphism.agda`,
+which needs the full Core).
+
 == Asynchrony (Async.agda, AsyncKnowledge.agda, AsyncBound.agda)
 
 Ladder increment I3a, pre-registered before any proof in
@@ -417,10 +444,11 @@ proof irrelevance nor choice.
   for swap-equivalence. Not attempted.
 * *Lean→Agda bridge (resource-algebra M-2).* `MaxPlus` is a port of
   tropical-types' Lean 4 `instance : CommSemiring Tropical`; no mechanical
-  link exists or is claimed. Every MaxPlus discharge above (K-6, W-6, A-2)
+  link exists or is claimed. Every MaxPlus discharge above (K-6, W-6, A-2, KM-6)
   inherits that obligation: the Lean theorem is provenance, never an import.
 * *Sibling pins.* resource-algebra at
-  `b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881`, epistemic-types at
+  `7ab98404fc2f6540f239f8fbd09222b659ba8d4f` (since KM, 2026-11-19, for
+  `Morphism.agda`; previously `b2c9f1f6`; resource-algebra#60 unmerged), epistemic-types at
   `6ce8c74e8a91e5021cb0c1fb4fc805bdff837178`, echo-types at
   `ebde9ac4e1a9f115b441c642c82aced1316c5983` (`scripts/fetch-siblings.sh`,
   full SHAs verified after checkout). Correction to the 2026-10-12 entry: the
