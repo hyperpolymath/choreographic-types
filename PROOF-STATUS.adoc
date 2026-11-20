@@ -82,7 +82,7 @@ epistemic-types' `Warrant.agda` is imported (same kernel; pinned commit
 | T-2 | *The local frontier is known*: at every world p knows exactly its projected cut, hence every fact about its own frontier — receiving is knowing it was received; synchronously, sending is knowing it was sent | PROVEN (`knows-local-cut`, `knows-local`; `receiver-knows`, `sender-knows`)
 | T-3 | p-accessibility is exactly sameness of p's projected cut (both directions) | PROVEN (`knows-local-cut`, `local-cut-determines`)
 | T-4 | Party access `p ⊑ q` ("q sees at least what p sees") is a preorder — epistemic-types' `Preorder` record, instantiated — and knowledge is monotone along it | PROVEN (`party-access`, `knows-mono`)
-| T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`); TESTED (`tests/reject/AccessWrongWay`). Audit 2026-11-09: the negative half rests only on that fixture, which fails because the view equation is stuck on abstract worlds, not because `1 ⊑ 2` is refuted; no `¬ (1 ⊑ 2)` theorem exists
+| T-5 | A silent party is below every party; knowledge flows up the preorder only — `1 ⊑ 2` for the witness protocol is refused | PROVEN (`silent-⊑`, `inherited`, `1-not-⊑-2`); TESTED (`tests/reject/AccessWrongWay`). The negative half is now a theorem: `1-not-⊑-2 : ¬ (1 ⊑ 2)` uses the two witness worlds, which party 2 cannot tell apart and party 1 can. The fixture still fails because the view equation is stuck on abstract worlds, so it tests the type error, not the refutation
 | T-6 | epistemic-types' unindexed `AccessibleModality` cannot express this frame directly: its `E : K → Set → Set` has no world index, and world-free knowledge collapses to the proposition itself (reflexivity). With `E : K → (World → Set) → (World → Set)` in the local `IndexedAccessible` record, the choreographic frame is a lawful instance with every law by `refl` | PROVEN (`knowledge`); the current sibling pin (6ce8c74) already contains the upstream Kripke/Indexed module; adapting this local instance to it remains pending
 |===
 
@@ -420,7 +420,8 @@ proof irrelevance nor choice.
   link exists or is claimed. Every MaxPlus discharge above (K-6, W-6, A-2)
   inherits that obligation: the Lean theorem is provenance, never an import.
 * *Sibling pins.* resource-algebra at
-  `b2c9f1f6bc7ed7cc83c7573014cdf88d49d2a881`, epistemic-types at
+  `f211fc1406d345fa6e972bcfc960c0acd57df1cd` (since 2026-11-16, previously
+  `b2c9f1f6`; the commit its own PWG-1 receipt describes), epistemic-types at
   `6ce8c74e8a91e5021cb0c1fb4fc805bdff837178`, echo-types at
   `ebde9ac4e1a9f115b441c642c82aced1316c5983` (`scripts/fetch-siblings.sh`,
   full SHAs verified after checkout). Correction to the 2026-10-12 entry: the
