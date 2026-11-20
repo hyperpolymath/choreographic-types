@@ -386,3 +386,39 @@ module Acknowledgement (R : ResourceAlgebra) (a b : ResourceAlgebra.Grade R) whe
   -- Ledger Y-8.
   reply-in-flight-is-not-enough : ¬ AKnows 0 replied (λ w' → Delivered (acut w'))
   reply-in-flight-is-not-enough K = K unreceived refl
+
+----------------------------------------------------------------------
+-- K-CUT-LOSS transported along morphisms (KCutTransport.agda), at the
+-- maps resource-algebra's Morphism.agda provides.
+import Choreographic.KCutTransport
+open import ResourceAlgebra.Morphism using (zero-test-hom; support-hom; peak-lax)
+
+module TLM = Choreographic.KCutTransport Loss MaxPlus
+module THM = Choreographic.KCutTransport HWM  MaxPlus
+
+-- Strict, Loss → MaxPlus: both strict maps resource-algebra classifies.
+-- Ledger KM-6.
+kcut-loss-support   = TLM.Strict.kcut-loss-hom support-hom
+-- Ledger KM-6.
+kcut-loss-zero-test = TLM.Strict.kcut-loss-hom zero-test-hom
+
+-- Lax, HWM → MaxPlus: occupancy peak against summed cost.
+-- Ledger KM-6.
+kcut-loss-peak = THM.Lax.kcut-loss-lax peak-lax MaxPlus-ordered
+
+-- The lax bound is not an equality: for the worked broker the peak of the
+-- occupancy is 5, the summed cost of the same protocol 8 (TESTED).
+module _ where
+  open import ResourceAlgebra.Instances.HWM using (peak)
+  open THM.Lax peak-lax MaxPlus-ordered using (gmap)
+  open import Choreographic.Global HWM     as GH using ()
+  open import Choreographic.Global MaxPlus as GM using ()
+  private module W = Worked HWM (hwm 1 0 z≤n) (hwm 2 0 z≤n) (hwm 5 0 z≤n)
+
+  -- Ledger KM-7.
+  peak-broker-mapped : val (peak (GH.grade↾ 1 W.G)) ≡ val 5
+  peak-broker-mapped = refl
+
+  -- Ledger KM-7.
+  peak-broker-target : GM.grade↾ 1 (gmap W.G) ≡ val 8
+  peak-broker-target = refl
