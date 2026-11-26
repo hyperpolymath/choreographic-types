@@ -4,7 +4,6 @@
 # installed from the distribution package, not through mise; see README
 # "Validation" and .github/workflows/proofs.yml.
 [tools]
-node = "22"
 
 [tasks.check]
 description = "Check documentation integrity (not mathematical proofs)"
