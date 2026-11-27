@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --without-K #-}
+{-# OPTIONS --safe --without-K --cubical-compatible --exact-split --no-sized-types --no-guardedness #-}
 -- SPDX-License-Identifier: MPL-2.0
 -- A deliberately impoverished Core used ONLY by scripts/minimal-laws.sh to
 -- certify which laws K-CUT-LOSS depends on.  Not part of the library.

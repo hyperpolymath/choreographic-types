@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --without-K #-}
+{-# OPTIONS --safe --without-K --cubical-compatible --exact-split --no-sized-types --no-guardedness #-}
 -- SPDX-License-Identifier: MPL-2.0
 -- SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell
 --
@@ -201,6 +201,14 @@ module TransportWitness where
   -- Ledger T-5.
   inherited : Knows 1 w₂ (λ w' → cutproj 2 (cut w') ≡ cutproj 2 (cut w₂))
   inherited = knows-mono w₂ (silent-⊑ 1) (knows-local-cut 2 w₂)
+
+  -- The negative half: party 2 does not see at least what party 1 sees.
+  -- 2 cannot tell w₁ from w₂ (it takes no part), but 1 has received one
+  -- message at w₁ and two at w₂, so its views differ.
+  -- Ledger T-5.
+  1-not-⊑-2 : ¬ (1 ⊑ 2)
+  1-not-⊑-2 h with h w₁ w₂ Witness.indistinguishable
+  ... | ()
 
 ----------------------------------------------------------------------
 -- The two-thread diamond (Swap.agda) at the instances.  Loss and MaxPlus
